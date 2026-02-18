@@ -1,0 +1,21 @@
+* cf_01 doesn't provide any data or context to the LLM for the LLM to provide an answer. LLM is forced to ask more question which shouldn't be the case. The only thing the user should not provide is their own hypothesis of answers to their own question to the LLM. Same applies to many other prompts below.
+
+* cf_02 again no context on market data, competitor info, cost structure. They should be provided. What should not be provided is the hypothesis of the user on what the answer could be.
+
+* cf_03 user should provide details about team size, past attempts, other relevant or useful data, but shouldn't provide their own hypothesis to answer the question.
+
+* cf_05 not enough context for the LLM to provide sufficiently good answer without asking questions. should provide schema, requirements, scale information etc. But the user should not provide hypothesis for how to deal with the answer to their own questions.
+
+* cf_06, cf_07, cf_08, cf_09, cf_10, cf_11, cf_12 (i.e. what's the review we are talking about?), cf_13, cf_14, cf_15 have same problem as above prompts.
+
+* co_01, co_02, co_03, co_04, co_05, co_06, co_07, co_08, co_09, co_10, co_11, co_12, co_13, co_14, co_15
+
+* ce_xx prompts look better as they provide more context, but double check contrastive_explanation.yaml for the prompt to provide enough context to LLM. ce_05 is not providing enough context it seems, same ce_11, 
+
+* da_04 might need more context for LLM to answer, da_05 as well, da_06 same, da_07 same, da_08 same, da_11 same, da_12 same, da_13 same, da_14, da_15
+
+* all ut_xx prompts need more context for LLM to answer
+
+* review the layer_scenarios prompts to ensure the prompts have enough context to be realistic so the answer of the LLM can be realistic as well.
+
+* all ar_xx prompts need a lot more context for an LLM to realistically answer with sufficient usefulness. All prompts need much more context.
