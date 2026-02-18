@@ -1,0 +1,3 @@
+* conduct full QA to make this research scientific grade and publication-ready
+* improve research based on QA results and re-run full analysis
+* write full paper in LATEX for publication
