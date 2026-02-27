@@ -1,13 +1,32 @@
 [project]
 name = "proworker-ai-mcp"
-version = "0.1.0"
-description = "Pro Worker AI — MCP server for personalized AI augmentation"
+version = "0.2.0"
+description = "Pro Worker AI — MCP server for personalized AI augmentation across any LLM"
 readme = "README.md"
 requires-python = ">=3.10"
-license = {text = "MIT"}
+license = "CC-BY-NC-SA-4.0"
+authors = [{ name = "Angelo Leone" }]
+keywords = [
+    "AI augmentation",
+    "MCP server",
+    "workforce development",
+    "cognitive forcing",
+    "de-skilling prevention",
+    "personalized learning",
+]
 dependencies = [
     "mcp>=1.0.0",
     "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dashboard = [
+    "streamlit>=1.30",
+    "plotly>=5.18",
+]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
 ]
 
 [build-system]

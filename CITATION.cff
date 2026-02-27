@@ -1,0 +1,63 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "Pro Worker AI: A Personalized AI Augmentation Layer for Workforce Development"
+type: software
+authors:
+  - family-names: Leone
+    given-names: Angelo
+license: CC-BY-NC-SA-4.0
+version: "0.2.0"
+date-released: "2026-02-27"
+url: "https://github.com/angelo-leone/pro-worker-ai"
+keywords:
+  - AI augmentation
+  - workforce development
+  - cognitive forcing
+  - de-skilling prevention
+  - contrastive explanations
+  - MCP server
+  - personalized learning
+  - AI literacy
+  - human-AI interaction
+  - pro-worker AI
+abstract: >-
+  Pro Worker AI (PWA) is a personalized AI augmentation layer that
+  transforms how AI interacts with knowledge workers. Instead of
+  treating users as generic recipients of AI output, PWA assesses
+  expertise, goals, and work patterns to calibrate every AI interaction
+  — coaching in growth areas, accelerating in expert domains, automating
+  mechanical tasks, and protecting skills at risk of atrophying.
+  Built on research by Buçinca (cognitive forcing, contrastive
+  explanations), Acemoglu (complementarity economics), Mollick
+  (productivity effects), and Drago & Laine (Intelligence Curse).
+  Implemented as an MCP server with 13 tools for cross-platform
+  portability across Claude, ChatGPT, Cursor, and custom agents.
+references:
+  - type: article
+    authors:
+      - family-names: Buçinca
+        given-names: Zana
+      - family-names: Malaya
+        given-names: Maja Barbara
+      - family-names: Gajos
+        given-names: Krzysztof Z.
+    title: "To Trust or to Think: Cognitive Forcing Functions Can Reduce Overreliance on AI in AI-assisted Decision-making"
+    year: 2021
+    journal: "Proceedings of the ACM on Human-Computer Interaction"
+  - type: article
+    authors:
+      - family-names: Buçinca
+        given-names: Zana
+      - family-names: Gajos
+        given-names: Krzysztof Z.
+    title: "Task-Specific Contrastive Explanations Improve Human Performance on AI-Assisted Decision Tasks"
+    year: 2024
+  - type: article
+    authors:
+      - family-names: Drago
+        given-names: Luke
+      - family-names: Laine
+        given-names: Joy
+    title: "The Intelligence Curse"
+    year: 2025
+    url: "https://intelligence-curse.ai"
