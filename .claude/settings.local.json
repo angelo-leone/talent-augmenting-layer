@@ -19,7 +19,18 @@
       "Bash(git checkout -b v2)",
       "WebFetch(domain:intelligence-curse.ai)",
       "WebFetch(domain:lukedrago.substack.com)",
-      "Bash(git add CLAUDE.md README.md .claude/commands/proworker-assess.md .claude/commands/proworker-update.md .claude/commands/proworker-coach.md .claude/settings.local.json assessment/framework.md assessment/literature-foundations.md profiles/TEMPLATE.md profiles/pro-angelo.md)"
+      "Bash(git add CLAUDE.md README.md .claude/commands/proworker-assess.md .claude/commands/proworker-update.md .claude/commands/proworker-coach.md .claude/settings.local.json assessment/framework.md assessment/literature-foundations.md profiles/TEMPLATE.md profiles/pro-angelo.md)",
+      "Bash(cat \"C:\\\\Users\\\\angel\\\\OneDrive\\\\Documenti\\\\CAREER\\\\LEARNING & DEVELOPMENT\\\\pro-worker AI\\\\.claude\\\\settings.local.json\")",
+      "Bash(cat \"C:\\\\Users\\\\angel\\\\OneDrive\\\\Documenti\\\\CAREER\\\\LEARNING & DEVELOPMENT\\\\pro-worker AI\\\\.claude\\\\commands\\\\proworker-assess.md\")",
+      "Bash(cat \"C:\\\\Users\\\\angel\\\\OneDrive\\\\Documenti\\\\CAREER\\\\LEARNING & DEVELOPMENT\\\\pro-worker AI\\\\.claude\\\\commands\\\\proworker-coach.md\")",
+      "Bash(cat \"C:\\\\Users\\\\angel\\\\OneDrive\\\\Documenti\\\\CAREER\\\\LEARNING & DEVELOPMENT\\\\pro-worker AI\\\\.claude\\\\commands\\\\proworker-update.md\")",
+      "Bash(cat \"C:\\\\Users\\\\angel\\\\OneDrive\\\\Documenti\\\\CAREER\\\\LEARNING & DEVELOPMENT\\\\pro-worker AI\\\\assessment\\\\framework.md\")",
+      "Bash(cat \"C:\\\\Users\\\\angel\\\\OneDrive\\\\Documenti\\\\CAREER\\\\LEARNING & DEVELOPMENT\\\\pro-worker AI\\\\profiles\\\\TEMPLATE.md\")",
+      "Bash(cat \"C:\\\\Users\\\\angel\\\\OneDrive\\\\Documenti\\\\CAREER\\\\LEARNING & DEVELOPMENT\\\\pro-worker AI\\\\profiles\\\\pro-angelo.md\")",
+      "Bash(cat \"C:\\\\Users\\\\angel\\\\OneDrive\\\\Documenti\\\\CAREER\\\\LEARNING & DEVELOPMENT\\\\pro-worker AI\\\\README.md\")",
+      "Bash(cat \"C:\\\\Users\\\\angel\\\\OneDrive\\\\Documenti\\\\CAREER\\\\LEARNING & DEVELOPMENT\\\\pro-worker AI\\\\assessment\\\\literature-foundations.md\")",
+      "Bash(cat \"C:\\\\Users\\\\angel\\\\OneDrive\\\\Documenti\\\\CAREER\\\\LEARNING & DEVELOPMENT\\\\pro-worker AI\\\\CLAUDE.md\")",
+      "Bash(git branch -D claude/awesome-mcclintock)"
     ]
   }
 }

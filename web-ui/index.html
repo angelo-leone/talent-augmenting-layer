@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro Worker AI — Assessment</title>
+    <style>
+        :root {
+            --bg: #0f0f0f;
+            --surface: #1a1a2e;
+            --surface-2: #16213e;
+            --accent: #e94560;
+            --accent-soft: #533483;
+            --text: #eee;
+            --text-muted: #999;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        .container { max-width: 720px; margin: 0 auto; padding: 2rem 1.5rem; }
+        h1 { font-size: 2rem; margin-bottom: 0.25rem; }
+        h2 { font-size: 1.4rem; margin: 2rem 0 1rem; color: var(--accent); }
+        .subtitle { color: var(--text-muted); margin-bottom: 2rem; font-size: 0.95rem; }
+        .card {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #2a2a4a;
+        }
+        .question { font-weight: 600; margin-bottom: 0.75rem; font-size: 1rem; }
+        .options { display: flex; flex-direction: column; gap: 0.5rem; }
+        .option {
+            display: flex; align-items: flex-start; gap: 0.75rem;
+            padding: 0.75rem 1rem; border-radius: 8px;
+            background: var(--surface-2); cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.15s;
+        }
+        .option:hover { border-color: var(--accent-soft); }
+        .option.selected { border-color: var(--accent); background: #1a1a3e; }
+        .option input { margin-top: 3px; accent-color: var(--accent); }
+        .option-label { font-weight: 500; }
+        .option-desc { font-size: 0.85rem; color: var(--text-muted); }
+        input[type="text"], textarea {
+            width: 100%; padding: 0.75rem; border-radius: 8px;
+            border: 1px solid #2a2a4a; background: var(--surface-2);
+            color: var(--text); font-size: 0.95rem; font-family: inherit;
+        }
+        textarea { min-height: 100px; resize: vertical; }
+        .btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.75rem 1.5rem; border-radius: 8px;
+            border: none; cursor: pointer; font-size: 1rem; font-weight: 600;
+            transition: all 0.15s;
+        }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-primary:hover { background: #d6304a; }
+        .btn-secondary { background: var(--surface-2); color: var(--text); border: 1px solid #2a2a4a; }
+        .btn-secondary:hover { background: #1a2a4e; }
+        .nav { display: flex; justify-content: space-between; margin-top: 2rem; }
+        .progress-bar { height: 4px; background: var(--surface-2); border-radius: 2px; margin-bottom: 2rem; }
+        .progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.3s; }
+        .hidden { display: none; }
+        .score-card {
+            text-align: center; padding: 2rem;
+            background: linear-gradient(135deg, var(--surface), var(--surface-2));
+            border-radius: 16px; margin-bottom: 1.5rem;
+        }
+        .score-big { font-size: 3rem; font-weight: 800; color: var(--accent); }
+        .score-label { color: var(--text-muted); font-size: 0.9rem; }
+        .output-box {
+            background: #0a0a0a; border: 1px solid #333; border-radius: 8px;
+            padding: 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
+            max-height: 400px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;
+        }
+        .tag { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+        .tag-low { background: #1a4a2e; color: var(--success); }
+        .tag-med { background: #4a3a1a; color: var(--warning); }
+        .tag-high { background: #4a1a1a; color: var(--danger); }
+        @media (max-width: 600px) { .container { padding: 1rem; } h1 { font-size: 1.5rem; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div id="header">
+            <h1>Pro Worker AI</h1>
+            <p class="subtitle">Personalized AI augmentation assessment. ~10 minutes.</p>
+            <div class="progress-bar"><div class="progress-fill" id="progress" style="width: 0%"></div></div>
+        </div>
+
+        <!-- Section 0: Identity -->
+        <div id="section-0" class="section">
+            <h2>About You</h2>
+            <div class="card">
+                <div class="question">What's your name?</div>
+                <input type="text" id="q-name" placeholder="First name">
+            </div>
+            <div class="card">
+                <div class="question">Your role / title?</div>
+                <input type="text" id="q-role" placeholder="e.g. Associate, Senior Analyst, Team Lead">
+            </div>
+            <div class="card">
+                <div class="question">Organization and industry?</div>
+                <input type="text" id="q-org" placeholder="e.g. PUBLIC, public sector consulting">
+            </div>
+            <div class="nav">
+                <div></div>
+                <button class="btn btn-primary" onclick="next()">Next &rarr;</button>
+            </div>
+        </div>
+
+        <!-- Section 1: AI Dependency Risk -->
+        <div id="section-1" class="section hidden"></div>
+
+        <!-- Section 2: Growth Potential -->
+        <div id="section-2" class="section hidden"></div>
+
+        <!-- Section 3: AI Literacy -->
+        <div id="section-3" class="section hidden"></div>
+
+        <!-- Section 4: Expertise -->
+        <div id="section-4" class="section hidden"></div>
+
+        <!-- Section 5: Results -->
+        <div id="section-5" class="section hidden"></div>
+    </div>
+
+<script>
+// ── Assessment Questions ────────────────────────────────────────────────────
+
+const SECTIONS = {
+    1: {
+        title: "AI Dependency Risk",
+        subtitle: "How dependent are you on AI? Higher scores = more dependency.",
+        questions: [
+            { id: "a1", text: "When AI generates a response for a work task, what do you typically do?", options: [
+                "Use AI as a thinking prompt — always write my own version",
+                "Substantially rewrite, keeping maybe 20-30%",
+                "Edit moderately — restructure sections, rewrite key parts",
+                "Lightly edit for tone and accuracy, keep most structure",
+                "Use as-is or with minimal changes most of the time"
+            ]},
+            { id: "a2", text: "How are your independent skills compared to before you started using AI?", options: [
+                "Improved — AI helps me learn and practice",
+                "About the same — AI supplements, hasn't changed my ability",
+                "Not sure — haven't tested independently recently",
+                "Some skills feel weaker — I'd struggle more without AI",
+                "Lost significant ability — I depend on AI for things I could do alone"
+            ]},
+            { id: "a3", text: "When AI gives you an answer that looks reasonable, what do you typically do?", options: [
+                "Systematically verify claims, check sources, stress-test reasoning",
+                "Check key facts and challenge the main argument",
+                "Scan for obvious errors, generally trust if it looks right",
+                "Occasionally spot-check, usually move on if decent",
+                "Rarely question — if it looks professional, I accept it"
+            ]},
+            { id: "a4", text: "What proportion of complex cognitive work do you delegate to AI?", options: [
+                "Less than 10% — mainly mechanical tasks",
+                "About 20-30% — specific subtasks",
+                "About 40-50% — first drafts, I refine",
+                "About 60-70% — AI does heavy lifting, I review",
+                "Over 80% — AI generates most of my work"
+            ]},
+            { id: "a5", text: "If AI tools were unavailable for a week, how would your work be affected?", options: [
+                "Minimal impact — slower but same quality",
+                "Moderate slowdown, can maintain quality on important tasks",
+                "Significant impact — several tasks would suffer",
+                "Severe impact — struggle to deliver key work products",
+                "Couldn't function effectively — AI is essential"
+            ]}
+        ]
+    },
+    2: {
+        title: "Growth Potential",
+        subtitle: "How ready are you to grow? Higher scores = more potential.",
+        questions: [
+            { id: "b1", text: "How clearly can you describe your professional growth goals for the next 1-2 years?", options: [
+                "Haven't thought about it — focused on day-to-day",
+                "Vague sense of direction, no specific goals",
+                "Broad goals but not specific plans",
+                "Clear goals with specific skills and milestones",
+                "Detailed development plan with timelines and measures"
+            ]},
+            { id: "b2", text: "When someone challenges your work, how do you respond?", options: [
+                "Find it uncomfortable, tend to defend my original approach",
+                "Listen but often feel defensive initially",
+                "Open to feedback when delivered constructively",
+                "Actively seek feedback, find challenges energizing",
+                "Deliberately seek disagreement, use it to sharpen thinking"
+            ]},
+            { id: "b3", text: "In the past month, how often did you deliberately practice a developing skill?", options: [
+                "Never — learn on the job only",
+                "Once — one specific learning activity",
+                "A few times — sought opportunities",
+                "Weekly — regularly carve out time",
+                "Multiple times per week — structured routine"
+            ]},
+            { id: "b4", text: "When you learn something new, how do you apply it?", options: [
+                "Rarely apply — stays theoretical",
+                "Occasionally, when the situation is obvious",
+                "Try to apply but don't always succeed",
+                "Actively look for opportunities to apply",
+                "Create systems to apply and reinforce (notes, checklists)"
+            ]},
+            { id: "b5", text: "How well can you identify your strengths, weaknesses, and learning needs?", options: [
+                "Hard to self-assess — often surprised by feedback",
+                "General sense but often wrong about specifics",
+                "Identify broad strengths/weaknesses, not details",
+                "Clear picture, can articulate gaps",
+                "Regularly calibrate self-assessment against evidence"
+            ]}
+        ]
+    },
+    3: {
+        title: "AI Literacy",
+        subtitle: "How well do you understand and use AI? Higher = more literate.",
+        questions: [
+            { id: "d1", text: "How well do you predict what AI can and cannot do before trying?", options: [
+                "Often surprised — both positively and negatively",
+                "Sometimes misjudge — over or under-estimate",
+                "Usually right about whether AI will handle a task",
+                "Nuanced sense of strengths and weaknesses by task type",
+                "Predict quality with high accuracy, know workarounds"
+            ]},
+            { id: "d2", text: "How effective are you at getting AI to produce useful output?", options: [
+                "Simple prompts, take whatever comes back",
+                "Iterate a few times if first output isn't right",
+                "Provide context and constraints for better output",
+                "Systematically structure prompts with role, context, examples",
+                "Advanced techniques (chain-of-thought, tools), consistently excellent"
+            ]},
+            { id: "d3", text: "How often do you catch errors or hallucinations in AI output?", options: [
+                "Rarely — usually trust what AI says",
+                "Occasionally — catch obvious errors, miss subtle ones",
+                "Often — check key facts, catch most substantive errors",
+                "Almost always — systematic approach to verification",
+                "Always — treat every output as draft, verify independently"
+            ]},
+            { id: "d4", text: "How well do you match tasks to the right level of AI involvement?", options: [
+                "Use AI for everything or nothing — no differentiation",
+                "Use for obvious tasks but not strategically",
+                "Think about which tasks benefit and which don't",
+                "Systematically categorize and use AI differently per type",
+                "Clear framework for automate/augment/keep human, adjusted over time"
+            ]}
+        ]
+    }
+};
+
+// ── State ────────────────────────────────────────────────────────────────────
+
+let currentSection = 0;
+const answers = {};
+const TOTAL_SECTIONS = 5;
+
+// ── Render ──────────────────────────────────────────────────────────────────
+
+function renderSection(num) {
+    const sec = SECTIONS[num];
+    if (!sec) return;
+
+    const el = document.getElementById(`section-${num}`);
+    let html = `<h2>${sec.title}</h2><p class="subtitle">${sec.subtitle}</p>`;
+
+    sec.questions.forEach((q, qi) => {
+        html += `<div class="card"><div class="question">${q.text}</div><div class="options">`;
+        q.options.forEach((opt, oi) => {
+            const val = oi + 1;
+            const selected = answers[q.id] === val ? 'selected' : '';
+            html += `<div class="option ${selected}" onclick="select('${q.id}', ${val}, this)">
+                <input type="radio" name="${q.id}" ${selected ? 'checked' : ''}>
+                <div><span class="option-label">${val}.</span> <span class="option-desc">${opt}</span></div>
+            </div>`;
+        });
+        html += `</div></div>`;
+    });
+
+    html += `<div class="nav">
+        <button class="btn btn-secondary" onclick="prev()">&larr; Back</button>
+        <button class="btn btn-primary" onclick="next()">Next &rarr;</button>
+    </div>`;
+
+    el.innerHTML = html;
+}
+
+function renderExpertise() {
+    const el = document.getElementById('section-4');
+    const domains = [
+        "Core technical skill (coding, analysis, design)",
+        "Written communication (reports, emails, docs)",
+        "Strategic thinking & planning",
+        "Project management",
+        "Leadership / people management",
+        "AI literacy & tool usage",
+        "Industry-specific expertise",
+        "Stakeholder engagement"
+    ];
+    const levels = ["Novice", "Developing", "Proficient", "Advanced", "Expert"];
+
+    let html = `<h2>Expertise Self-Assessment</h2>
+        <p class="subtitle">Rate your current ability in each domain. Be honest — this calibrates your AI experience.</p>`;
+
+    domains.forEach((d, i) => {
+        const key = `esa_${i}`;
+        html += `<div class="card"><div class="question">${d}</div><div class="options" style="flex-direction:row; flex-wrap:wrap;">`;
+        levels.forEach((l, li) => {
+            const val = li + 1;
+            const selected = answers[key] === val ? 'selected' : '';
+            html += `<div class="option ${selected}" style="flex:1; min-width:120px; text-align:center;" onclick="select('${key}', ${val}, this)">
+                <input type="radio" name="${key}" ${selected ? 'checked' : ''}>
+                <div><strong>${val}</strong><br><span class="option-desc">${l}</span></div>
+            </div>`;
+        });
+        html += `</div></div>`;
+    });
+
+    html += `<div class="nav">
+        <button class="btn btn-secondary" onclick="prev()">&larr; Back</button>
+        <button class="btn btn-primary" onclick="computeResults()">See Results &rarr;</button>
+    </div>`;
+
+    el.innerHTML = html;
+}
+
+function select(qId, value, el) {
+    answers[qId] = value;
+    // Update UI
+    el.parentElement.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    el.querySelector('input').checked = true;
+}
+
+// ── Navigation ──────────────────────────────────────────────────────────────
+
+function showSection(num) {
+    document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+    document.getElementById(`section-${num}`).classList.remove('hidden');
+    currentSection = num;
+    document.getElementById('progress').style.width = `${(num / TOTAL_SECTIONS) * 100}%`;
+    window.scrollTo(0, 0);
+}
+
+function next() {
+    if (currentSection < TOTAL_SECTIONS) {
+        const nextNum = currentSection + 1;
+        if (SECTIONS[nextNum]) renderSection(nextNum);
+        if (nextNum === 4) renderExpertise();
+        showSection(nextNum);
+    }
+}
+
+function prev() {
+    if (currentSection > 0) showSection(currentSection - 1);
+}
+
+// ── Scoring ─────────────────────────────────────────────────────────────────
+
+function computeResults() {
+    // ADR (Section A)
+    const adr_items = ['a1','a2','a3','a4','a5'];
+    const adr_raw = adr_items.reduce((s, k) => s + (answers[k] || 3), 0) / adr_items.length;
+    const adr_score = Math.round(adr_raw * 2);
+
+    // GP (Section B)
+    const gp_items = ['b1','b2','b3','b4','b5'];
+    const gp_raw = gp_items.reduce((s, k) => s + (answers[k] || 3), 0) / gp_items.length;
+    const gp_score = Math.round(gp_raw * 2);
+
+    // ALI (Section D)
+    const ali_items = ['d1','d2','d3','d4'];
+    const ali_raw = ali_items.reduce((s, k) => s + (answers[k] || 3), 0) / ali_items.length;
+    const ali_score = Math.round(ali_raw * 2);
+
+    // ESA (Section 4)
+    const esa_keys = Array.from({length: 8}, (_, i) => `esa_${i}`);
+    const esa_ratings = esa_keys.map(k => answers[k] || 3);
+    const esa_avg = esa_ratings.reduce((a,b) => a+b, 0) / esa_ratings.length;
+
+    // PWRI composite
+    const pwri = (
+        (10 - adr_score) * 0.30 +
+        gp_score * 0.30 +
+        (esa_avg * 2) * 0.20 +
+        ali_score * 0.20
+    );
+
+    // Friction level
+    let friction = 'medium';
+    if (adr_score >= 7) friction = 'high';
+    else if (adr_score <= 3 && gp_score >= 6) friction = 'low';
+
+    const riskTag = adr_score <= 3 ? '<span class="tag tag-low">Low</span>' :
+                    adr_score <= 6 ? '<span class="tag tag-med">Moderate</span>' :
+                    '<span class="tag tag-high">High</span>';
+
+    const name = document.getElementById('q-name').value || 'User';
+    const role = document.getElementById('q-role').value || '';
+    const org = document.getElementById('q-org').value || '';
+
+    // Render results
+    const el = document.getElementById('section-5');
+    el.innerHTML = `
+        <h2>Your Pro Worker AI Profile</h2>
+        <p class="subtitle">${name} — ${role} at ${org}</p>
+
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:1rem;">
+            <div class="score-card">
+                <div class="score-big">${pwri.toFixed(1)}</div>
+                <div class="score-label">PWRI Score (0-10)</div>
+            </div>
+            <div class="score-card">
+                <div class="score-big">${adr_score}</div>
+                <div class="score-label">Dependency Risk ${riskTag}</div>
+            </div>
+            <div class="score-card">
+                <div class="score-big">${gp_score}</div>
+                <div class="score-label">Growth Potential</div>
+            </div>
+            <div class="score-card">
+                <div class="score-big">${ali_score}</div>
+                <div class="score-label">AI Literacy</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="question">Recommended Calibration</div>
+            <p>Default friction level: <strong>${friction}</strong></p>
+            <p>${adr_score >= 7 ? 'HIGH COGNITIVE FORCING recommended. AI should always ask for your hypothesis first.' :
+                 adr_score >= 4 ? 'BALANCED approach. Cognitive forcing in growth domains, acceleration in expert areas.' :
+                 'ACCELERATION mode. You use AI critically. Focus on speed and expert augmentation.'}</p>
+        </div>
+
+        <div class="card">
+            <div class="question">Exportable Profile (copy into any LLM system prompt)</div>
+            <div class="output-box" id="profile-output"></div>
+            <br>
+            <button class="btn btn-primary" onclick="copyProfile()">Copy to Clipboard</button>
+            <button class="btn btn-secondary" onclick="downloadProfile()">Download .md</button>
+        </div>
+    `;
+
+    // Generate markdown profile
+    const domainNames = [
+        "Core technical skill", "Written communication", "Strategic thinking",
+        "Project management", "Leadership", "AI literacy", "Industry expertise", "Stakeholder engagement"
+    ];
+    const labels = ["Novice","Developing","Proficient","Advanced","Expert"];
+
+    let expertiseTable = domainNames.map((d,i) =>
+        `| ${d} | ${esa_ratings[i]} (${labels[esa_ratings[i]-1]}) |`
+    ).join('\n');
+
+    const profile = `# Pro Worker AI Profile — ${name}
+
+> Generated: ${new Date().toISOString().slice(0,10)}
+> PWRI: ${pwri.toFixed(1)}/10 | ADR: ${adr_score}/10 | GP: ${gp_score}/10 | ALI: ${ali_score}/10
+
+## Identity
+- **Name**: ${name}
+- **Role**: ${role}
+- **Organization**: ${org}
+
+## Scores
+- **AI Dependency Risk**: ${adr_score}/10 (${adr_score<=3?'Low':adr_score<=6?'Moderate':'High'})
+- **Growth Potential**: ${gp_score}/10
+- **AI Literacy**: ${ali_score}/10
+- **Pro Worker Readiness**: ${pwri.toFixed(1)}/10
+
+## Expertise Map
+| Domain | Rating |
+|--------|--------|
+${expertiseTable}
+
+## Calibration Settings
+\`\`\`yaml
+default_friction_level: ${friction}
+cognitive_forcing: ${adr_score >= 5 ? 'active' : 'selective'}
+contrastive_explanations: ${gp_score >= 5 ? 'active' : 'selective'}
+coaching_frequency: ${gp_score >= 7 ? 'high' : gp_score >= 4 ? 'medium' : 'low'}
+challenge_level: ${gp_score >= 6 ? 'high' : 'medium'}
+\`\`\`
+`;
+
+    document.getElementById('profile-output').textContent = profile;
+    window._generatedProfile = profile;
+
+    showSection(5);
+}
+
+function copyProfile() {
+    navigator.clipboard.writeText(window._generatedProfile);
+    event.target.textContent = 'Copied!';
+    setTimeout(() => event.target.textContent = 'Copy to Clipboard', 2000);
+}
+
+function downloadProfile() {
+    const name = document.getElementById('q-name').value || 'user';
+    const blob = new Blob([window._generatedProfile], {type: 'text/markdown'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `pro-${name.toLowerCase()}.md`;
+    a.click();
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+
+showSection(0);
+</script>
+</body>
+</html>

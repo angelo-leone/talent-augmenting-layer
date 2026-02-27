@@ -77,16 +77,35 @@ The server is a standard MCP stdio server. Any client that supports MCP can conn
 
 ## What's Exposed
 
-### Tools
+### Tools (13 total)
+
+**Assessment & Onboarding:**
+
+| Tool | Purpose |
+|------|---------|
+| `proworker_assess_start` | Start onboarding — returns full assessment protocol for chatbot-driven assessment |
+| `proworker_assess_score` | Compute all scores (ADR, GP, ALI, ESA, PWRI) from raw answers |
+| `proworker_assess_create_profile` | Generate and save a complete profile from assessment data |
+
+**Profile Management:**
 
 | Tool | Purpose |
 |------|---------|
 | `proworker_get_profile` | Load a user's full profile (call at start of every conversation) |
 | `proworker_get_calibration` | Get compact calibration JSON for system prompt injection |
+| `proworker_save_profile` | Save or update a profile markdown file |
+| `proworker_delete_profile` | Delete a profile and its interaction logs |
+| `proworker_list_profiles` | List all available profiles |
+
+**Runtime Behavior:**
+
+| Tool | Purpose |
+|------|---------|
 | `proworker_classify_task` | Classify a task → automate/augment/coach/protect/hands-off |
 | `proworker_log_interaction` | Log an interaction for skill progression tracking |
-| `proworker_get_progression` | Get skill progression stats and de-skilling warnings |
-| `proworker_list_profiles` | List all available profiles |
+| `proworker_get_progression` | Get skill progression stats, trends, and de-skilling warnings |
+| `proworker_status` | Comprehensive status report (profile + progression + recommendations) |
+| `proworker_org_summary` | Organization-level aggregation across all profiles |
 
 ### Resources
 
@@ -103,7 +122,7 @@ The server is a standard MCP stdio server. Any client that supports MCP can conn
 | Prompt | Purpose |
 |--------|---------|
 | `proworker-system` | Full system prompt for any LLM — paste into system instructions |
-| `proworker-assess` | Run a new assessment |
+| `proworker-assess` | Chatbot-driven onboarding assessment |
 | `proworker-coach` | Start a coaching session (optional: specify focus domain) |
 
 ---
@@ -178,6 +197,30 @@ stats = mcp.call("proworker_get_progression", name="Angelo")
 
 ---
 
+## Chatbot-Driven Onboarding
+
+The assessment is embedded directly in the MCP server. Any chatbot connected via MCP can run the full onboarding:
+
+```
+1. Chatbot calls proworker_assess_start()
+   → Gets full question bank + conversational instructions
+
+2. Chatbot asks questions one at a time, naturally
+   → Collects scores (1-5) for each PWAQ item
+   → Collects domain expertise ratings
+
+3. Chatbot calls proworker_assess_score(answers, domain_ratings)
+   → Gets computed ADR, GP, ALI, ESA, PWRI scores
+
+4. Chatbot calls proworker_assess_create_profile(name, scores, demographics, goals, ...)
+   → Profile is generated and saved to disk
+   → Future conversations auto-load the profile
+```
+
+No web UI needed. No separate forms. The chatbot IS the assessment interface.
+
+---
+
 ## Architecture
 
 ```
@@ -187,7 +230,10 @@ mcp-server/
 └── src/
     ├── __init__.py
     ├── server.py           # MCP server — tools, resources, prompts
-    └── profile_manager.py  # Profile CRUD, parsing, interaction logging
+    ├── profile_manager.py  # Profile CRUD, parsing, interaction logging
+    └── assessment.py       # Embedded assessment engine (questions, scoring, profile generation)
 ```
 
 The server reads profiles from markdown files and the CLAUDE.md system prompt from the parent repo. Interaction logs are stored as JSONL files alongside profiles.
+
+For comprehensive platform-specific integration guides, see `docs/integration-guide.md`.
