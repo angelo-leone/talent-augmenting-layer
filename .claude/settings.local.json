@@ -14,7 +14,12 @@
       "Bash(where:*)",
       "Bash(pip show:*)",
       "Bash(winget list:*)",
-      "Bash(/tmp/tectonic_bin/tectonic.exe:*)"
+      "Bash(/tmp/tectonic_bin/tectonic.exe:*)",
+      "WebFetch(domain:zbucinca.github.io)",
+      "Bash(git checkout -b v2)",
+      "WebFetch(domain:intelligence-curse.ai)",
+      "WebFetch(domain:lukedrago.substack.com)",
+      "Bash(git add CLAUDE.md README.md .claude/commands/proworker-assess.md .claude/commands/proworker-update.md .claude/commands/proworker-coach.md .claude/settings.local.json assessment/framework.md assessment/literature-foundations.md profiles/TEMPLATE.md profiles/pro-angelo.md)"
     ]
   }
 }
