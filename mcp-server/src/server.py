@@ -11,6 +11,13 @@ Tools:
   - proworker_log_interaction: Log an interaction for tracking skill progression
   - proworker_get_progression: Get skill progression stats
   - proworker_list_profiles: List all available profiles
+  - proworker_status: Comprehensive status report for a user
+  - proworker_org_summary: Org-level aggregation across all profiles
+  - proworker_save_profile: Save/update a profile
+  - proworker_delete_profile: Delete a profile
+  - proworker_assess_start: Start an onboarding assessment (returns protocol for the LLM)
+  - proworker_assess_score: Compute scores from raw assessment answers
+  - proworker_assess_create_profile: Generate and save a profile from assessment data
 
 Resources:
   - proworker://profile/{name}: The full profile as markdown
@@ -19,13 +26,14 @@ Resources:
 
 Prompts:
   - proworker-system: Full system prompt with profile for any LLM
-  - proworker-assess: Assessment prompt
+  - proworker-assess: Interactive onboarding assessment (chatbot-driven)
   - proworker-coach: Coaching session prompt
 """
 
 from __future__ import annotations
 
 import os
+import json
 import datetime
 from pathlib import Path
 
@@ -43,6 +51,12 @@ from mcp.types import (
 )
 
 from .profile_manager import ProfileStore, InteractionLog
+from .assessment import (
+    get_assessment_protocol,
+    compute_all_scores,
+    compute_calibration,
+    generate_profile_markdown,
+)
 
 # ── Configuration ────────────────────────────────────────────────────────────
 
@@ -194,6 +208,199 @@ async def list_tools() -> list[Tool]:
             description="List all available Pro Worker AI profiles.",
             inputSchema={"type": "object", "properties": {}}
         ),
+        Tool(
+            name="proworker_status",
+            description=(
+                "Get a comprehensive status report for a user: profile summary, "
+                "current calibration, skill progression stats, trend direction, "
+                "atrophy warnings, and recommended next actions. Use this for a "
+                "quick overview at the start of a conversation."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string", "description": "User's name"}
+                },
+                "required": ["name"]
+            }
+        ),
+        Tool(
+            name="proworker_org_summary",
+            description=(
+                "Get an organization-level summary across all profiles. Shows "
+                "aggregate dependency risk, growth potential, expertise distribution, "
+                "trend alerts, and per-domain skill breakdown. For org dashboards."
+            ),
+            inputSchema={"type": "object", "properties": {}}
+        ),
+        Tool(
+            name="proworker_delete_profile",
+            description="Delete a user's profile and interaction logs.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string", "description": "User's name"}
+                },
+                "required": ["name"]
+            }
+        ),
+        Tool(
+            name="proworker_save_profile",
+            description=(
+                "Save or update a user's profile markdown content. Use this after "
+                "running /proworker-assess to write the generated profile, or "
+                "after /proworker-update to save changes."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string", "description": "User's name"},
+                    "content": {"type": "string", "description": "Full profile markdown content"}
+                },
+                "required": ["name", "content"]
+            }
+        ),
+        # ── Embedded Assessment Tools ────────────────────────────────────
+        Tool(
+            name="proworker_assess_start",
+            description=(
+                "Start a Pro Worker AI onboarding assessment. Returns the full assessment "
+                "protocol with all questions, behavioral anchors, and instructions for how "
+                "to run the assessment conversationally. The chatbot uses this to ask "
+                "questions one at a time, collect answers, then call proworker_assess_score "
+                "and proworker_assess_create_profile to compute scores and save the profile. "
+                "Call this at the beginning of any onboarding conversation."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Name of the person being assessed (optional — can be collected during the assessment)"
+                    }
+                },
+                "required": []
+            }
+        ),
+        Tool(
+            name="proworker_assess_score",
+            description=(
+                "Compute all Pro Worker AI scores from raw assessment answers. "
+                "Takes the numeric answers collected during the assessment (A1-A5, B1-B5, D1-D4 "
+                "as integers 1-5) and domain expertise ratings. Returns computed ADR, GP, ALI, "
+                "ESA, and composite PWRI scores with interpretations and recommended calibration."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "answers": {
+                        "type": "object",
+                        "description": (
+                            "Dict of item_id to score (1-5). Keys: A1-A5 (dependency risk), "
+                            "B1-B5 (growth potential), D1-D4 (AI literacy). "
+                            "Example: {\"A1\": 3, \"A2\": 4, \"B1\": 5, \"D1\": 3, ...}"
+                        )
+                    },
+                    "domain_ratings": {
+                        "type": "object",
+                        "description": (
+                            "Dict of domain name to expertise rating (1-5). "
+                            "Example: {\"Writing\": 4, \"Strategy\": 3, \"Stakeholder engagement\": 2}"
+                        )
+                    }
+                },
+                "required": ["answers", "domain_ratings"]
+            }
+        ),
+        Tool(
+            name="proworker_assess_create_profile",
+            description=(
+                "Generate and save a complete Pro Worker AI profile from assessment data. "
+                "Call this after proworker_assess_score to create the profile file. Takes "
+                "the computed scores, demographic info, goals, task classifications, and "
+                "preferences collected during the assessment conversation. Returns the "
+                "generated profile and saves it to disk."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string", "description": "User's name"},
+                    "role": {"type": "string", "description": "Job role/title"},
+                    "organization": {"type": "string", "description": "Company/org name"},
+                    "industry": {"type": "string", "description": "Industry description"},
+                    "context_summary": {
+                        "type": "string",
+                        "description": "1-3 sentence summary of the user's work context"
+                    },
+                    "answers": {
+                        "type": "object",
+                        "description": "Dict of item_id to score (same as proworker_assess_score)"
+                    },
+                    "domain_ratings": {
+                        "type": "object",
+                        "description": "Dict of domain name to expertise rating (1-5)"
+                    },
+                    "career_goals": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "List of career goals for the next 1-2 years"
+                    },
+                    "skills_to_develop": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Skills the user wants to grow"
+                    },
+                    "skills_to_protect": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Skills at risk of atrophy from AI over-reliance"
+                    },
+                    "tasks_automate": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Tasks to fully automate with AI"
+                    },
+                    "tasks_augment": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Tasks where AI accelerates the user's expert work"
+                    },
+                    "tasks_coach": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Tasks where AI should coach, not do"
+                    },
+                    "tasks_protect": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Tasks where AI must add friction to prevent de-skilling"
+                    },
+                    "tasks_hands_off": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Tasks that should stay fully human"
+                    },
+                    "red_lines": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Things AI should NEVER do for this user"
+                    },
+                    "learning_style": {
+                        "type": "string",
+                        "description": "Preferred learning style (socratic, direct, examples, balanced)"
+                    },
+                    "feedback_style": {
+                        "type": "string",
+                        "description": "Preferred feedback style"
+                    },
+                    "communication_style": {
+                        "type": "string",
+                        "description": "Preferred communication style"
+                    }
+                },
+                "required": ["name", "role", "organization", "industry", "answers", "domain_ratings"]
+            }
+        ),
     ]
 
 
@@ -283,6 +490,187 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
         if profiles:
             return [TextContent(type="text", text=f"Available profiles: {', '.join(profiles)}")]
         return [TextContent(type="text", text="No profiles found. Run /proworker-assess to create one.")]
+
+    elif name == "proworker_status":
+        user_name = arguments["name"]
+        profile = store.read_profile(user_name)
+        if not profile:
+            return [TextContent(type="text", text=f"No profile for '{user_name}'.")]
+
+        progression = store.get_skill_progression(user_name)
+
+        # Build expertise summary
+        expertise_lines = []
+        for e in profile.expertise:
+            marker = ""
+            if e.rating <= 2:
+                marker = " [COACH]"
+            elif "PROTECT" in e.growth_direction.upper() or "protect" in e.growth_direction.lower():
+                marker = " [PROTECT]"
+            elif "GROW" in e.growth_direction.upper():
+                marker = " [GROW]"
+            expertise_lines.append(f"  {e.domain}: {e.rating}/5 ({e.label()}){marker}")
+
+        # Build status report
+        status = f"""## Pro Worker AI Status: {profile.name}
+
+**Role**: {profile.role} at {profile.organization}
+**Friction level**: {profile.calibration.default_friction_level}
+**Coaching frequency**: {profile.calibration.coaching_frequency}
+
+### Expertise Map
+{chr(10).join(expertise_lines)}
+
+### Scores
+- Dependency Risk: {profile.dependency_risk_score}/10
+- Growth Potential: {profile.growth_potential_score}/10
+
+### Interaction Tracking
+- Total logged interactions: {progression.get('total_interactions', 0)}
+- Passive engagement ratio: {progression.get('passive_ratio', 0):.0%}
+- Trend direction: {progression.get('trend_direction', 'no data')}
+- Atrophy warnings: {progression.get('atrophy_warnings', []) or 'None'}
+
+### Active Growth Goals
+{chr(10).join('- ' + g for g in profile.skills_to_develop) if profile.skills_to_develop else '- (see profile for goals)'}
+
+### Red Lines (AI must NOT do these)
+{chr(10).join('- ' + r for r in profile.red_lines[:3]) if profile.red_lines else '- None specified'}
+
+### Recommended Actions
+"""
+        # Generate recommendations
+        recs = []
+        if progression.get("passive_ratio", 0) > 0.5:
+            recs.append("- WARNING: High passive engagement. Increase cognitive forcing across all domains.")
+        if progression.get("atrophy_warnings"):
+            for domain in progression["atrophy_warnings"]:
+                recs.append(f"- ATROPHY RISK in {domain}: Schedule a /proworker-coach session.")
+        if progression.get("trend_direction") == "declining":
+            recs.append("- DECLINING TREND: Engagement is dropping. Consider a check-in or friction increase.")
+        if progression.get("total_interactions", 0) == 0:
+            recs.append("- No interactions logged yet. The system will track patterns as you use it.")
+        if not recs:
+            recs.append("- All clear. Continue current approach.")
+
+        status += chr(10).join(recs)
+        return [TextContent(type="text", text=status)]
+
+    elif name == "proworker_org_summary":
+        import json as json_mod
+        summary = store.get_org_summary()
+        return [TextContent(type="text", text=json_mod.dumps(summary, indent=2))]
+
+    elif name == "proworker_delete_profile":
+        user_name = arguments["name"]
+        deleted = store.delete_profile(user_name)
+        if deleted:
+            return [TextContent(type="text", text=f"Profile for '{user_name}' deleted.")]
+        return [TextContent(type="text", text=f"No profile found for '{user_name}'.")]
+
+    elif name == "proworker_save_profile":
+        user_name = arguments["name"]
+        content = arguments["content"]
+        path = store.write_profile_raw(user_name, content)
+        return [TextContent(type="text", text=f"Profile saved to {path}")]
+
+    # ── Embedded Assessment Handlers ─────────────────────────────────
+    elif name == "proworker_assess_start":
+        protocol = get_assessment_protocol()
+        user_name = arguments.get("name", "")
+        if user_name:
+            existing = store.profile_exists(user_name)
+            protocol["existing_profile"] = existing
+            if existing:
+                protocol["note"] = (
+                    f"A profile already exists for '{user_name}'. This assessment will "
+                    f"replace the existing profile. You can also use proworker_update to "
+                    f"make incremental changes instead."
+                )
+        return [TextContent(type="text", text=json.dumps(protocol, indent=2))]
+
+    elif name == "proworker_assess_score":
+        answers_raw = arguments.get("answers", {})
+        domain_ratings_raw = arguments.get("domain_ratings", {})
+
+        # Ensure integer values
+        answers = {k: int(v) for k, v in answers_raw.items()}
+        domain_ratings = {k: int(v) for k, v in domain_ratings_raw.items()}
+
+        scores = compute_all_scores(answers, domain_ratings)
+        calibration = compute_calibration(scores, domain_ratings)
+
+        result = {
+            "scores": scores,
+            "calibration": calibration,
+            "summary": (
+                f"ADR: {scores['adr']['score']}/10 ({scores['adr']['level']}), "
+                f"GP: {scores['gp']['score']}/10 ({scores['gp']['level']}), "
+                f"ALI: {scores['ali']['score']}/10 ({scores['ali']['level']}), "
+                f"ESA mean: {scores['esa']['mean']}/5, "
+                f"PWRI: {scores['pwri']['score']}/10 ({scores['pwri']['label']})"
+            ),
+        }
+        return [TextContent(type="text", text=json.dumps(result, indent=2))]
+
+    elif name == "proworker_assess_create_profile":
+        user_name = arguments["name"]
+        answers_raw = arguments.get("answers", {})
+        domain_ratings_raw = arguments.get("domain_ratings", {})
+
+        answers = {k: int(v) for k, v in answers_raw.items()}
+        domain_ratings = {k: int(v) for k, v in domain_ratings_raw.items()}
+
+        scores = compute_all_scores(answers, domain_ratings)
+        calibration = compute_calibration(scores, domain_ratings)
+
+        profile_md = generate_profile_markdown(
+            name=user_name,
+            role=arguments.get("role", ""),
+            organization=arguments.get("organization", ""),
+            industry=arguments.get("industry", ""),
+            context_summary=arguments.get("context_summary", ""),
+            scores=scores,
+            domain_ratings=domain_ratings,
+            calibration=calibration,
+            career_goals=arguments.get("career_goals", []),
+            skills_to_develop=arguments.get("skills_to_develop", []),
+            skills_to_protect=arguments.get("skills_to_protect", []),
+            tasks_automate=arguments.get("tasks_automate", []),
+            tasks_augment=arguments.get("tasks_augment", []),
+            tasks_coach=arguments.get("tasks_coach", []),
+            tasks_protect=arguments.get("tasks_protect", []),
+            tasks_hands_off=arguments.get("tasks_hands_off", []),
+            red_lines=arguments.get("red_lines", []),
+            learning_style=arguments.get("learning_style", "balanced"),
+            feedback_style=arguments.get("feedback_style", "balanced"),
+            communication_style=arguments.get("communication_style", "conversational"),
+        )
+
+        # Save the profile
+        path = store.write_profile_raw(user_name, profile_md)
+
+        return [TextContent(
+            type="text",
+            text=json.dumps({
+                "status": "profile_created",
+                "path": str(path),
+                "scores": {
+                    "adr": scores["adr"]["score"],
+                    "gp": scores["gp"]["score"],
+                    "ali": scores["ali"]["score"],
+                    "esa_mean": scores["esa"]["mean"],
+                    "pwri": scores["pwri"]["score"],
+                },
+                "pwri_label": scores["pwri"]["label"],
+                "calibration": calibration,
+                "message": (
+                    f"Profile for {user_name} created successfully! "
+                    f"PWRI: {scores['pwri']['score']}/10 ({scores['pwri']['label']}). "
+                    f"The profile has been saved and will be used to personalize all future interactions."
+                ),
+            }, indent=2)
+        )]
 
     return [TextContent(type="text", text=f"Unknown tool: {name}")]
 
@@ -472,16 +860,19 @@ async def get_prompt(name: str, arguments: dict | None = None) -> GetPromptResul
 
     elif name == "proworker-assess":
         user_name = args.get("name", "a new user")
-        assess_path = repo_root / ".claude" / "commands" / "proworker-assess.md"
-        assess_content = ""
-        if assess_path.exists():
-            assess_content = assess_path.read_text(encoding="utf-8")
-        else:
-            assess_content = (
-                "Run the Pro Worker AI assessment. Ask the user about their role, "
-                "expertise, AI usage, goals, preferences, and tasks. Generate a profile "
-                "in profiles/pro-{name}.md."
-            )
+        protocol = get_assessment_protocol()
+        assess_content = (
+            f"# Pro Worker AI — Onboarding Assessment\n\n"
+            f"You are about to run a Pro Worker AI assessment for {user_name}.\n\n"
+            f"## Instructions\n\n{protocol['instructions']}\n\n"
+            f"## Tools to use\n\n"
+            f"1. Call `proworker_assess_start` to get the full question bank\n"
+            f"2. Ask questions conversationally, collecting scores for each item\n"
+            f"3. Call `proworker_assess_score` with all collected answers to compute scores\n"
+            f"4. Call `proworker_assess_create_profile` with scores + qualitative data to save\n\n"
+            f"Begin by calling `proworker_assess_start` now, then greet the user warmly "
+            f"and start the assessment conversation."
+        )
         return GetPromptResult(
             description=f"Pro Worker AI Assessment for {user_name}",
             messages=[

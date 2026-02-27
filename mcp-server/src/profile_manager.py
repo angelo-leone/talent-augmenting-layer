@@ -332,6 +332,38 @@ class ProfileStore:
             engagement_counts[log.engagement_level] = engagement_counts.get(log.engagement_level, 0) + 1
 
         total = len(logs)
+
+        # Time-series trend analysis: split into weekly buckets
+        weekly_trends: dict[str, dict[str, int]] = {}
+        for log in logs:
+            try:
+                dt = datetime.datetime.fromisoformat(log.timestamp)
+                week_key = dt.strftime("%Y-W%W")
+            except (ValueError, TypeError):
+                week_key = "unknown"
+            if week_key not in weekly_trends:
+                weekly_trends[week_key] = {"total": 0, "passive": 0, "growth": 0, "atrophy": 0}
+            weekly_trends[week_key]["total"] += 1
+            if log.engagement_level == "passive":
+                weekly_trends[week_key]["passive"] += 1
+            if log.skill_signal == "growth":
+                weekly_trends[week_key]["growth"] += 1
+            elif log.skill_signal == "atrophy":
+                weekly_trends[week_key]["atrophy"] += 1
+
+        # Compute engagement trend direction
+        weeks_sorted = sorted(weekly_trends.keys())
+        trend_direction = "stable"
+        if len(weeks_sorted) >= 2:
+            recent = weekly_trends[weeks_sorted[-1]]
+            prev = weekly_trends[weeks_sorted[-2]]
+            recent_passive = recent["passive"] / max(recent["total"], 1)
+            prev_passive = prev["passive"] / max(prev["total"], 1)
+            if recent_passive > prev_passive + 0.15:
+                trend_direction = "declining"
+            elif recent_passive < prev_passive - 0.15:
+                trend_direction = "improving"
+
         return {
             "total_interactions": total,
             "domain_signals": domain_signals,
@@ -342,4 +374,92 @@ class ProfileStore:
                 domain for domain, signals in domain_signals.items()
                 if signals.get("atrophy", 0) > signals.get("growth", 0)
             ],
+            "weekly_trends": weekly_trends,
+            "trend_direction": trend_direction,
+        }
+
+    def delete_profile(self, name: str) -> bool:
+        """Delete a profile and its interaction log."""
+        path = self._profile_path(name)
+        safe_name = re.sub(r"[^a-z0-9]", "-", name.lower()).strip("-")
+        log_path = self.profiles_dir / f"log-{safe_name}.jsonl"
+        deleted = False
+        if path.exists():
+            path.unlink()
+            deleted = True
+        if log_path.exists():
+            log_path.unlink()
+        return deleted
+
+    def get_org_summary(self) -> dict:
+        """Aggregate anonymized stats across ALL profiles for org-level dashboard."""
+        profiles_data = []
+        for name in self.list_profiles():
+            profile = self.read_profile(name)
+            if not profile:
+                continue
+
+            expertise_ratings = [e.rating for e in profile.expertise]
+            avg_expertise = sum(expertise_ratings) / len(expertise_ratings) if expertise_ratings else 0
+
+            progression = self.get_skill_progression(name)
+
+            profiles_data.append({
+                "name": name,
+                "role": profile.role,
+                "expertise_avg": round(avg_expertise, 1),
+                "expertise_count": len(expertise_ratings),
+                "expertise_by_domain": {e.domain: e.rating for e in profile.expertise},
+                "dependency_risk": profile.dependency_risk_score,
+                "growth_potential": profile.growth_potential_score,
+                "friction_level": profile.calibration.default_friction_level,
+                "total_interactions": progression.get("total_interactions", 0),
+                "passive_ratio": progression.get("passive_ratio", 0),
+                "atrophy_warnings": progression.get("atrophy_warnings", []),
+                "trend_direction": progression.get("trend_direction", "no_data"),
+            })
+
+        if not profiles_data:
+            return {"message": "No profiles found.", "profiles": []}
+
+        # Org-level aggregations
+        total_profiles = len(profiles_data)
+        avg_dependency = sum(p["dependency_risk"] for p in profiles_data) / total_profiles
+        avg_growth = sum(p["growth_potential"] for p in profiles_data) / total_profiles
+        avg_expertise = sum(p["expertise_avg"] for p in profiles_data) / total_profiles
+        declining_count = sum(1 for p in profiles_data if p["trend_direction"] == "declining")
+        at_risk_count = sum(1 for p in profiles_data if p["dependency_risk"] >= 7)
+
+        # Domain-level aggregation
+        all_domains: dict[str, list[int]] = {}
+        for p in profiles_data:
+            for domain, rating in p["expertise_by_domain"].items():
+                if domain not in all_domains:
+                    all_domains[domain] = []
+                all_domains[domain].append(rating)
+
+        domain_summary = {
+            domain: {
+                "avg": round(sum(ratings) / len(ratings), 1),
+                "min": min(ratings),
+                "max": max(ratings),
+                "count": len(ratings),
+            }
+            for domain, ratings in all_domains.items()
+        }
+
+        return {
+            "total_profiles": total_profiles,
+            "org_averages": {
+                "dependency_risk": round(avg_dependency, 1),
+                "growth_potential": round(avg_growth, 1),
+                "expertise": round(avg_expertise, 1),
+            },
+            "alerts": {
+                "at_risk_count": at_risk_count,
+                "declining_trend_count": declining_count,
+                "total_atrophy_warnings": sum(len(p["atrophy_warnings"]) for p in profiles_data),
+            },
+            "domain_summary": domain_summary,
+            "profiles": profiles_data,
         }

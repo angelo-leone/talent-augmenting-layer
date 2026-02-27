@@ -90,37 +90,46 @@ Every task gets classified into one of five AI interaction modes:
 
 ## Quick Start
 
-### 1. Install
-Clone this repo into your project or copy the key files:
-```
-CLAUDE.md                          → Your project root
-.claude/commands/proworker-assess.md  → Slash command
-.claude/commands/proworker-update.md  → Slash command
-.claude/commands/proworker-coach.md   → Slash command
-assessment/framework.md            → Assessment questions
-profiles/TEMPLATE.md               → Profile template
-```
+### Option A: Claude Code (Full Experience)
 
-### 2. Run Assessment
-In Claude Code, run:
+1. Clone this repo
+2. Add the MCP server to `.claude/settings.json`:
+```json
+{
+  "mcpServers": {
+    "proworker-ai": {
+      "command": "python",
+      "args": ["-m", "src.server"],
+      "cwd": "/path/to/pro-worker-ai/mcp-server",
+      "env": {
+        "PROWORKER_PROFILES_DIR": "/path/to/pro-worker-ai/profiles"
+      }
+    }
+  }
+}
 ```
-/proworker-assess
-```
-This starts an interactive assessment (~10-15 minutes) that creates your personalized profile.
+3. Run `/proworker-assess` to create your profile (the chatbot guides you through it)
+4. Work normally — CLAUDE.md automatically calibrates every interaction
 
-### 3. Work Normally
-Once your profile exists, CLAUDE.md automatically:
-- Loads your profile at the start of every conversation
-- Calibrates friction levels per-domain
-- Applies cognitive forcing in your growth areas
-- Accelerates you in your expert domains
-- Protects skills you've flagged as important
+### Option B: Any MCP Client (Claude Desktop, Cursor, Windsurf, etc.)
 
-### 4. Update Periodically
-Run `/proworker-update` every few weeks to evolve your profile based on how you've grown.
+1. Install: `cd mcp-server && pip install -e .`
+2. Add the MCP server to your client's config (same JSON as above)
+3. The chatbot can call `proworker_assess_start` to run the onboarding
+4. Your profile is created and used for all future interactions
 
-### 5. Targeted Coaching
-Run `/proworker-coach` when you want a focused session on a specific skill.
+### Option C: Any LLM (ChatGPT, Gemini, etc.)
+
+1. Read `proworker://system-prompt/yourname` from the MCP server
+2. Paste into your LLM's system instructions / custom instructions
+3. The AI will behave according to your Pro Worker AI profile
+
+See `docs/integration-guide.md` for detailed platform-specific instructions.
+
+### Day-to-Day Commands
+- `/proworker-assess` — Run initial assessment or full re-assessment
+- `/proworker-update` — Update profile based on recent interactions
+- `/proworker-coach` — Start a targeted coaching session on a specific skill
 
 ---
 
@@ -185,9 +194,25 @@ pro-worker-ai/
 │   │   ├── proworker-update.md         # /proworker-update slash command
 │   │   └── proworker-coach.md          # /proworker-coach slash command
 │   └── settings.local.json            # Claude Code permissions
+├── mcp-server/                         # Cross-platform MCP server
+│   ├── pyproject.toml                  # Package config
+│   ├── README.md                       # MCP server docs
+│   └── src/
+│       ├── server.py                   # MCP tools, resources, prompts (13 tools)
+│       ├── profile_manager.py          # Profile CRUD, parsing, interaction logging
+│       └── assessment.py               # Embedded assessment engine (questions, scoring)
 ├── assessment/
-│   ├── framework.md                    # Assessment questions & methodology
-│   └── literature-foundations.md       # Research backing for each dimension
+│   ├── framework.md                    # Assessment methodology
+│   ├── scoring-instrument.md           # PWAQ psychometric instrument
+│   ├── coaching-modules.md             # Structured coaching sessions (5 modules, 13 sessions)
+│   ├── ab-testing-framework.md         # A/B testing design for outcomes research
+│   └── literature-foundations.md       # Research backing
+├── dashboard/
+│   └── app.py                          # Streamlit org-level analytics dashboard
+├── web-ui/
+│   └── index.html                      # Standalone web assessment UI
+├── docs/
+│   └── integration-guide.md            # Platform integration guides (7 platforms)
 ├── profiles/
 │   ├── TEMPLATE.md                     # Blank profile template
 │   └── pro-angelo.md                   # Example: Angelo's profile
@@ -218,14 +243,22 @@ Memory is the database. **PWA is the operating system.**
 
 ## Contributing
 
-This is early-stage. The system works now in Claude Code. Next steps:
+This is an open-source personalized AI augmentation layer. Current status:
 
-- [ ] MCP server implementation for cross-platform portability
-- [ ] Organization-level assessment and dashboard
-- [ ] Skill progression tracking and visualization
+- [x] Core system prompt with 4 interaction modes (CLAUDE.md)
+- [x] Interactive assessment with profile generation
+- [x] Psychometric scoring instrument (PWAQ) with validated Likert scales
+- [x] MCP server with 13 tools for cross-platform portability
+- [x] Embedded chatbot-driven onboarding (any MCP client can run the assessment)
+- [x] Organization-level dashboard (Streamlit)
+- [x] Skill progression tracking with trend analysis and atrophy detection
+- [x] Integration guides for 7 platforms (Claude, ChatGPT, Cursor, APIs, custom agents)
+- [x] A/B testing framework for outcomes research
+- [ ] HTTP transport for enterprise MCP deployment
 - [ ] Integration with existing L&D platforms
 - [ ] Multi-user benchmarking and anonymized comparisons
 - [ ] API middleware for any LLM provider
+- [ ] Mobile-friendly assessment UI
 
 ---
 
