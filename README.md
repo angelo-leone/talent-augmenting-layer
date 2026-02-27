@@ -191,7 +191,9 @@ Built on empirical research, not opinions:
 pro-worker-ai/
 ├── CLAUDE.md                           # Core system prompt (the brain)
 ├── README.md                           # This file
-├── system_prompt.md                    # Original research-based prompt (v1)
+├── CITATION.cff                        # Machine-readable citation metadata
+├── LICENSE                             # CC BY-NC-SA 4.0
+├── COPYRIGHT                           # Attribution notice
 ├── .claude/
 │   ├── commands/
 │   │   ├── proworker-assess.md         # /proworker-assess slash command
@@ -220,10 +222,10 @@ pro-worker-ai/
 ├── profiles/
 │   ├── TEMPLATE.md                     # Blank profile template
 │   └── pro-angelo.md                   # Example: Angelo's profile
-├── context/                            # Research papers (Buçinca, Acemoglu, Mollick)
-├── pro-worker-benchmark/               # PWI benchmark suite (separate tool)
-└── paper/                              # Academic paper on PWI benchmark
+└── context/                            # Research papers (Buçinca, Acemoglu, Mollick)
 ```
+
+> **Related project**: [Pro-Worker AI Benchmark](https://github.com/angelo-leone/pro-worker-benchmark) — a 3-layer evaluation framework for measuring whether LLMs augment or replace human intelligence.
 
 ---
 
