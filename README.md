@@ -1,5 +1,9 @@
 # Pro Worker AI — Personalized AI Augmentation Layer
 
+[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![MCP Tools](https://img.shields.io/badge/MCP%20Tools-13-blue)]()
+[![Research-Backed](https://img.shields.io/badge/Research--Backed-Yes-green)]()
+
 > Make workers better, not dependent. A personalized AI coaching system that follows you everywhere.
 
 ---
@@ -264,9 +268,34 @@ This is an open-source personalized AI augmentation layer. Current status:
 
 ## License
 
-TBD — This is a product concept for PUBLIC.io.
+This work is licensed under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+
+**You are free to** share and adapt this work for non-commercial purposes, as long as you give appropriate credit and distribute contributions under the same license.
+
+See [LICENSE](LICENSE) for the full text.
 
 ---
 
-*Built by Angelo at PUBLIC. Powered by research from Buçinca, Acemoglu, Mollick, Drago & Laine.*
+## Citation
+
+If you use Pro Worker AI in research or publications, please cite:
+
+```bibtex
+@software{leone2026proworkerai,
+  author    = {Leone, Angelo},
+  title     = {Pro Worker AI: A Personalized AI Augmentation Layer for Workforce Development},
+  version   = {0.2.0},
+  year      = {2026},
+  url       = {https://github.com/angelo-leone/pro-worker-ai},
+  license   = {CC-BY-NC-SA-4.0}
+}
+```
+
+Or see [CITATION.cff](CITATION.cff) for machine-readable citation metadata.
+
+---
+
+*Built by Angelo Leone at PUBLIC. Powered by research from Buçinca, Acemoglu, Mollick, Drago & Laine.*
 *Every interaction should leave you more capable, not more dependent.*
+
+Copyright (c) 2026 Angelo Leone. All rights reserved under CC BY-NC-SA 4.0.
