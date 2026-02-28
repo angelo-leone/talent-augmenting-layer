@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Pro Worker AI{% endblock %}</title>
+    <link rel="stylesheet" href="/static/style.css">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    {% if user %}
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/dashboard" class="nav-brand">Pro Worker AI</a>
+            <div class="nav-links">
+                <a href="/dashboard" class="nav-link">Dashboard</a>
+                <a href="/assess" class="nav-link">Assessment</a>
+                <a href="/api/profile/export/markdown" class="nav-link">Export</a>
+                <span class="nav-user">{{ user.name }}</span>
+                <a href="/logout" class="nav-link nav-link-muted">Logout</a>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    <main class="container">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for msg in messages %}
+            <div class="flash">{{ msg }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <p>Pro Worker AI v1.0 &mdash; Making workers better, not dependent.</p>
+            <p class="text-muted">MIT License &middot; Based on research by Buçinca, Acemoglu, Mollick</p>
+        </div>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>
