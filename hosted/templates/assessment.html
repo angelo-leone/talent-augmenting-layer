@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Assessment -- Pro Worker AI{% endblock %}
+
+{% block content %}
+<div class="assess-container">
+    <div class="assess-header">
+        <h1>Pro Worker AI Assessment</h1>
+        <p class="text-muted">A conversational assessment to build your personalized AI profile. Takes about 15 minutes.</p>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+        </div>
+        <p class="text-muted text-small" id="progress-label">Starting assessment...</p>
+    </div>
+
+    <div class="chat-area" id="chat-area">
+        <!-- Messages will be rendered here by JS -->
+    </div>
+
+    <div class="chat-input-area" id="input-area">
+        <div class="chat-input-wrapper">
+            <textarea
+                id="user-input"
+                class="chat-input"
+                placeholder="Type your response..."
+                rows="1"
+            ></textarea>
+            <button id="send-btn" class="btn btn-primary chat-send-btn" onclick="sendMessage()">
+                Send
+            </button>
+        </div>
+    </div>
+
+    <div class="assess-complete-area hidden" id="complete-area">
+        <div class="card">
+            <h2>Assessment Complete</h2>
+            <p>Your assessment conversation is finished. Click below to generate your profile.</p>
+            <button class="btn btn-primary" onclick="completeAssessment()" id="complete-btn">
+                Generate My Profile
+            </button>
+            <div id="complete-status" class="text-muted" style="margin-top: 1rem;"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/app.js"></script>
+<script>
+    // Auto-start the assessment
+    window.addEventListener('DOMContentLoaded', () => {
+        startAssessment();
+    });
+</script>
+{% endblock %}

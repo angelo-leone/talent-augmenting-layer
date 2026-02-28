@@ -18,6 +18,7 @@ Tools:
   - proworker_assess_start: Start an onboarding assessment (returns protocol for the LLM)
   - proworker_assess_score: Compute scores from raw assessment answers
   - proworker_assess_create_profile: Generate and save a profile from assessment data
+  - proworker_suggest_domains: Suggest expertise domains based on role/industry
 
 Resources:
   - proworker://profile/{name}: The full profile as markdown
@@ -56,6 +57,7 @@ from .assessment import (
     compute_all_scores,
     compute_calibration,
     generate_profile_markdown,
+    suggest_domains,
 )
 
 # ── Configuration ────────────────────────────────────────────────────────────
@@ -401,6 +403,35 @@ async def list_tools() -> list[Tool]:
                 "required": ["name", "role", "organization", "industry", "answers", "domain_ratings"]
             }
         ),
+        Tool(
+            name="proworker_suggest_domains",
+            description=(
+                "Suggest expertise domains for a user based on their role, industry, and "
+                "responsibilities. Returns a curated list of domain suggestions with descriptions "
+                "drawn from an industry-specific taxonomy. Use this during the assessment to help "
+                "identify relevant domains for the Expertise Self-Assessment (ESA). The LLM has "
+                "override authority and can add or remove domains from the suggestions."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "role": {
+                        "type": "string",
+                        "description": "Job title or role description"
+                    },
+                    "industry": {
+                        "type": "string",
+                        "description": "Industry or sector"
+                    },
+                    "responsibilities": {
+                        "type": "string",
+                        "description": "Optional description of key responsibilities",
+                        "default": ""
+                    }
+                },
+                "required": ["role", "industry"]
+            }
+        ),
     ]
 
 
@@ -668,6 +699,25 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
                     f"Profile for {user_name} created successfully! "
                     f"PWRI: {scores['pwri']['score']}/10 ({scores['pwri']['label']}). "
                     f"The profile has been saved and will be used to personalize all future interactions."
+                ),
+            }, indent=2)
+        )]
+
+
+    elif name == "proworker_suggest_domains":
+        role = arguments.get("role", "")
+        industry = arguments.get("industry", "")
+        responsibilities = arguments.get("responsibilities", "")
+        suggestions = suggest_domains(role, industry, responsibilities)
+        return [TextContent(
+            type="text",
+            text=json.dumps({
+                "suggestions": suggestions,
+                "count": len(suggestions),
+                "note": (
+                    "These are heuristic suggestions based on role/industry keywords. "
+                    "You (the LLM) have override authority: add, remove, or rename "
+                    "domains to best fit the user. Ask the user to confirm or adjust."
                 ),
             }, indent=2)
         )]

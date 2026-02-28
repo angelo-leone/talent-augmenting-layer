@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard -- Pro Worker AI{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    {% if not profile %}
+    <div class="empty-state">
+        <h1>Welcome, {{ user.name }}!</h1>
+        <p class="text-muted">You don't have a profile yet. Take the assessment to get started.</p>
+        <a href="/assess" class="btn btn-primary" style="margin-top: 1rem;">Start Assessment</a>
+    </div>
+    {% else %}
+
+    <!-- Header -->
+    <div class="dash-header">
+        <div>
+            <h1>{{ user.name }}</h1>
+            <p class="text-muted">
+                {% if scores.get("pwri") %}
+                PWRI {{ scores.pwri.score }}/10 &mdash; {{ scores.pwri.label }}
+                {% endif %}
+                &middot; Version {{ profile.version }}
+                &middot; Updated {{ profile.created_at.strftime('%b %d, %Y') }}
+            </p>
+        </div>
+        <div class="dash-actions">
+            <a href="/assess" class="btn btn-secondary">Update Profile</a>
+        </div>
+    </div>
+
+    <!-- Score Cards -->
+    {% if scores %}
+    <div class="score-grid">
+        {% if scores.get("pwri") %}
+        <div class="score-card score-card-primary">
+            <div class="score-big">{{ scores.pwri.score }}</div>
+            <div class="score-label">PWRI</div>
+            <div class="score-sublabel">{{ scores.pwri.label }}</div>
+        </div>
+        {% endif %}
+        {% if scores.get("adr") %}
+        <div class="score-card">
+            <div class="score-big {% if scores.adr.score >= 7 %}score-danger{% elif scores.adr.score >= 4 %}score-warning{% else %}score-success{% endif %}">
+                {{ scores.adr.score }}
+            </div>
+            <div class="score-label">Dependency Risk</div>
+            <div class="score-sublabel">{{ scores.adr.level }}</div>
+        </div>
+        {% endif %}
+        {% if scores.get("gp") %}
+        <div class="score-card">
+            <div class="score-big {% if scores.gp.score >= 7 %}score-success{% elif scores.gp.score >= 4 %}score-warning{% else %}score-danger{% endif %}">
+                {{ scores.gp.score }}
+            </div>
+            <div class="score-label">Growth Potential</div>
+            <div class="score-sublabel">{{ scores.gp.level }}</div>
+        </div>
+        {% endif %}
+        {% if scores.get("ali") %}
+        <div class="score-card">
+            <div class="score-big">{{ scores.ali.score }}</div>
+            <div class="score-label">AI Literacy</div>
+            <div class="score-sublabel">{{ scores.ali.level }}</div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Expertise Map -->
+    {% if domain_ratings %}
+    <div class="card">
+        <h2 class="card-title">Expertise Map</h2>
+        <div class="expertise-list">
+            {% for domain, rating in domain_ratings.items() %}
+            <div class="expertise-row">
+                <span class="expertise-domain">{{ domain }}</span>
+                <div class="expertise-bar-track">
+                    <div class="expertise-bar-fill" style="width: {{ rating * 20 }}%"></div>
+                </div>
+                <span class="expertise-rating">{{ rating }}/5</span>
+                <span class="expertise-label text-muted">
+                    {% if rating == 1 %}Novice{% elif rating == 2 %}Developing{% elif rating == 3 %}Proficient{% elif rating == 4 %}Advanced{% elif rating == 5 %}Expert{% endif %}
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Export -->
+    <div class="card">
+        <h2 class="card-title">Export Your Profile</h2>
+        <p class="text-muted" style="margin-bottom: 1rem;">
+            Download your profile to use with any LLM platform. Paste it into the system prompt or custom instructions.
+        </p>
+        <div class="export-grid">
+            <a href="/api/profile/export/claude" class="btn btn-export">
+                <span class="export-icon">C</span>
+                Claude
+            </a>
+            <a href="/api/profile/export/chatgpt" class="btn btn-export">
+                <span class="export-icon">G</span>
+                ChatGPT
+            </a>
+            <a href="/api/profile/export/gemini" class="btn btn-export">
+                <span class="export-icon">G</span>
+                Gemini
+            </a>
+            <a href="/api/profile/export/markdown" class="btn btn-export">
+                <span class="export-icon">M</span>
+                Markdown
+            </a>
+            <a href="/api/profile/export/json" class="btn btn-export">
+                <span class="export-icon">J</span>
+                JSON
+            </a>
+        </div>
+    </div>
+
+    <!-- Version History -->
+    {% if versions and versions|length > 1 %}
+    <div class="card">
+        <h2 class="card-title">Profile History</h2>
+        <table class="version-table">
+            <thead>
+                <tr>
+                    <th>Version</th>
+                    <th>Created</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in versions %}
+                <tr>
+                    <td>v{{ v.version }}</td>
+                    <td>{{ v.created_at[:10] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% endif %}
+</div>
+{% endblock %}

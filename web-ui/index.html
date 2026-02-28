@@ -27,6 +27,7 @@
         .container { max-width: 720px; margin: 0 auto; padding: 2rem 1.5rem; }
         h1 { font-size: 2rem; margin-bottom: 0.25rem; }
         h2 { font-size: 1.4rem; margin: 2rem 0 1rem; color: var(--accent); }
+        h3 { font-size: 1.1rem; margin: 1.25rem 0 0.5rem; color: var(--text); }
         .subtitle { color: var(--text-muted); margin-bottom: 2rem; font-size: 0.95rem; }
         .card {
             background: var(--surface);
@@ -65,6 +66,7 @@
         .btn-primary:hover { background: #d6304a; }
         .btn-secondary { background: var(--surface-2); color: var(--text); border: 1px solid #2a2a4a; }
         .btn-secondary:hover { background: #1a2a4e; }
+        .btn-sm { padding: 0.4rem 0.85rem; font-size: 0.85rem; }
         .nav { display: flex; justify-content: space-between; margin-top: 2rem; }
         .progress-bar { height: 4px; background: var(--surface-2); border-radius: 2px; margin-bottom: 2rem; }
         .progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.3s; }
@@ -85,7 +87,54 @@
         .tag-low { background: #1a4a2e; color: var(--success); }
         .tag-med { background: #4a3a1a; color: var(--warning); }
         .tag-high { background: #4a1a1a; color: var(--danger); }
-        @media (max-width: 600px) { .container { padding: 1rem; } h1 { font-size: 1.5rem; } }
+
+        /* Domain chips */
+        .domain-chips {
+            display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0;
+        }
+        .domain-chip {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            padding: 0.4rem 0.75rem; border-radius: 20px;
+            background: var(--surface-2); border: 1px solid #2a2a4a;
+            font-size: 0.85rem; color: var(--text); transition: all 0.15s;
+        }
+        .domain-chip .chip-remove {
+            cursor: pointer; color: var(--text-muted); font-size: 1rem;
+            line-height: 1; padding: 0 0.15rem; border-radius: 50%;
+            transition: all 0.15s;
+        }
+        .domain-chip .chip-remove:hover { color: var(--danger); }
+        .domain-chip.universal { border-color: var(--accent-soft); }
+        .domain-chip.suggested { border-color: var(--success); }
+        .chip-label-type {
+            font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px;
+            color: var(--text-muted); display: block; margin-bottom: 0.15rem;
+        }
+        .add-domain-row {
+            display: flex; gap: 0.5rem; margin-top: 0.75rem;
+        }
+        .add-domain-row input { flex: 1; }
+
+        /* Export button grid */
+        .export-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1rem;
+        }
+        .export-grid .btn { justify-content: center; text-align: center; font-size: 0.9rem; }
+
+        /* Toast notification */
+        .toast {
+            position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+            background: var(--success); color: #000; padding: 0.75rem 1.5rem;
+            border-radius: 8px; font-weight: 600; font-size: 0.9rem;
+            opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100;
+        }
+        .toast.show { opacity: 1; }
+
+        @media (max-width: 600px) {
+            .container { padding: 1rem; }
+            h1 { font-size: 1.5rem; }
+            .export-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -118,6 +167,38 @@
             </div>
         </div>
 
+        <!-- Section 0.5: Role & Domain Discovery -->
+        <div id="section-0h" class="section hidden">
+            <h2>Your Work Domains</h2>
+            <p class="subtitle">Help us identify which expertise domains matter most for your role.</p>
+            <div class="card">
+                <div class="question">Describe your main job responsibilities in 2-3 sentences</div>
+                <textarea id="q-responsibilities" placeholder="e.g. I evaluate digital programmes for government, conduct economic analysis and cost-benefit assessments, write policy reports, facilitate workshops with stakeholders, and research AI/tech policy topics."></textarea>
+                <br><br>
+                <button class="btn btn-primary" onclick="suggestDomains()">Suggest My Domains</button>
+            </div>
+            <div id="domain-results" class="hidden">
+                <div class="card">
+                    <div class="question">Suggested domains for your role</div>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.75rem;">
+                        Click the x to remove any that aren't relevant. These will be used for your expertise self-assessment.
+                    </p>
+                    <div class="domain-chips" id="domain-chip-area"></div>
+                    <div style="margin-top:1rem;">
+                        <span class="chip-label-type" style="display:inline;">Or enter domains manually:</span>
+                        <div class="add-domain-row">
+                            <input type="text" id="custom-domain-input" placeholder="e.g. Data Visualization">
+                            <button class="btn btn-secondary btn-sm" onclick="addCustomDomain()">+ Add</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="nav">
+                <button class="btn btn-secondary" onclick="prev()">&larr; Back</button>
+                <button class="btn btn-primary" onclick="next()">Next &rarr;</button>
+            </div>
+        </div>
+
         <!-- Section 1: AI Dependency Risk -->
         <div id="section-1" class="section hidden"></div>
 
@@ -127,14 +208,162 @@
         <!-- Section 3: AI Literacy -->
         <div id="section-3" class="section hidden"></div>
 
-        <!-- Section 4: Expertise -->
+        <!-- Section 4: Expertise (dynamic domains) -->
         <div id="section-4" class="section hidden"></div>
 
         <!-- Section 5: Results -->
         <div id="section-5" class="section hidden"></div>
     </div>
 
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
 <script>
+// ── Domain Taxonomy (mirrors MCP server) ───────────────────────────────────
+
+const DOMAIN_TAXONOMY = {
+    healthcare: [
+        {domain: "Clinical Assessment", desc: "Diagnosing conditions, patient evaluation, triage"},
+        {domain: "Patient Communication", desc: "Explaining diagnoses, treatment plans, empathetic communication"},
+        {domain: "Medical Documentation", desc: "Clinical notes, records, coding, compliance"},
+        {domain: "Evidence-Based Practice", desc: "Applying research findings to clinical decisions"},
+        {domain: "Team Coordination", desc: "Multidisciplinary collaboration, handoffs, care coordination"},
+        {domain: "Emergency Response", desc: "Crisis management, rapid decision-making under pressure"},
+    ],
+    public_sector: [
+        {domain: "Evidence Synthesis", desc: "Reviewing and synthesizing research for policy decisions"},
+        {domain: "Policy Analysis", desc: "Analysing policy options, impact assessment, regulatory review"},
+        {domain: "Stakeholder Engagement", desc: "Working with diverse stakeholders, consultation, co-design"},
+        {domain: "Economic/VFM Analysis", desc: "Cost-benefit analysis, value for money assessment, business cases"},
+        {domain: "Evaluation Design", desc: "Designing programme evaluations, theory of change, methods selection"},
+        {domain: "Strategic Communication", desc: "Policy briefs, reports, ministerial submissions"},
+        {domain: "Programme Management", desc: "Delivering complex public programmes, governance, risk"},
+        {domain: "Data Analysis", desc: "Quantitative analysis, statistics, data visualisation"},
+    ],
+    technology: [
+        {domain: "System Architecture", desc: "Designing scalable systems, microservices, infrastructure decisions"},
+        {domain: "Code Quality", desc: "Clean code practices, testing, code review, refactoring"},
+        {domain: "DevOps/Infrastructure", desc: "CI/CD, cloud deployment, monitoring, reliability"},
+        {domain: "Technical Writing", desc: "Documentation, API specs, architecture decision records"},
+        {domain: "Security Practices", desc: "Threat modelling, secure coding, vulnerability management"},
+        {domain: "Data Engineering", desc: "Pipelines, ETL, data modelling, database design"},
+        {domain: "Product Thinking", desc: "User needs, feature prioritisation, product-market fit"},
+    ],
+    consulting: [
+        {domain: "Client Engagement", desc: "Building client relationships, managing expectations, delivery"},
+        {domain: "Research & Analysis", desc: "Desk research, interviews, synthesis, insight generation"},
+        {domain: "Strategy Development", desc: "Problem framing, option analysis, recommendation crafting"},
+        {domain: "Report Writing", desc: "Structured deliverables, executive summaries, evidence-based arguments"},
+        {domain: "Workshop Facilitation", desc: "Designing and running collaborative sessions"},
+        {domain: "Quantitative Analysis", desc: "Financial modelling, data analysis, economic assessment"},
+        {domain: "Presentation & Communication", desc: "Slide decks, pitches, stakeholder communication"},
+    ],
+    education: [
+        {domain: "Curriculum Design", desc: "Designing learning programmes, lesson planning, outcomes mapping"},
+        {domain: "Student Assessment", desc: "Formative/summative assessment, rubric design, feedback"},
+        {domain: "Classroom Management", desc: "Creating productive learning environments, behaviour management"},
+        {domain: "Differentiated Instruction", desc: "Adapting teaching for diverse learners, accessibility"},
+        {domain: "Parent/Carer Communication", desc: "Progress reports, conferences, community engagement"},
+        {domain: "EdTech Integration", desc: "Using technology effectively in teaching and learning"},
+    ],
+    marketing: [
+        {domain: "Brand Strategy", desc: "Positioning, messaging, brand architecture, identity"},
+        {domain: "Content Creation", desc: "Copywriting, content strategy, editorial planning"},
+        {domain: "Data Analytics", desc: "Campaign analysis, attribution, A/B testing, reporting"},
+        {domain: "Campaign Management", desc: "Planning, execution, optimisation across channels"},
+        {domain: "Digital Marketing", desc: "SEO, SEM, social media, email marketing"},
+        {domain: "Stakeholder Communication", desc: "Internal reporting, cross-functional alignment"},
+    ],
+    finance: [
+        {domain: "Financial Analysis", desc: "Modelling, forecasting, variance analysis, valuation"},
+        {domain: "Risk Management", desc: "Risk assessment, mitigation strategies, compliance"},
+        {domain: "Regulatory Compliance", desc: "Understanding and applying financial regulations"},
+        {domain: "Reporting", desc: "Financial statements, management reporting, audit support"},
+        {domain: "Investment Analysis", desc: "Due diligence, portfolio analysis, market research"},
+        {domain: "Stakeholder Management", desc: "Board reporting, investor relations, advisory"},
+    ],
+    research: [
+        {domain: "Research Design", desc: "Methodology selection, study design, sampling strategies"},
+        {domain: "Literature Review", desc: "Systematic searching, critical appraisal, synthesis"},
+        {domain: "Data Collection", desc: "Surveys, interviews, ethnography, experimental methods"},
+        {domain: "Statistical Analysis", desc: "Quantitative methods, modelling, hypothesis testing"},
+        {domain: "Academic Writing", desc: "Papers, grants, peer review, scientific communication"},
+        {domain: "Research Ethics", desc: "IRB/ethics review, consent, data protection"},
+    ],
+};
+
+const UNIVERSAL_DOMAINS = [
+    {domain: "Written Communication", desc: "Reports, emails, documentation, structured writing"},
+    {domain: "Critical Thinking", desc: "Logical reasoning, evidence evaluation, problem decomposition"},
+    {domain: "Project Management", desc: "Planning, execution, tracking, delivery under constraints"},
+    {domain: "AI Literacy & Tool Usage", desc: "Effective use of AI tools, prompt engineering, output evaluation"},
+    {domain: "Leadership & Collaboration", desc: "Team dynamics, influence, mentoring, cross-functional work"},
+];
+
+const INDUSTRY_KEYWORDS = {
+    healthcare: ["health", "medical", "clinical", "hospital", "nhs", "nurse", "doctor", "care", "patient", "pharma"],
+    public_sector: ["public sector", "government", "policy", "civil service", "council", "evaluation", "programme", "procurement", "regulation"],
+    technology: ["software", "engineer", "developer", "tech", "devops", "data engineer", "infrastructure", "platform", "saas", "startup", "coding"],
+    consulting: ["consult", "advisory", "professional services", "strategy", "management consult", "deloitte", "mckinsey", "pwc"],
+    education: ["teacher", "professor", "school", "university", "education", "curriculum", "teaching", "lecturer", "academic"],
+    marketing: ["marketing", "brand", "content", "campaign", "digital market", "seo", "social media", "creative", "communications"],
+    finance: ["finance", "accounting", "investment", "banking", "audit", "treasury", "portfolio", "actuarial", "insurance"],
+    research: ["research", "scientist", "phd", "postdoc", "academic", "lab", "r&d", "study"],
+};
+
+// ── Compact system prompt for ChatGPT export ───────────────────────────────
+
+const SYSTEM_PROMPT_COMPACT = `# Pro Worker AI
+
+You are a Pro Worker AI. Augment human intelligence, don't replace it. Success = user learned, grew, or made a better decision.
+
+## Profile
+Read the user's Pro Worker AI profile from custom instructions. It has expertise ratings, calibration YAML, task classifications, and red lines. Follow the calibration settings exactly. If no profile exists, say: "Say 'assess me' to create your Pro Worker AI profile."
+
+## Behavior Rules
+
+**ADD friction** when: novice/developing domain, high-stakes task, or user says "just do it" for complex work.
+> Ask: "What's your initial thinking before I share mine?"
+
+**REDUCE friction** when: expert/advanced domain, routine task, or user requests speed.
+> Execute efficiently, annotate decisions, teach novel patterns.
+
+**COACH** when: growth goal domain, user repeatedly delegates a fundamental skill, or task needs their unique judgment.
+> Frameworks and questions, not answers. Scaffold their thinking.
+
+## Modes
+- **A (Cognitive Forcing)**: Ask hypothesis > give options not answers > teach the pattern
+- **B (Contrastive)**: "You might expect [X], but [Y] applies because [reason]" > name the principle
+- **C (Expert)**: Skip basics, challenge assumptions, accelerate
+- **D (Automate)**: Execute + annotate reasoning + flag learning opportunities
+
+## De-Skilling Detection
+- 3+ same-skill requests without user attempt > switch to coaching
+- Zero pushback across 5+ outputs > inject a challenge
+- User accepts errors > flag gently
+- Protected skill not practiced > nudge solo attempt
+
+## Task Triage
+| Type | Role | Friction |
+|------|------|----------|
+| Automate | Execute + annotate | Low |
+| Augment | Accelerate + challenge | Low-Med |
+| Coach | Scaffold + question | Med-High |
+| Ping | Surface decision + options | High |
+| Protect | Force cognition + teach | High |
+
+## Rules
+1. Complex work > annotated drafts, never polished finals without reasoning
+2. Don't apologize for clarifying questions -- friction is a feature
+3. Mechanical tasks > just do them efficiently
+4. Human judgment calls > surface the decision, don't make it
+5. Celebrate growth when you see it
+
+## Profile Updates
+After substantive sessions, if you observed skill changes, output a PROFILE UPDATE BLOCK with date, changes, and updated calibration YAML. Tell user to copy it back into their custom instructions.
+
+*PWA v0.2.0 -- CC BY-NC-SA 4.0 -- github.com/angelo-leone/worker-augmenting-layer*`;
+
 // ── Assessment Questions ────────────────────────────────────────────────────
 
 const SECTIONS = {
@@ -260,9 +489,102 @@ const SECTIONS = {
 
 let currentSection = 0;
 const answers = {};
-const TOTAL_SECTIONS = 5;
+// Section order: 0 (Identity), '0h' (Role/Domains), 1 (ADR), 2 (GP), 3 (ALI), 4 (Expertise), 5 (Results)
+const SECTION_ORDER = [0, '0h', 1, 2, 3, 4, 5];
+const TOTAL_STEPS = SECTION_ORDER.length; // 7 steps, index 0-6
+let currentStepIndex = 0;
+let activeDomains = []; // [{domain, desc, type: 'universal'|'suggested'|'custom'}]
 
-// ── Render ──────────────────────────────────────────────────────────────────
+// ── Domain Suggestion Engine ─────────────────────────────────────────────────
+
+function suggestDomains() {
+    const role = (document.getElementById('q-role').value || '').toLowerCase();
+    const org = (document.getElementById('q-org').value || '').toLowerCase();
+    const responsibilities = (document.getElementById('q-responsibilities').value || '').toLowerCase();
+    const combined = `${role} ${org} ${responsibilities}`;
+
+    const matchedIndustries = [];
+    for (const [industry, keywords] of Object.entries(INDUSTRY_KEYWORDS)) {
+        for (const kw of keywords) {
+            if (combined.includes(kw)) {
+                matchedIndustries.push(industry);
+                break;
+            }
+        }
+    }
+
+    const seen = new Set();
+    const suggestions = [];
+
+    // Industry-specific domains
+    for (const ind of matchedIndustries) {
+        for (const d of (DOMAIN_TAXONOMY[ind] || [])) {
+            if (!seen.has(d.domain)) {
+                suggestions.push({domain: d.domain, desc: d.desc, type: 'suggested'});
+                seen.add(d.domain);
+            }
+        }
+    }
+
+    // Universal domains
+    for (const d of UNIVERSAL_DOMAINS) {
+        if (!seen.has(d.domain)) {
+            suggestions.push({domain: d.domain, desc: d.desc, type: 'universal'});
+            seen.add(d.domain);
+        }
+    }
+
+    // Fallback if no industry matched
+    if (matchedIndustries.length === 0) {
+        const fallback = [
+            {domain: "Core Technical Skill", desc: `Primary technical competency for ${role || 'your role'}`, type: 'suggested'},
+            {domain: "Domain Expertise", desc: `Specialised knowledge in ${org || 'your industry'}`, type: 'suggested'},
+            {domain: "Stakeholder Management", desc: "Managing relationships with key stakeholders", type: 'suggested'},
+        ];
+        for (const d of fallback) {
+            if (!seen.has(d.domain)) {
+                suggestions.push(d);
+                seen.add(d.domain);
+            }
+        }
+    }
+
+    // Cap at 12
+    activeDomains = suggestions.slice(0, 12);
+    renderDomainChips();
+    document.getElementById('domain-results').classList.remove('hidden');
+}
+
+function renderDomainChips() {
+    const area = document.getElementById('domain-chip-area');
+    area.innerHTML = activeDomains.map((d, i) => `
+        <div class="domain-chip ${d.type}" title="${d.desc}">
+            <span>${d.domain}</span>
+            <span class="chip-remove" onclick="removeDomain(${i})">&times;</span>
+        </div>
+    `).join('');
+}
+
+function removeDomain(index) {
+    activeDomains.splice(index, 1);
+    renderDomainChips();
+}
+
+function addCustomDomain() {
+    const input = document.getElementById('custom-domain-input');
+    const val = input.value.trim();
+    if (!val) return;
+    if (activeDomains.some(d => d.domain.toLowerCase() === val.toLowerCase())) {
+        showToast('Domain already exists');
+        return;
+    }
+    activeDomains.push({domain: val, desc: 'Custom domain', type: 'custom'});
+    input.value = '';
+    renderDomainChips();
+    document.getElementById('domain-results').classList.remove('hidden');
+}
+
+// ── Render Functions ─────────────────────────────────────────────────────────
 
 function renderSection(num) {
     const sec = SECTIONS[num];
@@ -294,16 +616,10 @@ function renderSection(num) {
 
 function renderExpertise() {
     const el = document.getElementById('section-4');
-    const domains = [
-        "Core technical skill (coding, analysis, design)",
-        "Written communication (reports, emails, docs)",
-        "Strategic thinking & planning",
-        "Project management",
-        "Leadership / people management",
-        "AI literacy & tool usage",
-        "Industry-specific expertise",
-        "Stakeholder engagement"
-    ];
+    const domains = activeDomains.length > 0
+        ? activeDomains
+        : UNIVERSAL_DOMAINS.map(d => ({domain: d.domain, desc: d.desc, type: 'universal'}));
+
     const levels = ["Novice", "Developing", "Proficient", "Advanced", "Expert"];
 
     let html = `<h2>Expertise Self-Assessment</h2>
@@ -311,7 +627,10 @@ function renderExpertise() {
 
     domains.forEach((d, i) => {
         const key = `esa_${i}`;
-        html += `<div class="card"><div class="question">${d}</div><div class="options" style="flex-direction:row; flex-wrap:wrap;">`;
+        html += `<div class="card">
+            <div class="question">${d.domain}</div>
+            <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.5rem;">${d.desc}</div>
+            <div class="options" style="flex-direction:row; flex-wrap:wrap;">`;
         levels.forEach((l, li) => {
             const val = li + 1;
             const selected = answers[key] === val ? 'selected' : '';
@@ -333,36 +652,58 @@ function renderExpertise() {
 
 function select(qId, value, el) {
     answers[qId] = value;
-    // Update UI
     el.parentElement.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
     el.classList.add('selected');
     el.querySelector('input').checked = true;
 }
 
-// ── Navigation ──────────────────────────────────────────────────────────────
+// ── Navigation ───────────────────────────────────────────────────────────────
 
-function showSection(num) {
+function getSectionId(step) {
+    const s = SECTION_ORDER[step];
+    return s === '0h' ? 'section-0h' : `section-${s}`;
+}
+
+function showSection(stepIndex) {
     document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
-    document.getElementById(`section-${num}`).classList.remove('hidden');
-    currentSection = num;
-    document.getElementById('progress').style.width = `${(num / TOTAL_SECTIONS) * 100}%`;
+    document.getElementById(getSectionId(stepIndex)).classList.remove('hidden');
+    currentStepIndex = stepIndex;
+    document.getElementById('progress').style.width = `${(stepIndex / (TOTAL_STEPS - 1)) * 100}%`;
     window.scrollTo(0, 0);
 }
 
 function next() {
-    if (currentSection < TOTAL_SECTIONS) {
-        const nextNum = currentSection + 1;
-        if (SECTIONS[nextNum]) renderSection(nextNum);
-        if (nextNum === 4) renderExpertise();
-        showSection(nextNum);
+    if (currentStepIndex < TOTAL_STEPS - 1) {
+        const nextIndex = currentStepIndex + 1;
+        const nextSection = SECTION_ORDER[nextIndex];
+
+        // Render assessment sections dynamically
+        if (typeof nextSection === 'number' && SECTIONS[nextSection]) {
+            renderSection(nextSection);
+        }
+        if (nextSection === 4) {
+            renderExpertise();
+        }
+        showSection(nextIndex);
     }
 }
 
 function prev() {
-    if (currentSection > 0) showSection(currentSection - 1);
+    if (currentStepIndex > 0) {
+        showSection(currentStepIndex - 1);
+    }
 }
 
-// ── Scoring ─────────────────────────────────────────────────────────────────
+// ── Toast ────────────────────────────────────────────────────────────────────
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ── Scoring & Results ────────────────────────────────────────────────────────
 
 function computeResults() {
     // ADR (Section A)
@@ -380,8 +721,11 @@ function computeResults() {
     const ali_raw = ali_items.reduce((s, k) => s + (answers[k] || 3), 0) / ali_items.length;
     const ali_score = Math.round(ali_raw * 2);
 
-    // ESA (Section 4)
-    const esa_keys = Array.from({length: 8}, (_, i) => `esa_${i}`);
+    // ESA (dynamic domains)
+    const domains = activeDomains.length > 0
+        ? activeDomains
+        : UNIVERSAL_DOMAINS.map(d => ({domain: d.domain, desc: d.desc, type: 'universal'}));
+    const esa_keys = domains.map((_, i) => `esa_${i}`);
     const esa_ratings = esa_keys.map(k => answers[k] || 3);
     const esa_avg = esa_ratings.reduce((a,b) => a+b, 0) / esa_ratings.length;
 
@@ -405,12 +749,159 @@ function computeResults() {
     const name = document.getElementById('q-name').value || 'User';
     const role = document.getElementById('q-role').value || '';
     const org = document.getElementById('q-org').value || '';
+    const responsibilities = document.getElementById('q-responsibilities').value || '';
 
-    // Render results
+    const labels = ["Novice","Developing","Proficient","Advanced","Expert"];
+
+    // Build expertise table
+    let expertiseTable = domains.map((d, i) =>
+        `| ${d.domain} | ${esa_ratings[i]} (${labels[esa_ratings[i]-1]}) | ${d.desc} |`
+    ).join('\n');
+
+    // Identify growth domains (rated 1-3) and strong domains (4-5)
+    const growthDomains = domains.filter((d, i) => esa_ratings[i] <= 3).map((d, i) => d.domain);
+    const strongDomains = domains.filter((d, i) => esa_ratings[i] >= 4).map((d, i) => d.domain);
+
+    // Build cognitive forcing domains list
+    const cogForcingDomains = domains
+        .filter((d, i) => esa_ratings[i] <= 3)
+        .map(d => d.domain.toLowerCase().replace(/[\s\/&]+/g, '_'))
+        .slice(0, 5);
+
+    // Build contrastive explanation domains
+    const contrastiveDomains = domains
+        .filter((d, i) => esa_ratings[i] >= 2 && esa_ratings[i] <= 3)
+        .map(d => d.domain.toLowerCase().replace(/[\s\/&]+/g, '_'))
+        .slice(0, 5);
+
+    // Build automation permissions (from expert domains)
+    const automationDomains = domains
+        .filter((d, i) => esa_ratings[i] >= 4)
+        .map(d => d.domain.toLowerCase().replace(/[\s\/&]+/g, '_'));
+
+    // ── Generate 9-section profile markdown ──────────────────────────────────
+
+    const profile = `# Pro Worker AI Profile — ${name}
+
+> Generated: ${new Date().toISOString().slice(0,10)}
+> Last updated: ${new Date().toISOString().slice(0,10)}
+> Assessment version: PWAQ v2.0 (web)
+
+---
+
+## 1. Identity Card
+
+| Field | Value |
+|-------|-------|
+| **Name** | ${name} |
+| **Role** | ${role} |
+| **Organization** | ${org} |
+| **Responsibilities** | ${responsibilities || 'Not specified'} |
+
+---
+
+## 2. Scores
+
+| Metric | Score | Interpretation |
+|--------|-------|---------------|
+| **AI Dependency Risk (ADR)** | ${adr_score}/10 | ${adr_score<=3?'Low — healthy AI relationship':adr_score<=6?'Moderate — some dependency patterns':'High — significant dependency risk'} |
+| **Growth Potential (GP)** | ${gp_score}/10 | ${gp_score<=3?'Low — limited growth orientation':gp_score<=6?'Moderate — developing growth mindset':'High — strong growth orientation'} |
+| **AI Literacy (ALI)** | ${ali_score}/10 | ${ali_score<=3?'Low — building AI skills':ali_score<=6?'Moderate — competent AI user':'High — sophisticated AI user'} |
+| **Pro Worker Readiness (PWRI)** | ${pwri.toFixed(1)}/10 | Composite readiness score |
+
+---
+
+## 3. Expertise Map
+
+| Domain | Rating (1-5) | Description |
+|--------|-------------|-------------|
+${expertiseTable}
+
+**Strongest areas**: ${strongDomains.length > 0 ? strongDomains.join(', ') : 'None rated 4+'}
+**Growth areas**: ${growthDomains.length > 0 ? growthDomains.join(', ') : 'None rated 3 or below'}
+
+---
+
+## 4. AI Relationship Status
+
+**Dependency Risk Score**: ${adr_score}/10 — ${adr_score<=3?'**Low**':adr_score<=6?'**Moderate**':'**High**'}
+
+${adr_score >= 7 ? '**Warning**: High dependency detected. AI should actively apply cognitive forcing to rebuild independent work habits.' : adr_score >= 4 ? '**Note**: Moderate dependency. Monitor for over-reliance patterns, especially in growth domains.' : '**Healthy**: Low dependency. AI can focus on acceleration and augmentation.'}
+
+---
+
+## 5. Growth Trajectory
+
+**Growth Potential Score**: ${gp_score}/10 — ${gp_score<=3?'**Low**':gp_score<=6?'**Moderate**':'**High**'}
+
+**Skills to develop** (rated Novice-Proficient):
+${growthDomains.length > 0 ? growthDomains.map(d => `- ${d}`).join('\n') : '- No domains rated below Proficient'}
+
+**Skills to protect** (rated Advanced-Expert, at risk of AI-driven atrophy):
+${strongDomains.length > 0 ? strongDomains.map(d => `- ${d}`).join('\n') : '- No domains rated Advanced or above'}
+
+---
+
+## 6. Task Classification Matrix
+
+### Automate (AI executes + annotates)
+- Routine tasks in expert domains where quality is verified
+- Data formatting, boilerplate, and mechanical transforms
+
+### Augment (AI accelerates + challenges)
+${strongDomains.length > 0 ? strongDomains.map(d => `- ${d} — AI provides speed, user provides expertise`).join('\n') : '- Expert-domain tasks (once developed)'}
+
+### Coach (AI scaffolds + questions)
+${growthDomains.length > 0 ? growthDomains.map(d => `- ${d} — build understanding through guided practice`).join('\n') : '- Growth-domain tasks as identified'}
+
+### Protect (AI adds friction + teaches)
+- Complex writing and argumentation
+- Independent critical thinking
+- Tasks where user previously demonstrated mastery but may be delegating too much
+
+---
+
+## 7. Interaction Preferences
+
+| Preference | Setting |
+|-----------|---------|
+| **Friction level** | ${friction} |
+| **Coaching frequency** | ${gp_score >= 7 ? 'High' : gp_score >= 4 ? 'Medium' : 'Low'} |
+| **Challenge level** | ${gp_score >= 6 ? 'High' : 'Medium'} |
+
+---
+
+## 8. Pro-Worker Calibration Settings
+
+\`\`\`yaml
+default_friction_level: ${friction}
+cognitive_forcing: ${adr_score >= 5 ? 'active' : 'selective'}
+cognitive_forcing_domains:
+${cogForcingDomains.length > 0 ? cogForcingDomains.map(d => `  - ${d}`).join('\n') : '  - # none identified'}
+contrastive_explanations: ${gp_score >= 5 ? 'active' : 'selective'}
+contrastive_explanation_domains:
+${contrastiveDomains.length > 0 ? contrastiveDomains.map(d => `  - ${d}`).join('\n') : '  - # none identified'}
+automation_permissions:
+${automationDomains.length > 0 ? automationDomains.map(d => `  - ${d}`).join('\n') : '  - # none identified'}
+coaching_frequency: ${gp_score >= 7 ? 'high' : gp_score >= 4 ? 'medium' : 'low'}
+challenge_level: ${gp_score >= 6 ? 'high' : 'medium'}
+\`\`\`
+
+---
+
+## 9. Change Log
+
+| Date | Change | Trigger |
+|------|--------|---------|
+| ${new Date().toISOString().slice(0,10)} | Initial profile created | PWAQ v2.0 web assessment |
+`;
+
+    // ── Render Results ───────────────────────────────────────────────────────
+
     const el = document.getElementById('section-5');
     el.innerHTML = `
         <h2>Your Pro Worker AI Profile</h2>
-        <p class="subtitle">${name} — ${role} at ${org}</p>
+        <p class="subtitle">${name} — ${role}${org ? (' at ' + org) : ''}</p>
 
         <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:1rem;">
             <div class="score-card">
@@ -440,66 +931,36 @@ function computeResults() {
         </div>
 
         <div class="card">
-            <div class="question">Exportable Profile (copy into any LLM system prompt)</div>
+            <div class="question">Exportable Profile</div>
             <div class="output-box" id="profile-output"></div>
-            <br>
-            <button class="btn btn-primary" onclick="copyProfile()">Copy to Clipboard</button>
-            <button class="btn btn-secondary" onclick="downloadProfile()">Download .md</button>
+        </div>
+
+        <div class="card">
+            <div class="question">Export Options</div>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.75rem;">
+                Copy your profile for different AI platforms, or download it as a file.
+            </p>
+            <div class="export-grid">
+                <button class="btn btn-primary" onclick="copyForChatGPT()">Copy for ChatGPT</button>
+                <button class="btn btn-primary" onclick="copyForClaude()">Copy for Claude Project</button>
+                <button class="btn btn-primary" onclick="copyForGemini()">Copy for Gemini Gem</button>
+                <button class="btn btn-secondary" onclick="copyProfile()">Copy to Clipboard</button>
+                <button class="btn btn-secondary" onclick="downloadProfile()">Download Profile (.md)</button>
+            </div>
         </div>
     `;
-
-    // Generate markdown profile
-    const domainNames = [
-        "Core technical skill", "Written communication", "Strategic thinking",
-        "Project management", "Leadership", "AI literacy", "Industry expertise", "Stakeholder engagement"
-    ];
-    const labels = ["Novice","Developing","Proficient","Advanced","Expert"];
-
-    let expertiseTable = domainNames.map((d,i) =>
-        `| ${d} | ${esa_ratings[i]} (${labels[esa_ratings[i]-1]}) |`
-    ).join('\n');
-
-    const profile = `# Pro Worker AI Profile — ${name}
-
-> Generated: ${new Date().toISOString().slice(0,10)}
-> PWRI: ${pwri.toFixed(1)}/10 | ADR: ${adr_score}/10 | GP: ${gp_score}/10 | ALI: ${ali_score}/10
-
-## Identity
-- **Name**: ${name}
-- **Role**: ${role}
-- **Organization**: ${org}
-
-## Scores
-- **AI Dependency Risk**: ${adr_score}/10 (${adr_score<=3?'Low':adr_score<=6?'Moderate':'High'})
-- **Growth Potential**: ${gp_score}/10
-- **AI Literacy**: ${ali_score}/10
-- **Pro Worker Readiness**: ${pwri.toFixed(1)}/10
-
-## Expertise Map
-| Domain | Rating |
-|--------|--------|
-${expertiseTable}
-
-## Calibration Settings
-\`\`\`yaml
-default_friction_level: ${friction}
-cognitive_forcing: ${adr_score >= 5 ? 'active' : 'selective'}
-contrastive_explanations: ${gp_score >= 5 ? 'active' : 'selective'}
-coaching_frequency: ${gp_score >= 7 ? 'high' : gp_score >= 4 ? 'medium' : 'low'}
-challenge_level: ${gp_score >= 6 ? 'high' : 'medium'}
-\`\`\`
-`;
 
     document.getElementById('profile-output').textContent = profile;
     window._generatedProfile = profile;
 
-    showSection(5);
+    // Jump to results step
+    showSection(SECTION_ORDER.length - 1);
 }
 
+// ── Export Functions ──────────────────────────────────────────────────────────
+
 function copyProfile() {
-    navigator.clipboard.writeText(window._generatedProfile);
-    event.target.textContent = 'Copied!';
-    setTimeout(() => event.target.textContent = 'Copy to Clipboard', 2000);
+    navigator.clipboard.writeText(window._generatedProfile).then(() => showToast('Profile copied to clipboard'));
 }
 
 function downloadProfile() {
@@ -507,9 +968,59 @@ function downloadProfile() {
     const blob = new Blob([window._generatedProfile], {type: 'text/markdown'});
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `pro-${name.toLowerCase()}.md`;
+    a.download = `pro-${name.toLowerCase().replace(/\s+/g, '-')}.md`;
     a.click();
 }
+
+function copyForChatGPT() {
+    // For ChatGPT Custom Instructions: system prompt compact + profile
+    const combined = `${SYSTEM_PROMPT_COMPACT}
+
+---
+
+# MY PROFILE (load this every conversation)
+
+${window._generatedProfile}`;
+    navigator.clipboard.writeText(combined).then(() => showToast('Copied for ChatGPT Custom Instructions'));
+}
+
+function copyForClaude() {
+    // For Claude Projects: just the full profile (CLAUDE.md handles the system prompt)
+    const output = `# Pro Worker AI — Profile for Claude Project
+
+Paste this into your Claude Project's custom instructions. If you also use the full CLAUDE.md system prompt, paste only the profile section below.
+
+---
+
+${window._generatedProfile}`;
+    navigator.clipboard.writeText(output).then(() => showToast('Copied for Claude Project'));
+}
+
+function copyForGemini() {
+    // For Gemini Gems: system prompt compact + profile
+    const combined = `${SYSTEM_PROMPT_COMPACT}
+
+---
+
+# MY PROFILE (load this every conversation)
+
+${window._generatedProfile}`;
+    navigator.clipboard.writeText(combined).then(() => showToast('Copied for Gemini Gem'));
+}
+
+// ── Custom domain input: Enter key support ───────────────────────────────────
+
+document.addEventListener('DOMContentLoaded', () => {
+    const input = document.getElementById('custom-domain-input');
+    if (input) {
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addCustomDomain();
+            }
+        });
+    }
+});
 
 // ── Init ─────────────────────────────────────────────────────────────────────
 

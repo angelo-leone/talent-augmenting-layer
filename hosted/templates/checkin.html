@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check-in -- Pro Worker AI</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <main class="container checkin-container">
+        <div class="checkin-card">
+            <h1 class="checkin-title">Pro Worker AI Check-in</h1>
+
+            {% if already_completed %}
+            <div class="checkin-done">
+                <h2>Already completed</h2>
+                <p class="text-muted">You've already submitted this check-in. Thank you!</p>
+                <a href="/" class="btn btn-primary" style="margin-top: 1rem;">Go to Dashboard</a>
+            </div>
+            {% else %}
+
+            <p class="text-muted checkin-intro">
+                Hi{{ " " + user_name if user_name else "" }}! Take 2 minutes to reflect on the past two weeks.
+                Your answers help keep your AI calibration accurate.
+            </p>
+
+            <form id="checkin-form">
+                {% for q in questions %}
+                <div class="checkin-question card">
+                    <div class="question-text">{{ q.text }}</div>
+
+                    {% if q.type == "choice" %}
+                    <div class="checkin-options">
+                        {% for opt in q.options %}
+                        <label class="checkin-option">
+                            <input type="radio" name="{{ q.id }}" value="{{ opt }}">
+                            <span>{{ opt }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    {% elif q.type == "text" %}
+                    <textarea
+                        name="{{ q.id }}"
+                        class="checkin-textarea"
+                        placeholder="Type your thoughts here (optional)..."
+                        rows="3"
+                    ></textarea>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <div class="checkin-actions">
+                    <button type="submit" class="btn btn-primary">Submit Check-in</button>
+                    <a href="/" class="btn btn-secondary">Skip this time</a>
+                </div>
+            </form>
+
+            <div id="checkin-success" class="hidden">
+                <div class="checkin-done">
+                    <h2>Check-in submitted!</h2>
+                    <p class="text-muted">Thank you for reflecting on your growth. See you in two weeks.</p>
+                </div>
+            </div>
+
+            {% endif %}
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <p>Pro Worker AI v1.0 &mdash; Making workers better, not dependent.</p>
+        </div>
+    </footer>
+
+    <script>
+    (function() {
+        const form = document.getElementById('checkin-form');
+        if (!form) return;
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const responses = {};
+            for (const [key, value] of formData.entries()) {
+                responses[key] = value;
+            }
+
+            // Also grab textareas not captured by FormData radios
+            form.querySelectorAll('textarea').forEach(ta => {
+                if (ta.name && ta.value.trim()) {
+                    responses[ta.name] = ta.value.trim();
+                }
+            });
+
+            const token = '{{ token }}';
+            try {
+                const res = await fetch(`/api/checkin/${token}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ responses }),
+                });
+                if (res.ok) {
+                    form.classList.add('hidden');
+                    document.getElementById('checkin-success').classList.remove('hidden');
+                } else {
+                    const data = await res.json();
+                    alert(data.detail || 'Something went wrong. Please try again.');
+                }
+            } catch (err) {
+                alert('Network error. Please try again.');
+            }
+        });
+    })();
+    </script>
+</body>
+</html>

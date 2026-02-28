@@ -5,79 +5,119 @@
 
 ---
 
-## Architecture Overview
-
-Pro Worker AI has three layers that can be used independently or together:
+## Architecture: 4 Tiers
 
 ```
-Layer 1: CLAUDE.md (system instructions)
-  → Works in Claude Code natively
-  → Can be pasted into any LLM's system prompt
+┌─────────────────────────────────────────────────────────────────────┐
+│  Tier 4: Hosted Web App                                             │
+│  Google OAuth · LLM-powered assessment · email check-ins · DB       │
+├─────────────────────────────────────────────────────────────────────┤
+│  Tier 3: MCP Server (Claude Code, Cursor, Windsurf)                 │
+│  14 tools · 5 resources · 3 prompts · automatic tracking            │
+├─────────────────────────────────────────────────────────────────────┤
+│  Tier 2: Platform-Native (Custom GPTs, Gems, Projects)              │
+│  Pre-configured instances · persistent context · conversation starts│
+├─────────────────────────────────────────────────────────────────────┤
+│  Tier 1: Universal System Prompt (Any LLM)                          │
+│  Copy-paste into any LLM · zero dependencies · works everywhere     │
+└─────────────────────────────────────────────────────────────────────┘
 
-Layer 2: MCP Server (cross-platform tools)
-  → Works with any MCP client (Claude Code, Desktop, Cursor, Windsurf, etc.)
-  → Exposes tools, resources, and prompts over stdio
-  → Handles onboarding assessment, scoring, profile CRUD, and tracking
-
-Layer 3: Profiles (pro-{name}.md files)
-  → Portable markdown files containing the user's configuration
-  → Can be read by any system — no proprietary format
+All tiers share: same PWAQ (14 fixed items + adaptive domains),
+same scoring, same profile format, same behavioral rules.
 ```
 
 ---
 
-## Platform Integrations
+## Tier 1: Universal System Prompt (Any LLM)
 
-### 1. Claude Code (Full Integration)
+**What it is**: A self-contained system prompt and assessment prompt you can paste into any LLM that accepts custom instructions. No tools, no server, no dependencies.
 
-**Best experience.** All three layers work together natively.
+**Setup (3 steps)**:
 
-**Setup:**
-1. Clone the repo into your project (or as a standalone directory)
-2. Add the MCP server to `.claude/settings.json`:
+1. **Take the assessment**: Paste `universal-prompt/ASSESSMENT_PROMPT.md` into a conversation with any LLM. Answer the questions. The LLM generates your profile.
+2. **Save your profile**: Copy the generated profile into `profiles/pro-yourname.md`
+3. **Paste the system prompt**: Copy `universal-prompt/SYSTEM_PROMPT.md` (or the compact version `SYSTEM_PROMPT_COMPACT.md`) into your LLM's custom instructions, along with your profile
 
-```json
-{
-  "mcpServers": {
-    "proworker-ai": {
-      "command": "python",
-      "args": ["-m", "src.server"],
-      "cwd": "/path/to/pro-worker-ai/mcp-server",
-      "env": {
-        "PROWORKER_PROFILES_DIR": "/path/to/pro-worker-ai/profiles"
-      }
-    }
-  }
-}
-```
+**Files**:
 
-3. CLAUDE.md is automatically loaded from the repo root
-4. Slash commands (`/proworker-assess`, `/proworker-coach`, `/proworker-update`) are available in `.claude/commands/`
+| File | Purpose |
+|------|---------|
+| `universal-prompt/SYSTEM_PROMPT.md` | Full system prompt (~4k tokens) |
+| `universal-prompt/SYSTEM_PROMPT_COMPACT.md` | Compact system prompt for token-limited platforms (~2k tokens) |
+| `universal-prompt/ASSESSMENT_PROMPT.md` | Self-contained assessment — paste into any LLM to generate your profile |
+| `universal-prompt/QUICK_START.md` | Step-by-step setup instructions |
 
-**Onboarding a new user:**
-- Type `/proworker-assess` OR the chatbot calls `proworker_assess_start` via MCP
-- The chatbot asks questions conversationally
-- Scores are computed server-side via `proworker_assess_score`
-- Profile is saved via `proworker_assess_create_profile`
-- Future conversations auto-load the profile from CLAUDE.md instructions
+**Platform examples**:
 
-**Day-to-day use:**
-- CLAUDE.md instructs the AI to load the user's profile at conversation start
-- The AI checks the profile to calibrate friction, coaching, and automation
-- Interactions can be logged via `proworker_log_interaction` for skill tracking
+| Platform | Where to paste |
+|----------|---------------|
+| ChatGPT | Settings > Personalization > Custom Instructions |
+| Claude web | Project instructions or system prompt |
+| Gemini | Custom instructions |
+| Any LLM API | `system` parameter in API call |
+| Perplexity, Copilot, etc. | Custom instructions / system prompt field |
+
+**Profile updates**: At the end of a session, ask the LLM to output a `PROFILE UPDATE BLOCK`. Copy any changes back into your profile file manually.
+
+**Limitations**: Manual profile sync between platforms; no automatic interaction logging; no server-side scoring.
 
 ---
 
-### 2. Claude Desktop
+## Tier 2: Platform-Native (Custom GPTs, Gems, Projects)
 
-**Setup:**
-1. Install the MCP server:
+**What it is**: Pre-configured instances on major LLM platforms that include the system prompt and assessment flow built in. Users get persistent context, conversation starters, and a smoother experience than manual paste.
+
+### ChatGPT Custom GPT
+
+Reference file: `platform-configs/chatgpt-gpt.json`
+
+1. Go to **Explore GPTs > Create** in ChatGPT
+2. Import or paste the configuration from `chatgpt-gpt.json`
+3. The GPT includes: system instructions, conversation starters, and assessment flow
+4. Users interact with the GPT naturally; the profile is stored in the conversation context
+
+### Gemini Gem
+
+Reference file: `platform-configs/gemini-gem.md`
+
+1. Go to **Gem Manager > Create** in Google Gemini
+2. Follow the setup instructions in `gemini-gem.md`
+3. Paste the system prompt and configure conversation starters
+4. Gem persists the instructions across conversations
+
+### Claude Project
+
+Reference file: `platform-configs/claude-project.md`
+
+1. Create a new **Project** in Claude (web or desktop)
+2. Add the system prompt from `claude-project.md` as project instructions
+3. Upload the user's profile as a project knowledge file
+4. All conversations within the project use the Pro Worker AI behavior
+
+**Advantages over Tier 1**:
+- Persistent context (no re-pasting each session)
+- Conversation starters guide users to assessment and coaching flows
+- Platform-native features (GPT store distribution, Gem sharing, Project collaboration)
+
+**Profile updates**: Same as Tier 1 — LLM outputs `PROFILE UPDATE BLOCK` at session end. User updates their profile file or re-uploads to the platform.
+
+---
+
+## Tier 3: MCP Server (Claude Code, Cursor, Windsurf)
+
+**What it is**: A full tool integration layer that exposes Pro Worker AI as 14 MCP tools, 5 resources, and 3 prompts. Provides automatic interaction tracking, server-side scoring, and programmatic profile management.
+
+### Setup
+
+1. **Install the server**:
 ```bash
 cd pro-worker-ai/mcp-server
 pip install -e .
 ```
 
-2. Add to `claude_desktop_config.json` (find it in Claude Desktop settings):
+2. **Add to your MCP client config**:
+
+For **Claude Code** (`.claude/settings.json`):
 ```json
 {
   "mcpServers": {
@@ -93,25 +133,7 @@ pip install -e .
 }
 ```
 
-3. Restart Claude Desktop
-
-**Onboarding:**
-- Use the `proworker-assess` prompt from the MCP server
-- Or manually call `proworker_assess_start` to get the assessment protocol
-- The chatbot will guide you through the questions and create your profile
-
-**Usage:**
-- At the start of each conversation, Claude can call `proworker_get_profile` or `proworker_get_calibration`
-- For full system prompt injection, use the `proworker-system` prompt
-- The AI adapts its behavior based on your profile
-
----
-
-### 3. Cursor / Windsurf / Other MCP Editors
-
-**Setup (same as any MCP client):**
-
-For **Cursor**, add to `.cursor/mcp.json` or Cursor settings:
+For **Cursor** (`.cursor/mcp.json`):
 ```json
 {
   "mcpServers": {
@@ -127,276 +149,314 @@ For **Cursor**, add to `.cursor/mcp.json` or Cursor settings:
 }
 ```
 
-For **Windsurf**, add to the MCP server configuration in settings.
+For **Windsurf**, add the same server configuration in MCP settings.
 
-**Usage pattern:**
-1. At conversation start, call `proworker_get_calibration(name="YourName")`
-2. The returned calibration tells the AI how to behave
-3. Before acting on a task, call `proworker_classify_task(name, task_description)` to determine the right approach
-4. After interactions, log them with `proworker_log_interaction`
-
----
-
-### 4. ChatGPT (Custom Instructions)
-
-ChatGPT doesn't support MCP directly, but you can use Pro Worker AI via system prompt injection.
-
-**Option A: Manual paste (simplest)**
-
-1. Run the MCP server locally and call `proworker_get_calibration` to get your calibration JSON
-2. Open ChatGPT > Settings > Personalization > Custom Instructions
-3. Paste the CLAUDE.md content (or a condensed version) into "How would you like ChatGPT to respond?"
-4. Paste your profile summary into "What would you like ChatGPT to know about you?"
-
-**Option B: Full system prompt (more powerful)**
-
-1. Start the MCP server: `cd mcp-server && python -m src.server`
-2. Use any MCP client to read `proworker://system-prompt/yourname`
-3. This returns the complete system prompt (CLAUDE.md + your profile)
-4. Paste it into ChatGPT's custom instructions or a GPT's system prompt
-
-**Option C: Build a custom GPT**
-
-Create a GPT with:
-- **Instructions**: The content from `proworker://system-prompt/yourname`
-- **Conversation starters**: "Help me with [task]", "Coach me on [skill]"
-- The GPT will behave according to your Pro Worker AI profile
-
----
-
-### 5. Claude API (Programmatic)
-
-For building applications that use Pro Worker AI programmatically.
-
-**Direct API integration:**
-
-```python
-import anthropic
-from pathlib import Path
-
-# Load the system prompt
-claude_md = Path("pro-worker-ai/CLAUDE.md").read_text()
-profile = Path("pro-worker-ai/profiles/pro-yourname.md").read_text()
-system_prompt = f"{claude_md}\n\n---\n\n# Active User Profile\n\n{profile}"
-
-client = anthropic.Anthropic()
-response = client.messages.create(
-    model="claude-sonnet-4-20250514",
-    max_tokens=4096,
-    system=system_prompt,
-    messages=[{"role": "user", "content": "Help me write an evaluation framework"}]
-)
+For **Claude Desktop** (`claude_desktop_config.json`):
+```json
+{
+  "mcpServers": {
+    "proworker-ai": {
+      "command": "python",
+      "args": ["-m", "src.server"],
+      "cwd": "/path/to/pro-worker-ai/mcp-server",
+      "env": {
+        "PROWORKER_PROFILES_DIR": "/path/to/pro-worker-ai/profiles"
+      }
+    }
+  }
+}
 ```
 
-**With MCP client library:**
+3. **Run the assessment**: Use `/proworker-assess` (slash command) or call `proworker_assess_start` via MCP
 
-```python
-from mcp import ClientSession, StdioServerParameters
-from mcp.client.stdio import stdio_client
-
-server_params = StdioServerParameters(
-    command="python",
-    args=["-m", "src.server"],
-    cwd="/path/to/pro-worker-ai/mcp-server",
-    env={"PROWORKER_PROFILES_DIR": "/path/to/pro-worker-ai/profiles"}
-)
-
-async with stdio_client(server_params) as (read, write):
-    async with ClientSession(read, write) as session:
-        await session.initialize()
-
-        # Get profile
-        profile = await session.call_tool("proworker_get_profile", {"name": "Angelo"})
-
-        # Classify a task
-        classification = await session.call_tool("proworker_classify_task", {
-            "name": "Angelo",
-            "task_description": "Write an economic analysis"
-        })
-
-        # Log interaction
-        await session.call_tool("proworker_log_interaction", {
-            "name": "Angelo",
-            "task_category": "coach",
-            "domain": "economic_analysis",
-            "engagement_level": "active",
-            "skill_signal": "growth"
-        })
-```
-
----
-
-### 6. Custom Agents (Agent SDK, LangChain, CrewAI, etc.)
-
-For building custom AI agents that respect Pro Worker AI.
-
-**Pattern: Pre-action classification**
-
-```python
-# Before any agent action, classify the task
-async def pro_worker_middleware(task, user_name, mcp_session):
-    """Middleware that applies Pro Worker AI behavior to any agent."""
-
-    result = await mcp_session.call_tool("proworker_classify_task", {
-        "name": user_name,
-        "task_description": task
-    })
-    classification = result.content[0].text
-
-    if "protect" in classification:
-        # Ask for hypothesis first
-        return {
-            "action": "ask_hypothesis",
-            "prompt": "Before I help with this, what's your initial thinking?"
-        }
-    elif "coach" in classification:
-        # Scaffold, don't solve
-        return {
-            "action": "scaffold",
-            "prompt": "Let me help you think through this. What framework are you considering?"
-        }
-    elif "hands_off" in classification:
-        # Surface decision, don't make it
-        return {
-            "action": "surface",
-            "prompt": "This is a decision that needs your judgment. Here are the considerations..."
-        }
-    elif "automate" in classification:
-        return {"action": "execute", "annotate": True}
-    else:  # augment
-        return {"action": "execute", "challenge": True}
-```
-
-**Pattern: Post-interaction logging**
-
-```python
-async def log_interaction(mcp_session, user_name, task_category, domain, engagement, signal):
-    """Log every substantive interaction for skill tracking."""
-    await mcp_session.call_tool("proworker_log_interaction", {
-        "name": user_name,
-        "task_category": task_category,
-        "domain": domain,
-        "engagement_level": engagement,
-        "skill_signal": signal,
-    })
-```
-
-**Pattern: Onboarding flow in any agent**
-
-```python
-async def run_onboarding(mcp_session, llm_client):
-    """Run the Pro Worker AI onboarding assessment via MCP."""
-
-    # 1. Get the assessment protocol
-    protocol = await mcp_session.call_tool("proworker_assess_start", {})
-    # protocol contains all questions and instructions
-
-    # 2. Your agent/chatbot asks questions based on the protocol
-    # ... (collect answers from user) ...
-
-    # 3. Compute scores
-    scores = await mcp_session.call_tool("proworker_assess_score", {
-        "answers": collected_answers,
-        "domain_ratings": domain_ratings
-    })
-
-    # 4. Create and save the profile
-    result = await mcp_session.call_tool("proworker_assess_create_profile", {
-        "name": user_name,
-        "role": role,
-        "organization": org,
-        "industry": industry,
-        "answers": collected_answers,
-        "domain_ratings": domain_ratings,
-        "career_goals": goals,
-        # ... etc
-    })
-    # Profile is now saved and ready to use
-```
-
----
-
-### 7. OpenAI API / Other LLM APIs
-
-For non-Anthropic LLMs, use the system prompt injection approach:
-
-```python
-import openai
-
-# Load the Pro Worker AI system prompt
-system_prompt = open("pro-worker-ai/CLAUDE.md").read()
-profile = open("pro-worker-ai/profiles/pro-yourname.md").read()
-full_prompt = f"{system_prompt}\n\n---\n\n# Active User Profile\n\n{profile}"
-
-client = openai.OpenAI()
-response = client.chat.completions.create(
-    model="gpt-4o",
-    messages=[
-        {"role": "system", "content": full_prompt},
-        {"role": "user", "content": "Help me design a stakeholder engagement strategy"}
-    ]
-)
-```
-
-The system prompt works with any LLM that supports system instructions. The behavioral guidelines (cognitive forcing, contrastive explanations, task classification) are model-agnostic.
-
----
-
-## Organizational Deployment
-
-### For Teams / Companies
-
-1. **Set up a shared profiles directory** (network drive, S3 bucket, Git repo)
-2. **Run onboarding** for each team member via MCP assessment
-3. **Connect the MCP server** to your team's tools
-4. **Use the Streamlit dashboard** (`dashboard/app.py`) for org-level monitoring
-5. **Re-assess** every 6 months (full) or 2 months (quick ADR check)
-
-### Deployment options:
-
-| Method | Complexity | Best for |
-|--------|-----------|----------|
-| Git repo + local MCP | Low | Individual / small team |
-| Shared network profiles + per-machine MCP | Medium | Office teams |
-| Central MCP server (HTTP transport) | High | Enterprise deployment |
-| API wrapper service | High | SaaS product |
-
----
-
-## MCP Server Reference
-
-### Tools (13 total)
+### Tools (14 total)
 
 | Tool | Input | Output |
 |------|-------|--------|
+| `proworker_get_profile` | `{name}` | Full profile markdown |
+| `proworker_get_calibration` | `{name}` | Compact calibration JSON for system prompt injection |
+| `proworker_classify_task` | `{name, task_description}` | Task classification + recommended AI behavior |
+| `proworker_log_interaction` | `{name, category, domain, engagement, signal}` | Logged interaction entry for skill tracking |
+| `proworker_get_progression` | `{name}` | Skill progression stats, trends, atrophy warnings |
+| `proworker_list_profiles` | `{}` | List of all profile names |
+| `proworker_status` | `{name}` | Comprehensive status report |
+| `proworker_org_summary` | `{}` | Organization-level aggregation across all profiles |
+| `proworker_delete_profile` | `{name}` | Delete profile + interaction logs |
+| `proworker_save_profile` | `{name, content}` | Save raw profile markdown to disk |
 | `proworker_assess_start` | `{name?}` | Full assessment protocol (questions + instructions) |
 | `proworker_assess_score` | `{answers, domain_ratings}` | Computed scores (ADR, GP, ALI, ESA, PWRI) |
 | `proworker_assess_create_profile` | `{name, role, org, ...}` | Generated profile saved to disk |
-| `proworker_get_profile` | `{name}` | Full profile markdown |
-| `proworker_get_calibration` | `{name}` | Compact calibration JSON |
-| `proworker_classify_task` | `{name, task_description}` | Task classification + recommended behavior |
-| `proworker_log_interaction` | `{name, category, domain, ...}` | Logged interaction entry |
-| `proworker_get_progression` | `{name}` | Skill progression stats + trends |
-| `proworker_status` | `{name}` | Comprehensive status report |
-| `proworker_org_summary` | `{}` | Org-level aggregation |
-| `proworker_list_profiles` | `{}` | List of all profile names |
-| `proworker_save_profile` | `{name, content}` | Save raw profile markdown |
-| `proworker_delete_profile` | `{name}` | Delete profile + logs |
+| `proworker_suggest_domains` | `{role, industry, responsibilities?}` | Suggested expertise domains from industry taxonomy |
 
-### Resources
+### Resources (5 total)
 
 | URI | Content |
 |-----|---------|
 | `proworker://profile/{name}` | Full profile markdown |
 | `proworker://system-prompt/{name}` | CLAUDE.md + profile (ready for any LLM) |
+| `proworker://coaching-modules` | Structured coaching sessions (5 modules, 13 sessions) |
+| `proworker://framework` | Assessment framework and methodology |
+| `proworker://literature` | Research literature backing the system |
+
+### Prompts (3 total)
+
+| Prompt | Description |
+|--------|-------------|
+| `proworker-system` | Full system prompt for any LLM (CLAUDE.md + user profile) |
+| `proworker-assess` | Onboarding assessment (chatbot-driven, conversational) |
+| `proworker-coach` | Coaching session (with optional focus domain) |
+
+### Slash Commands
+
+| Command | Action |
+|---------|--------|
+| `/proworker-assess` | Run initial assessment or full re-assessment |
+| `/proworker-coach` | Start a targeted coaching session on a specific skill |
+| `/proworker-update` | Update profile based on recent interactions |
+
+**Profile updates**: Automatic via `proworker_log_interaction`. The server tracks interaction patterns, engagement levels, and skill signals. Profile updates are applied through `proworker_save_profile`.
+
+**Advantages over Tier 2**:
+- Automatic interaction tracking and skill progression analysis
+- Server-side scoring (PWAQ scores computed by the assessment engine)
+- Organization-level analytics via `proworker_org_summary`
+- Domain suggestion engine (`proworker_suggest_domains`)
+- Programmatic profile management (create, read, update, delete)
+- Works with any MCP-compatible client
+
+---
+
+## Tier 4: Hosted Web App
+
+**What it is**: A standalone web application with persistent user profiles, Google OAuth authentication, LLM-powered conversational assessment, 2-week email check-in reminders, and profile export. No LLM client required — works in any browser.
+
+### Features
+
+- **Google OAuth login**: Users authenticate via Google; no password management needed
+- **LLM-powered assessment**: Conversational onboarding driven by an LLM (configurable provider)
+- **Persistent profiles**: Stored in a database with full version history
+- **2-week check-ins**: Automated email reminders prompt users to update their profile
+- **Profile export**: Download profile as portable markdown for use in any tier
+- **Dashboard**: Visual summary of scores, growth trajectory, and skill status
+
+### Setup
+
+1. **Environment variables** (see `hosted/README.md` for full list):
+   - `SECRET_KEY`: Flask session secret
+   - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`: OAuth credentials
+   - `LLM_PROVIDER` / `LLM_API_KEY`: LLM for conversational assessment
+   - `SMTP_*`: Email configuration for check-in reminders
+   - `DATABASE_URL`: Database connection string
+
+2. **Google Cloud OAuth**: Create OAuth 2.0 credentials in Google Cloud Console. Add authorized redirect URIs.
+
+3. **Deployment options**:
+
+   **Docker** (recommended):
+   ```bash
+   cd hosted
+   docker build -t proworker-hosted .
+   docker run -p 5000:5000 --env-file .env proworker-hosted
+   ```
+
+   **Direct**:
+   ```bash
+   cd hosted
+   pip install -r requirements.txt
+   python app.py
+   ```
+
+### Key Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/` | GET | Landing page / login |
+| `/auth/login` | GET | Google OAuth login flow |
+| `/assessment` | GET/POST | Conversational assessment interface |
+| `/dashboard` | GET | User profile dashboard |
+| `/checkin` | GET/POST | 2-week check-in form |
+| `/api/profile/export` | GET | Export profile as markdown |
+
+**Profile updates**: Automatic via database. Email reminders prompt 2-week check-ins. Full profile version history is maintained.
+
+**Advantages over Tier 3**:
+- No CLI or MCP client required — browser-only
+- Built-in authentication and user management
+- Automated email check-in reminders
+- Profile versioning and history
+- Suitable for non-technical users and organizational rollouts
+
+---
+
+## Profile Format (Cross-Platform Contract)
+
+The profile is the portable unit. All four tiers produce and consume the same 9-section markdown format:
+
+```markdown
+# Pro Worker AI Profile: {Name}
+
+## 1. Identity & Context
+Role, organization, industry, context summary
+
+## 2. Expertise Map
+Domain → Level (Novice/Developing/Proficient/Advanced/Expert) + AI mode
+
+## 3. AI Relationship Status (Calibration)
+PWAQ scores: ADR, GP, ALI, ESA, PWRI
+YAML calibration block with friction levels and behavioral settings
+
+## 4. Growth Trajectory
+Career goals, skills to develop, skills to protect
+
+## 5. Interaction Preferences
+Learning style, feedback style, communication style
+
+## 6. Task Classification
+automate / augment / coach / protect / hands-off task lists
+
+## 7. Contrastive Knowledge
+7.5. Domain-Specific Contrast Libraries (assumption → reality → principle tables)
+
+## 8. Red Lines
+Things AI should NEVER do for this user
+
+## 9. Change Log
+Dated entries tracking profile evolution
+```
+
+**Why markdown**: Portable across every platform, human-readable, works in any LLM's context window, easy to diff and version control. No proprietary format, no lock-in.
+
+**Calibration YAML block** (embedded in Section 3):
+```yaml
+calibration:
+  global_friction: 0.4        # 0 = full auto, 1 = full friction
+  coaching_domains: [strategy, stakeholder_engagement]
+  expert_domains: [economic_analysis, evaluation_design]
+  protected_skills: [critical_thinking, writing]
+  red_lines: [never_send_emails, never_make_final_decisions]
+```
+
+**Domain-specific contrast libraries** (Section 7.5): Tables mapping common assumptions to reality to transferable principles, organized by domain. These power the contrastive explanation engine in coaching and developing domains.
+
+---
+
+## Profile Sync Across Platforms
+
+### Track A: LLM-Driven Session Updates (Tiers 1-2)
+
+At the end of a substantive session, the LLM outputs a `PROFILE UPDATE BLOCK`:
+
+```
+--- PROFILE UPDATE BLOCK ---
+Domain: strategy
+Signal: growth
+Evidence: User identified the counterfactual issue independently
+Suggestion: Consider moving strategy from "coach" to "augment"
+--- END PROFILE UPDATE BLOCK ---
+```
+
+The user copies relevant updates into their profile manually. This is the lowest-friction sync mechanism and works with any LLM.
+
+### Track B: Server-Managed Sync (Tier 3)
+
+The MCP server handles profile updates programmatically:
+1. `proworker_log_interaction` records every substantive interaction
+2. `proworker_get_progression` analyzes trends and flags atrophy risks
+3. `/proworker-update` (slash command) triggers a profile revision based on accumulated logs
+4. `proworker_save_profile` writes the updated profile to disk
+
+### Track C: Hosted App Sync (Tier 4)
+
+The hosted web app provides automated sync:
+1. Profile changes are persisted to the database immediately
+2. 2-week email reminders prompt users to review and update their profile
+3. Full version history is maintained — users can compare profiles over time
+4. Profile export produces the same portable markdown format used by all other tiers
+
+### Manual Check-In Protocol
+
+Regardless of tier, users should periodically review their profile:
+- **Every 2 weeks**: Quick check — are the task classifications still accurate?
+- **Every 2 months**: ADR check — have AI dependency patterns changed?
+- **Every 6 months**: Full re-assessment via `/proworker-assess` or ASSESSMENT_PROMPT.md
+
+---
+
+## Organizational Deployment
+
+### Team Setup
+
+1. **Choose a tier** (or combine tiers):
+   - Small teams with MCP clients: Tier 3 (shared profiles directory)
+   - Non-technical teams: Tier 4 (hosted web app)
+   - Mixed environments: Tier 1/2 for LLM users + Tier 3 for developers
+
+2. **Set up a shared profiles directory** (for Tier 3): network drive, Git repo, or S3 bucket
+
+3. **Run onboarding** for each team member via MCP assessment or hosted app
+
+4. **Use the Streamlit dashboard** (`dashboard/app.py`) for organization-level monitoring:
+   - Aggregate dependency risk across the team
+   - Skill distribution heat maps
+   - Atrophy alerts by domain
+   - Growth trends over time
+
+### Onboarding Flow for New Team Members
+
+1. New member takes the PWAQ assessment (via any tier)
+2. Profile is generated and saved to the shared profiles directory
+3. Member configures their LLM/IDE with the Pro Worker AI system prompt
+4. First coaching session (`/proworker-coach`) establishes the baseline
+5. Regular check-ins track skill development over time
+
+### Deployment Options
+
+| Method | Complexity | Best For |
+|--------|-----------|----------|
+| Git repo + local MCP (Tier 3) | Low | Individual / small team |
+| Shared profiles + per-machine MCP (Tier 3) | Medium | Office teams with MCP clients |
+| Hosted web app (Tier 4) | Medium | Non-technical teams, org rollouts |
+| Docker deployment (Tier 4) | Medium-High | Enterprise with existing infrastructure |
+| Central MCP server (HTTP transport) | High | Enterprise MCP deployment |
+| API wrapper service | High | SaaS product integration |
+
+---
+
+## MCP Server Reference
+
+### Quick Reference: 14 Tools
+
+| # | Tool | Purpose |
+|---|------|---------|
+| 1 | `proworker_get_profile` | Load full profile markdown |
+| 2 | `proworker_get_calibration` | Get compact calibration JSON |
+| 3 | `proworker_classify_task` | Classify task into AI interaction mode |
+| 4 | `proworker_log_interaction` | Log interaction for skill tracking |
+| 5 | `proworker_get_progression` | Get skill progression stats and trends |
+| 6 | `proworker_list_profiles` | List all available profiles |
+| 7 | `proworker_status` | Comprehensive user status report |
+| 8 | `proworker_org_summary` | Organization-level analytics |
+| 9 | `proworker_delete_profile` | Delete profile and logs |
+| 10 | `proworker_save_profile` | Save raw profile markdown |
+| 11 | `proworker_assess_start` | Start assessment protocol |
+| 12 | `proworker_assess_score` | Compute PWAQ scores from raw answers |
+| 13 | `proworker_assess_create_profile` | Generate and save profile from assessment |
+| 14 | `proworker_suggest_domains` | Suggest expertise domains by role/industry |
+
+### Quick Reference: 5 Resources
+
+| URI | Content |
+|-----|---------|
+| `proworker://profile/{name}` | Full profile markdown |
+| `proworker://system-prompt/{name}` | CLAUDE.md + profile |
 | `proworker://coaching-modules` | Structured coaching sessions |
 | `proworker://framework` | Assessment framework |
-| `proworker://literature` | Research literature backing |
+| `proworker://literature` | Research literature |
 
-### Prompts
+### Quick Reference: 3 Prompts
 
 | Prompt | Description |
 |--------|-------------|
 | `proworker-system` | Full system prompt for any LLM |
-| `proworker-assess` | Onboarding assessment (chatbot-driven) |
-| `proworker-coach` | Coaching session (with optional focus domain) |
+| `proworker-assess` | Chatbot-driven onboarding assessment |
+| `proworker-coach` | Targeted coaching session |

@@ -1,0 +1,30 @@
+{
+  "name": "Pro Worker AI",
+  "description": "Research-backed AI augmentation that adapts to your expertise level. Coaches you in growth areas, accelerates you in expert areas, and protects you from de-skilling. Based on Buçinca et al. (2021, 2024), Mollick, and Acemoglu.",
+  "instructions": "See SYSTEM_PROMPT.md — paste the full contents of universal-prompt/SYSTEM_PROMPT.md here when creating the GPT.",
+  "conversation_starters": [
+    "Help me with a task",
+    "Coach me on a specific skill",
+    "Assess me — create my Pro Worker AI profile",
+    "Update my profile based on recent work"
+  ],
+  "capabilities": {
+    "web_browsing": false,
+    "code_interpreter": false,
+    "dall_e": false
+  },
+  "knowledge_files": [
+    "Upload your profile (pro-yourname.md) as a knowledge file"
+  ],
+  "setup_instructions": [
+    "1. Go to ChatGPT > Explore GPTs > Create a GPT",
+    "2. In Configure > Name: 'Pro Worker AI'",
+    "3. In Configure > Description: paste the description above",
+    "4. In Configure > Instructions: paste the FULL contents of universal-prompt/SYSTEM_PROMPT.md",
+    "5. In Configure > Conversation starters: add the starters above",
+    "6. In Configure > Knowledge: upload your profile .md file",
+    "7. Disable Web Browsing, Code Interpreter, and DALL-E (not needed)",
+    "8. Save and publish (private or public)",
+    "9. Use this GPT for all your work conversations"
+  ]
+}
