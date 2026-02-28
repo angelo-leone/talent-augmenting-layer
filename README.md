@@ -1,21 +1,24 @@
 # Pro Worker AI — Personalized AI Augmentation Layer
 
 [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
-[![MCP Tools](https://img.shields.io/badge/MCP%20Tools-13-blue)]()
+[![MCP Tools](https://img.shields.io/badge/MCP%20Tools-14-blue)]()
 [![Research-Backed](https://img.shields.io/badge/Research--Backed-Yes-green)]()
 
-> Make workers better, not dependent. A personalized AI coaching system that follows you everywhere.
+> **Works with**: ChatGPT | Claude | Gemini | Cursor | Windsurf | Any LLM
+
+> Make workers better, not dependent. A personalized AI augmentation system that follows you across every platform.
 
 ---
 
 ## What Is This?
 
-Pro Worker AI (PWA) is a **personalized AI augmentation layer** that transforms how AI interacts with you. Instead of treating you as a generic user, PWA:
+Pro Worker AI (PWA) is a **personalized AI augmentation layer** that transforms how AI interacts with you. It works with any LLM, on any platform, through a 4-tier architecture designed for cross-platform portability. Instead of treating you as a generic user, PWA:
 
-1. **Assesses** your expertise, goals, work style, and growth areas
-2. **Creates** a living profile that calibrates all AI interactions to YOUR context
+1. **Assesses** your expertise, goals, work style, and growth areas using the PWAQ (Pro Worker AI Questionnaire)
+2. **Creates** a living profile in portable markdown that calibrates all AI interactions to YOUR context
 3. **Adapts** — coaching you in areas where you're growing, accelerating you where you're expert, automating what should be automated, and protecting skills at risk of atrophying
 4. **Evolves** — your profile updates as you grow, keeping the AI aligned with your changing needs
+5. **Travels with you** — the same profile works in ChatGPT, Claude, Gemini, Cursor, Windsurf, or any LLM
 
 **The core insight**: AI that does everything for you makes you worse over time. AI that knows WHEN to help, WHEN to coach, WHEN to challenge, and WHEN to step back makes you permanently better.
 
@@ -37,35 +40,37 @@ Current AI tools have one mode: **maximum helpfulness**. This creates three fail
 
 ## How It Works
 
-### Architecture
+### Architecture: 4 Tiers
+
+Pro Worker AI is a **layer**, not a product tied to one platform. It works through 4 tiers, from zero-dependency copy-paste to a full hosted web app:
 
 ```
-┌─────────────────────────────────────────────────────┐
-│                    CLAUDE.md                         │
-│         (Pro-Worker System Instructions)             │
-│   Loads profile → Calibrates behavior → Adapts      │
-└───────────────────────┬─────────────────────────────┘
-                        │
-        ┌───────────────┼───────────────┐
-        ▼               ▼               ▼
-┌──────────────┐ ┌──────────────┐ ┌──────────────┐
-│  /proworker  │ │  /proworker  │ │  /proworker  │
-│   -assess    │ │   -update    │ │   -coach     │
-│              │ │              │ │              │
-│ Initial      │ │ Evolve       │ │ Targeted     │
-│ assessment   │ │ profile      │ │ coaching     │
-│ → profile    │ │ over time    │ │ session      │
-└──────┬───────┘ └──────┬───────┘ └──────────────┘
-       │                │
-       ▼                ▼
-┌─────────────────────────────────────────────────────┐
-│              profiles/pro-{name}.md                  │
-│                                                      │
-│  Identity · Expertise Map · AI Relationship Status   │
-│  Growth Trajectory · Interaction Preferences          │
-│  Task Classification · Calibration Settings           │
-│  Red Lines · Change Log                              │
-└─────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│  Tier 4: Hosted Web App                                         │
+│  Browser-based · Google OAuth · LLM assessment · email check-ins│
+├─────────────────────────────────────────────────────────────────┤
+│  Tier 3: MCP Server                                             │
+│  14 tools · 5 resources · 3 prompts · automatic tracking        │
+│  Claude Code · Cursor · Windsurf · Claude Desktop               │
+├─────────────────────────────────────────────────────────────────┤
+│  Tier 2: Platform-Native                                        │
+│  Custom GPTs · Gemini Gems · Claude Projects                    │
+│  Persistent context · conversation starters                     │
+├─────────────────────────────────────────────────────────────────┤
+│  Tier 1: Universal System Prompt                                │
+│  Any LLM · zero dependencies · copy-paste setup                 │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                  profiles/pro-{name}.md                          │
+│  Portable markdown · same format across all tiers               │
+│  Identity · Expertise Map · PWAQ Scores · Task Classification   │
+│  Growth Trajectory · Contrast Libraries · Red Lines             │
+└─────────────────────────────────────────────────────────────────┘
+
+All tiers share: same PWAQ instrument, same scoring,
+same profile format, same behavioral rules.
 ```
 
 ### The Five Modes
@@ -94,10 +99,35 @@ Every task gets classified into one of five AI interaction modes:
 
 ## Quick Start
 
-### Option A: Claude Code (Full Experience)
+Pick the option that matches your setup:
 
-1. Clone this repo
-2. Add the MCP server to `.claude/settings.json`:
+| Option | Time | What You Need |
+|--------|------|---------------|
+| **Any LLM** | 2 min | Access to any LLM with custom instructions |
+| **Custom GPT / Gem / Project** | 5 min | ChatGPT Plus, Gemini, or Claude account |
+| **MCP Server** | 10 min | Python + an MCP client (Claude Code, Cursor, Windsurf) |
+| **Hosted Web App** | 15 min | Docker or Python + Google Cloud OAuth |
+
+### Any LLM (2 min)
+
+1. Paste `universal-prompt/ASSESSMENT_PROMPT.md` into a conversation. Answer the questions. Save the generated profile.
+2. Paste `universal-prompt/SYSTEM_PROMPT.md` + your profile into your LLM's custom instructions.
+3. Done. The AI now adapts to your expertise, coaches your growth areas, and protects your skills.
+
+### Custom GPT / Gem / Project (5 min)
+
+Pre-configured instances with persistent context and conversation starters:
+- **ChatGPT**: Import `platform-configs/chatgpt-gpt.json` as a Custom GPT
+- **Gemini**: Follow `platform-configs/gemini-gem.md` to create a Gem
+- **Claude**: Follow `platform-configs/claude-project.md` to set up a Project
+
+### MCP Server (10 min)
+
+Full tool integration with automatic tracking:
+```bash
+cd mcp-server && pip install -e .
+```
+Add to your MCP client config (Claude Code, Cursor, Windsurf, Claude Desktop):
 ```json
 {
   "mcpServers": {
@@ -112,57 +142,37 @@ Every task gets classified into one of five AI interaction modes:
   }
 }
 ```
-3. Run `/proworker-assess` to create your profile (the chatbot guides you through it)
-4. Work normally — CLAUDE.md automatically calibrates every interaction
+Run `/proworker-assess` to create your profile.
 
-### Option B: Any MCP Client (Claude Desktop, Cursor, Windsurf, etc.)
+### Hosted Web App
 
-1. Install: `cd mcp-server && pip install -e .`
-2. Add the MCP server to your client's config (same JSON as above)
-3. The chatbot can call `proworker_assess_start` to run the onboarding
-4. Your profile is created and used for all future interactions
+Browser-based app with Google login, LLM-powered assessment, and email check-in reminders:
+```bash
+cd hosted && docker build -t proworker . && docker run -p 5000:5000 --env-file .env proworker
+```
+See `hosted/README.md` for full setup (OAuth credentials, LLM API key, SMTP config).
 
-### Option C: Any LLM (ChatGPT, Gemini, etc.)
-
-1. Read `proworker://system-prompt/yourname` from the MCP server
-2. Paste into your LLM's system instructions / custom instructions
-3. The AI will behave according to your Pro Worker AI profile
-
-See `docs/integration-guide.md` for detailed platform-specific instructions.
-
-### Day-to-Day Commands
+### Day-to-Day Commands (MCP / Claude Code)
 - `/proworker-assess` — Run initial assessment or full re-assessment
 - `/proworker-update` — Update profile based on recent interactions
 - `/proworker-coach` — Start a targeted coaching session on a specific skill
 
+See `docs/integration-guide.md` for detailed platform-specific instructions.
+
 ---
 
-## The Vision: A Universal Layer
+## Cross-Platform Portability
 
-Pro Worker AI is designed as a **layer** — not tied to any specific tool, LLM, or platform.
+Pro Worker AI is designed as a **layer** -- not tied to any specific tool, LLM, or platform. The 4-tier architecture means it works everywhere:
 
-### Where It Can Go
+| Tier | Platforms | Setup |
+|------|-----------|-------|
+| **Tier 1**: Universal prompt | ChatGPT, Claude, Gemini, Copilot, Perplexity, any LLM API | Copy-paste (2 min) |
+| **Tier 2**: Platform-native | ChatGPT Custom GPTs, Gemini Gems, Claude Projects | Pre-configured instance (5 min) |
+| **Tier 3**: MCP Server | Claude Code, Cursor, Windsurf, Claude Desktop | pip install + config (10 min) |
+| **Tier 4**: Hosted web app | Any browser | Docker deploy (15 min) |
 
-| Platform | Implementation |
-|----------|---------------|
-| **Claude Code** | CLAUDE.md + slash commands (current) |
-| **Any LLM** | Append the profile as system prompt context |
-| **Agent frameworks** | Inject profile into agent system prompts |
-| **MCP Server** | Serve profiles and assessment as MCP tools |
-| **IDE extensions** | VS Code / Cursor extension that loads profile |
-| **API middleware** | Intercept LLM calls, inject profile, apply friction |
-
-The profile is **portable markdown** — it works anywhere you can inject system context.
-
-### The Marketplace Opportunity (PUBLIC.io)
-
-PWA could be a product on PUBLIC's marketplace:
-
-1. **Assessment-as-a-Service**: Organizations run PWA assessments across their workforce
-2. **Personalized AI Policies**: Instead of "everyone uses AI the same way," each worker gets calibrated AI interaction
-3. **Skills Dashboard**: Track workforce skill development and AI dependency risk over time
-4. **Compliance Layer**: Ensure AI usage in regulated sectors (healthcare, gov, finance) maintains human competence
-5. **Training Integration**: Connect assessment results to L&D programs
+The profile is **portable markdown** -- it works anywhere you can inject system context. Take your profile from Claude Code to ChatGPT to Cursor and back. Your AI calibration follows you.
 
 ---
 
@@ -200,13 +210,36 @@ pro-worker-ai/
 │   │   ├── proworker-update.md         # /proworker-update slash command
 │   │   └── proworker-coach.md          # /proworker-coach slash command
 │   └── settings.local.json            # Claude Code permissions
-├── mcp-server/                         # Cross-platform MCP server
+├── universal-prompt/                   # Tier 1: Works with any LLM
+│   ├── SYSTEM_PROMPT.md                # Full system prompt (~4k tokens)
+│   ├── SYSTEM_PROMPT_COMPACT.md        # Compact version for token-limited platforms
+│   ├── ASSESSMENT_PROMPT.md            # Self-contained assessment prompt
+│   └── QUICK_START.md                  # Step-by-step setup instructions
+├── platform-configs/                   # Tier 2: Pre-configured platform instances
+│   ├── chatgpt-gpt.json               # ChatGPT Custom GPT configuration
+│   ├── gemini-gem.md                   # Gemini Gem setup guide
+│   └── claude-project.md              # Claude Project setup guide
+├── mcp-server/                         # Tier 3: Cross-platform MCP server
 │   ├── pyproject.toml                  # Package config
 │   ├── README.md                       # MCP server docs
 │   └── src/
-│       ├── server.py                   # MCP tools, resources, prompts (13 tools)
+│       ├── server.py                   # MCP tools, resources, prompts (14 tools)
 │       ├── profile_manager.py          # Profile CRUD, parsing, interaction logging
 │       └── assessment.py               # Embedded assessment engine (questions, scoring)
+├── hosted/                             # Tier 4: Standalone web application
+│   ├── app.py                          # Flask application (routes, OAuth, assessment)
+│   ├── config.py                       # Environment configuration
+│   ├── database.py                     # Database models and persistence
+│   ├── llm_client.py                   # LLM integration for conversational assessment
+│   ├── scoring.py                      # PWAQ scoring engine
+│   ├── auth.py                         # Google OAuth authentication
+│   ├── email_service.py                # 2-week check-in email reminders
+│   ├── scheduler.py                    # Background task scheduling
+│   ├── templates/                      # HTML templates (login, assessment, dashboard, checkin)
+│   ├── static/                         # CSS and JavaScript
+│   ├── requirements.txt                # Python dependencies
+│   ├── Dockerfile                      # Container deployment
+│   └── README.md                       # Hosted app setup guide
 ├── assessment/
 │   ├── framework.md                    # Assessment methodology
 │   ├── scoring-instrument.md           # PWAQ psychometric instrument
@@ -218,14 +251,14 @@ pro-worker-ai/
 ├── web-ui/
 │   └── index.html                      # Standalone web assessment UI
 ├── docs/
-│   └── integration-guide.md            # Platform integration guides (7 platforms)
+│   └── integration-guide.md            # 4-tier integration guide
 ├── profiles/
 │   ├── TEMPLATE.md                     # Blank profile template
 │   └── pro-angelo.md                   # Example: Angelo's profile
 └── context/                            # Research papers (Buçinca, Acemoglu, Mollick)
 ```
 
-> **Related project**: [Pro-Worker AI Benchmark](https://github.com/angelo-leone/pro-worker-benchmark) — a 3-layer evaluation framework for measuring whether LLMs augment or replace human intelligence.
+> **Related project**: [Pro-Worker AI Benchmark](https://github.com/angelo-leone/pro-worker-benchmark) -- a 3-layer evaluation framework for measuring whether LLMs augment or replace human intelligence.
 
 ---
 
@@ -252,13 +285,16 @@ Memory is the database. **PWA is the operating system.**
 This is an open-source personalized AI augmentation layer. Current status:
 
 - [x] Core system prompt with 4 interaction modes (CLAUDE.md)
-- [x] Interactive assessment with profile generation
-- [x] Psychometric scoring instrument (PWAQ) with validated Likert scales
-- [x] MCP server with 13 tools for cross-platform portability
+- [x] Interactive assessment with profile generation (PWAQ)
+- [x] Psychometric scoring instrument with validated Likert scales
+- [x] Tier 1: Universal system prompt for any LLM (4 files)
+- [x] Tier 2: Platform-native configs for ChatGPT, Gemini, Claude (3 files)
+- [x] Tier 3: MCP server with 14 tools, 5 resources, 3 prompts
+- [x] Tier 4: Hosted web app with Google OAuth, LLM assessment, email check-ins
 - [x] Embedded chatbot-driven onboarding (any MCP client can run the assessment)
 - [x] Organization-level dashboard (Streamlit)
 - [x] Skill progression tracking with trend analysis and atrophy detection
-- [x] Integration guides for 7 platforms (Claude, ChatGPT, Cursor, APIs, custom agents)
+- [x] 4-tier integration guide with cross-platform sync
 - [x] A/B testing framework for outcomes research
 - [ ] HTTP transport for enterprise MCP deployment
 - [ ] Integration with existing L&D platforms

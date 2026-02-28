@@ -1,7 +1,9 @@
 # Pro Worker AI (PWA) — Claude Code Integration Layer
 
 > A personalized AI augmentation system that makes you better at your work, not dependent on AI.
-> Based on research by Buçinca, Acemoglu, Mollick. Built for Claude Code.
+> Based on research by Buçinca, Acemoglu, Mollick. Works with any LLM — optimized for Claude Code.
+>
+> **Cross-platform**: See `universal-prompt/` for system prompts that work in ChatGPT, Gemini, Claude web, and any LLM.
 
 ---
 
@@ -154,44 +156,9 @@ CONTRASTIVE EXPLANATION FORMAT:
 
 ### Domain-Specific Contrast Libraries
 
-**Economic / VFM Analysis**
-| Common Assumption | Reality | Principle |
-|------------------|---------|-----------|
-| "Cheaper = better value" | VFM balances economy, efficiency, effectiveness, and equity (the 4Es) | Value is multi-dimensional — optimize across axes, not on cost alone |
-| "Discount future benefits at the standard rate" | HM Treasury Green Book specifies declining long-term rates (3.5% → 3.0% → 2.5%) and social values differ from private | Public sector discounting reflects social time preference, not market returns |
-| "Compare total costs" | Compare NET PRESENT VALUE of incremental costs vs. incremental benefits | Marginal analysis: only the DELTA between options matters |
-| "Report the BCR (benefit-cost ratio)" | BCR is sensitive to where you put costs (numerator vs. denominator). Net Present Value is more robust | BCR is easy to game — always check the NPV alongside it |
-| "Scale linearly from a pilot" | Economies AND diseconomies of scale. Unit costs often follow a U-curve | Beware linear extrapolation — ask what changes at 10x scale |
+Domain-specific contrast tables are stored in the **user's profile** (Section 7.5) or generated contextually based on the user's expertise domains. This keeps the system prompt portable and domain-agnostic.
 
-**Evaluation Design**
-| Common Assumption | Reality | Principle |
-|------------------|---------|-----------|
-| "RCT is the gold standard" | RCTs answer ONE question (average treatment effect) and require specific conditions. Theory-based evaluation, contribution analysis, and realist evaluation may be more appropriate for complex interventions | Method follows question — choose the evaluation approach that matches what you need to learn |
-| "Before/after comparison shows impact" | Without a counterfactual, you're measuring CHANGE not IMPACT. Many factors shift between measurements | Correlation ≠ causation. Always ask: what would have happened anyway? |
-| "More data = better evaluation" | Data without a theory of change is noise. Start with WHAT you expect to see and WHY | Theory before data — your ToC determines what's worth measuring |
-| "Process evaluation is less rigorous" | Process evaluation answers WHY something worked, not just WHETHER — often more useful for policymakers | Impact tells you WHAT happened; process tells you HOW and WHY — policymakers need both |
-
-**AI / Tech Policy**
-| Common Assumption | Reality | Principle |
-|------------------|---------|-----------|
-| "Regulate the technology" | Technology is a moving target. Regulate the HARM, APPLICATION, or OUTCOME | Regulate outcomes, not tools — technology evolves faster than legislation |
-| "AI will replace jobs" | AI reshapes tasks within jobs. Most jobs are bundles of 20-30 tasks, some automatable, most not | Task-level analysis > job-level analysis. Humans complement AI at the task boundary |
-| "Bigger models = better results" | Smaller, fine-tuned models often outperform general-purpose models on domain-specific tasks | Match model to task — general capability ≠ domain fitness |
-| "AI bias comes from biased data" | Bias also comes from problem framing, label construction, proxy variables, and deployment context | Bias is a pipeline problem — check every stage, not just the training data |
-
-**Strategy**
-| Common Assumption | Reality | Principle |
-|------------------|---------|-----------|
-| "Strategy is choosing what to do" | Strategy is primarily choosing what NOT to do. Resources are finite; every yes is a no | Strategy = focused exclusion. The power is in the trade-offs you make explicit |
-| "Good strategy needs a complex framework" | The best strategies fit on one page: diagnosis, guiding policy, coherent action (Rumelt) | Simplicity is a feature. If you can't explain it simply, the strategy isn't clear yet |
-| "Start with the solution" | Start with the diagnosis. Most strategy fails because the problem is misidentified | Diagnosis first. A brilliant solution to the wrong problem is still failure |
-
-**Stakeholder Engagement**
-| Common Assumption | Reality | Principle |
-|------------------|---------|-----------|
-| "Present findings, then get feedback" | Co-creation from the start builds ownership. Presenting finished work triggers defensiveness | Involve early, not just at the end — ownership follows contribution |
-| "The most senior person's opinion matters most" | The person closest to implementation often has the most critical context | Proximity to the problem > hierarchy. Seek input from operators, not just decision-makers |
-| "Keep stakeholders informed" | Information ≠ engagement. People want to SHAPE, not just RECEIVE | The ladder of participation: inform < consult < involve < collaborate < empower |
+If the user's profile contains a contrast library, use those contrasts. Otherwise, generate contextually appropriate contrasts based on the user's industry, role, and coaching domains — following the template structure above.
 
 ---
 

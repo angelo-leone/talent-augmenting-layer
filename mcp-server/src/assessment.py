@@ -688,3 +688,152 @@ def get_assessment_protocol() -> dict:
             "red_lines": "Ask: 'What should AI NEVER do for you? What tasks or outputs should always require your direct input?'",
         },
     }
+
+
+# ── Adaptive Domain Discovery ──────────────────────────────────────────────────────────────────────────
+
+# Curated domain taxonomy by industry/role archetype
+DOMAIN_TAXONOMY = {
+    "healthcare": [
+        {"domain": "Clinical Assessment", "description": "Diagnosing conditions, patient evaluation, triage"},
+        {"domain": "Patient Communication", "description": "Explaining diagnoses, treatment plans, empathetic communication"},
+        {"domain": "Medical Documentation", "description": "Clinical notes, records, coding, compliance"},
+        {"domain": "Evidence-Based Practice", "description": "Applying research findings to clinical decisions"},
+        {"domain": "Team Coordination", "description": "Multidisciplinary collaboration, handoffs, care coordination"},
+        {"domain": "Emergency Response", "description": "Crisis management, rapid decision-making under pressure"},
+    ],
+    "public_sector": [
+        {"domain": "Evidence Synthesis", "description": "Reviewing and synthesizing research for policy decisions"},
+        {"domain": "Policy Analysis", "description": "Analysing policy options, impact assessment, regulatory review"},
+        {"domain": "Stakeholder Engagement", "description": "Working with diverse stakeholders, consultation, co-design"},
+        {"domain": "Economic/VFM Analysis", "description": "Cost-benefit analysis, value for money assessment, business cases"},
+        {"domain": "Evaluation Design", "description": "Designing programme evaluations, theory of change, methods selection"},
+        {"domain": "Strategic Communication", "description": "Policy briefs, reports, ministerial submissions"},
+        {"domain": "Programme Management", "description": "Delivering complex public programmes, governance, risk"},
+        {"domain": "Data Analysis", "description": "Quantitative analysis, statistics, data visualisation"},
+    ],
+    "technology": [
+        {"domain": "System Architecture", "description": "Designing scalable systems, microservices, infrastructure decisions"},
+        {"domain": "Code Quality", "description": "Clean code practices, testing, code review, refactoring"},
+        {"domain": "DevOps/Infrastructure", "description": "CI/CD, cloud deployment, monitoring, reliability"},
+        {"domain": "Technical Writing", "description": "Documentation, API specs, architecture decision records"},
+        {"domain": "Security Practices", "description": "Threat modelling, secure coding, vulnerability management"},
+        {"domain": "Data Engineering", "description": "Pipelines, ETL, data modelling, database design"},
+        {"domain": "Product Thinking", "description": "User needs, feature prioritisation, product-market fit"},
+    ],
+    "consulting": [
+        {"domain": "Client Engagement", "description": "Building client relationships, managing expectations, delivery"},
+        {"domain": "Research & Analysis", "description": "Desk research, interviews, synthesis, insight generation"},
+        {"domain": "Strategy Development", "description": "Problem framing, option analysis, recommendation crafting"},
+        {"domain": "Report Writing", "description": "Structured deliverables, executive summaries, evidence-based arguments"},
+        {"domain": "Workshop Facilitation", "description": "Designing and running collaborative sessions"},
+        {"domain": "Quantitative Analysis", "description": "Financial modelling, data analysis, economic assessment"},
+        {"domain": "Presentation & Communication", "description": "Slide decks, pitches, stakeholder communication"},
+    ],
+    "education": [
+        {"domain": "Curriculum Design", "description": "Designing learning programmes, lesson planning, outcomes mapping"},
+        {"domain": "Student Assessment", "description": "Formative/summative assessment, rubric design, feedback"},
+        {"domain": "Classroom Management", "description": "Creating productive learning environments, behaviour management"},
+        {"domain": "Differentiated Instruction", "description": "Adapting teaching for diverse learners, accessibility"},
+        {"domain": "Parent/Carer Communication", "description": "Progress reports, conferences, community engagement"},
+        {"domain": "EdTech Integration", "description": "Using technology effectively in teaching and learning"},
+    ],
+    "marketing": [
+        {"domain": "Brand Strategy", "description": "Positioning, messaging, brand architecture, identity"},
+        {"domain": "Content Creation", "description": "Copywriting, content strategy, editorial planning"},
+        {"domain": "Data Analytics", "description": "Campaign analysis, attribution, A/B testing, reporting"},
+        {"domain": "Campaign Management", "description": "Planning, execution, optimisation across channels"},
+        {"domain": "Digital Marketing", "description": "SEO, SEM, social media, email marketing"},
+        {"domain": "Stakeholder Communication", "description": "Internal reporting, cross-functional alignment"},
+    ],
+    "finance": [
+        {"domain": "Financial Analysis", "description": "Modelling, forecasting, variance analysis, valuation"},
+        {"domain": "Risk Management", "description": "Risk assessment, mitigation strategies, compliance"},
+        {"domain": "Regulatory Compliance", "description": "Understanding and applying financial regulations"},
+        {"domain": "Reporting", "description": "Financial statements, management reporting, audit support"},
+        {"domain": "Investment Analysis", "description": "Due diligence, portfolio analysis, market research"},
+        {"domain": "Stakeholder Management", "description": "Board reporting, investor relations, advisory"},
+    ],
+    "research": [
+        {"domain": "Research Design", "description": "Methodology selection, study design, sampling strategies"},
+        {"domain": "Literature Review", "description": "Systematic searching, critical appraisal, synthesis"},
+        {"domain": "Data Collection", "description": "Surveys, interviews, ethnography, experimental methods"},
+        {"domain": "Statistical Analysis", "description": "Quantitative methods, modelling, hypothesis testing"},
+        {"domain": "Academic Writing", "description": "Papers, grants, peer review, scientific communication"},
+        {"domain": "Research Ethics", "description": "IRB/ethics review, consent, data protection"},
+    ],
+}
+
+# Universal domains that apply across most roles
+UNIVERSAL_DOMAINS = [
+    {"domain": "Written Communication", "description": "Reports, emails, documentation, structured writing"},
+    {"domain": "Critical Thinking", "description": "Logical reasoning, evidence evaluation, problem decomposition"},
+    {"domain": "Project Management", "description": "Planning, execution, tracking, delivery under constraints"},
+    {"domain": "AI Literacy & Tool Usage", "description": "Effective use of AI tools, prompt engineering, output evaluation"},
+    {"domain": "Leadership & Collaboration", "description": "Team dynamics, influence, mentoring, cross-functional work"},
+]
+
+
+def suggest_domains(
+    role: str,
+    industry: str,
+    responsibilities: str = "",
+) -> list[dict]:
+    """Suggest expertise domains based on role, industry, and responsibilities.
+
+    Returns a list of suggested domains with descriptions.
+    The LLM has override authority — this is a heuristic helper.
+
+    Args:
+        role: Job title or role description
+        industry: Industry or sector
+        responsibilities: Optional description of key responsibilities
+
+    Returns:
+        List of dicts with 'domain' and 'description' keys
+    """
+    combined = f"{role} {industry} {responsibilities}".lower()
+    suggestions = []
+    matched_industries = []
+
+    # Match against taxonomy keywords
+    industry_keywords = {
+        "healthcare": ["health", "medical", "clinical", "hospital", "nhs", "nurse", "doctor", "care", "patient", "pharma"],
+        "public_sector": ["public sector", "government", "policy", "civil service", "council", "evaluation", "programme", "procurement", "regulation"],
+        "technology": ["software", "engineer", "developer", "tech", "devops", "data engineer", "infrastructure", "platform", "saas", "startup"],
+        "consulting": ["consult", "advisory", "professional services", "strategy", "management consult", "deloitte", "mckinsey", "pwc"],
+        "education": ["teacher", "professor", "school", "university", "education", "curriculum", "teaching", "lecturer", "academic"],
+        "marketing": ["marketing", "brand", "content", "campaign", "digital market", "seo", "social media", "creative", "communications"],
+        "finance": ["finance", "accounting", "investment", "banking", "audit", "treasury", "portfolio", "actuarial", "insurance"],
+        "research": ["research", "scientist", "phd", "postdoc", "academic", "lab", "r&d", "study"],
+    }
+
+    for industry_key, keywords in industry_keywords.items():
+        for keyword in keywords:
+            if keyword in combined:
+                matched_industries.append(industry_key)
+                break
+
+    # Deduplicate and gather domain suggestions
+    seen_domains = set()
+    for ind in matched_industries:
+        for domain_info in DOMAIN_TAXONOMY.get(ind, []):
+            if domain_info["domain"] not in seen_domains:
+                suggestions.append(domain_info)
+                seen_domains.add(domain_info["domain"])
+
+    # Add universal domains that aren't already covered
+    for domain_info in UNIVERSAL_DOMAINS:
+        if domain_info["domain"] not in seen_domains:
+            suggestions.append(domain_info)
+            seen_domains.add(domain_info["domain"])
+
+    # If no industry matched, return universal + generic role-based suggestions
+    if not matched_industries:
+        suggestions = list(UNIVERSAL_DOMAINS) + [
+            {"domain": "Core Technical Skill", "description": f"Primary technical competency for {role}"},
+            {"domain": "Domain Expertise", "description": f"Specialised knowledge in {industry}"},
+            {"domain": "Stakeholder Management", "description": "Managing relationships with key stakeholders"},
+        ]
+
+    return suggestions[:12]  # Cap at 12 suggestions
