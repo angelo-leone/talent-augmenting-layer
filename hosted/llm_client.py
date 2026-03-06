@@ -1,6 +1,6 @@
 """Pro Worker AI -- LLM API wrapper.
 
-Supports both Anthropic and OpenAI APIs.  The ``chat`` method sends a
+Supports Anthropic, OpenAI, and Google Gemini APIs.  The ``chat`` method sends a
 system prompt plus a list of user/assistant messages and returns the
 assistant's text response.
 """
@@ -14,6 +14,7 @@ from hosted.config import (
     LLM_PROVIDER,
     ANTHROPIC_API_KEY,
     OPENAI_API_KEY,
+    GOOGLE_API_KEY,
     LLM_MODEL,
 )
 
@@ -21,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 class LLMClient:
-    """Thin async wrapper around Anthropic / OpenAI chat APIs."""
+    """Thin async wrapper around Anthropic / OpenAI / Gemini chat APIs."""
 
     def __init__(self, provider: str | None = None):
         self.provider = (provider or LLM_PROVIDER).lower()
@@ -36,6 +37,13 @@ class LLMClient:
 
             self._openai = openai.AsyncOpenAI(api_key=OPENAI_API_KEY)
             self._model = LLM_MODEL if LLM_MODEL != "claude-sonnet-4-20250514" else "gpt-4o"
+        elif self.provider == "gemini":
+            import google.generativeai as genai
+
+            genai.configure(api_key=GOOGLE_API_KEY)
+            model_name = LLM_MODEL if "gemini" in LLM_MODEL else "gemini-2.0-flash-exp"
+            self._gemini = genai.GenerativeModel(model_name)
+            self._model = model_name
         else:
             raise ValueError(f"Unknown LLM provider: {self.provider}")
 
@@ -67,7 +75,12 @@ class LLMClient:
         """
         if self.provider == "anthropic":
             return await self._chat_anthropic(system, messages, max_tokens)
-        return await self._chat_openai(system, messages, max_tokens)
+        elif self.provider == "openai":
+            return await self._chat_openai(system, messages, max_tokens)
+        elif self.provider == "gemini":
+            return await self._chat_gemini(system, messages, max_tokens)
+        else:
+            raise ValueError(f"Unknown provider: {self.provider}")
 
     # ------------------------------------------------------------------
     # Anthropic
@@ -105,6 +118,36 @@ class LLMClient:
             max_tokens=max_tokens,
         )
         return response.choices[0].message.content or ""
+
+    # ------------------------------------------------------------------
+    # Gemini
+    # ------------------------------------------------------------------
+
+    async def _chat_gemini(
+        self, system: str, messages: list[dict], max_tokens: int
+    ) -> str:
+        # Gemini's generate_content_async expects a list of parts
+        # System instruction can be set via generation_config or prepended
+        history = []
+        for msg in messages:
+            role = "user" if msg["role"] == "user" else "model"
+            history.append({"role": role, "parts": [msg["content"]]})
+
+        # Prepend system instruction as first user message
+        if system:
+            history.insert(0, {"role": "user", "parts": [f"[System Instruction]\n{system}"]})
+            history.insert(1, {"role": "model", "parts": ["Understood. I will follow these instructions."]})
+
+        # Start chat with history
+        chat = self._gemini.start_chat(history=history[:-1] if len(history) > 1 else [])
+        
+        # Send the last message
+        last_message = history[-1]["parts"][0] if history else ""
+        response = await chat.send_message_async(
+            last_message,
+            generation_config={"max_output_tokens": max_tokens}
+        )
+        return response.text
 
     # ------------------------------------------------------------------
     # Assessment helpers

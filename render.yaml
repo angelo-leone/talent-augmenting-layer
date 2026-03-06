@@ -1,0 +1,50 @@
+# Render Blueprint for Pro Worker AI Hosted App
+# Deploy with: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: proworker-hosted
+    runtime: docker
+    dockerfilePath: ./hosted/Dockerfile
+    plan: free  # or 'starter' for production
+    autoDeploy: true
+    envVars:
+      # LLM Configuration (set in Render dashboard)
+      - key: LLM_PROVIDER
+        value: gemini
+      - key: GOOGLE_API_KEY
+        sync: false  # Secret - set manually in dashboard
+      - key: LLM_MODEL
+        value: gemini-2.0-flash-exp
+      
+      # Google OAuth (set in Render dashboard)
+      - key: GOOGLE_CLIENT_ID
+        sync: false  # Set manually
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false  # Secret - set manually
+      
+      # Security
+      - key: SECRET_KEY
+        generateValue: true  # Auto-generate on creation
+      
+      # App Configuration
+      - key: APP_URL
+        value: https://proworker-hosted.onrender.com  # Update with your actual URL
+      
+      # Optional: Email (SendGrid)
+      - key: SENDGRID_API_KEY
+        sync: false  # Optional - set if you want email reminders
+      - key: FROM_EMAIL
+        value: noreply@yourdomain.com
+      
+      # Database (automatically provided by Render if you add a PostgreSQL database)
+      - key: DATABASE_URL
+        fromDatabase:
+          name: proworker-db
+          property: connectionString
+
+databases:
+  - name: proworker-db
+    databaseName: proworker
+    plan: free  # 90-day free tier, then paid
+    # Note: Free tier expires after 90 days. For long-term, use 'starter' plan ($7/mo)
