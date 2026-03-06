@@ -18,9 +18,12 @@ Create a `.env` file or export these variables:
 
 ```bash
 # Required for LLM-powered assessment
-ANTHROPIC_API_KEY=sk-ant-...           # or use OpenAI
-# LLM_PROVIDER=openai                  # uncomment to use OpenAI instead
+ANTHROPIC_API_KEY=sk-ant-...           # or use OpenAI or Gemini
+# LLM_PROVIDER=openai                  # uncomment to use OpenAI
+# LLM_PROVIDER=gemini                  # uncomment to use Gemini
 # OPENAI_API_KEY=sk-...                # required if using OpenAI
+# GOOGLE_API_KEY=...                   # required if using Gemini
+# LLM_MODEL=gemini-2.0-flash-exp       # or gemini-1.5-pro, etc.
 
 # Required for Google OAuth
 GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
@@ -39,11 +42,15 @@ APP_URL=http://localhost:8000          # change in production
 
 ### 3. Run locally
 
+From the **project root**:
+
 ```bash
 uvicorn hosted.app:app --reload
 ```
 
 Open http://localhost:8000 in your browser.
+
+> **Note**: Make sure to update the Google OAuth redirect URI to include `http://localhost:8000/auth/callback` for local development.
 
 ### 4. Run with Docker
 
@@ -69,6 +76,71 @@ docker run -p 8000:8000 \
 6. Add authorized redirect URI: `http://localhost:8000/auth/callback`
    (update for production)
 7. Copy the Client ID and Client Secret into your environment variables
+
+## Deployment to Render
+
+### Option 1: One-Click Deploy (Recommended)
+
+1. **Fork this repository** to your GitHub account
+
+2. **Click this button** (or follow manual steps below):
+   - Go to [Render.com](https://render.com) and sign up/login
+   - Click **New +** → **Blueprint**
+   - Connect your GitHub repository
+   - Render will detect `render.yaml` automatically
+
+3. **Set required secrets** in the Render dashboard:
+   ```
+   LLM_PROVIDER=gemini
+   GOOGLE_API_KEY=your-google-api-key
+   GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+   GOOGLE_CLIENT_SECRET=your-client-secret
+   ```
+
+4. **Update Google OAuth redirect URL**:
+   - Go to [Google Cloud Console](https://console.cloud.google.com/)
+   - Navigate to your OAuth credentials
+   - Add authorized redirect URI: `https://YOUR-APP-NAME.onrender.com/auth/callback`
+   - Replace `YOUR-APP-NAME` with your actual Render service name
+
+5. **Update APP_URL** environment variable in Render to match your deployed URL
+
+6. Deploy! Render will build and deploy your app automatically.
+
+### Option 2: Manual Render Deploy
+
+1. Go to [Render Dashboard](https://dashboard.render.com/)
+2. Click **New +** → **Web Service**
+3. Connect your repository
+4. Configure:
+   - **Name**: `proworker-hosted`
+   - **Runtime**: Docker
+   - **Dockerfile Path**: `./hosted/Dockerfile`
+   - **Plan**: Free (or Starter for production)
+5. Add environment variables (see step 3 above)
+6. Create a PostgreSQL database:
+   - Click **New +** → **PostgreSQL**
+   - **Name**: `proworker-db`
+   - **Plan**: Free (90-day trial) or Starter ($7/mo)
+   - Copy the **Internal Database URL**
+   - Add to web service as `DATABASE_URL` environment variable
+7. Deploy!
+
+### Cost Estimate (Render)
+- **Free tier**: Web service (750 hrs/mo) + PostgreSQL (90 days free)
+- **Production**: Starter web ($7/mo) + PostgreSQL ($7/mo) = **$14/mo**
+
+### Local Testing Before Deploy
+
+```bash
+# Test with production-like settings
+export APP_URL=http://localhost:8000
+export LLM_PROVIDER=gemini
+export GOOGLE_API_KEY=your-key
+uvicorn hosted.app:app --reload
+```
+
+---
 
 ## Architecture
 
