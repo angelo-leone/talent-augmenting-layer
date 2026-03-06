@@ -26,7 +26,7 @@ LLM_PROVIDER = os.getenv("LLM_PROVIDER", "anthropic")  # "anthropic", "openai", 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")  # For Gemini
-LLM_MODEL = os.getenv("LLM_MODEL", "claude-sonnet-4-20250514")  # or "gpt-4o" or "gemini-2.0-flash-exp"
+LLM_MODEL = os.getenv("LLM_MODEL", "gemini-2.5-flash-lite")  # or "claude-sonnet-4-20250514" or "gpt-4o"
 
 # Email (SendGrid)
 SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY", "")
