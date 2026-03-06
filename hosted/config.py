@@ -10,15 +10,23 @@ MCP_SERVER_DIR = PROJECT_ROOT / "mcp-server"
 # Database
 DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite+aiosqlite:///{BASE_DIR / 'proworker.db'}")
 
+# Render provides postgres:// URLs, but SQLAlchemy 2.0 requires postgresql://
+# Also needs +asyncpg driver for async support
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+asyncpg://", 1)
+elif DATABASE_URL.startswith("postgresql://") and "+asyncpg" not in DATABASE_URL:
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
+
 # Google OAuth
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
 
 # LLM API
-LLM_PROVIDER = os.getenv("LLM_PROVIDER", "anthropic")  # or "openai"
+LLM_PROVIDER = os.getenv("LLM_PROVIDER", "anthropic")  # "anthropic", "openai", or "gemini"
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
-LLM_MODEL = os.getenv("LLM_MODEL", "claude-sonnet-4-20250514")
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")  # For Gemini
+LLM_MODEL = os.getenv("LLM_MODEL", "claude-sonnet-4-20250514")  # or "gpt-4o" or "gemini-2.0-flash-exp"
 
 # Email (SendGrid)
 SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY", "")
