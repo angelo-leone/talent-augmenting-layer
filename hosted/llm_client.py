@@ -41,7 +41,7 @@ class LLMClient:
             import google.generativeai as genai
 
             genai.configure(api_key=GOOGLE_API_KEY)
-            model_name = LLM_MODEL if "gemini" in LLM_MODEL else "gemini-2.0-flash-exp"
+            model_name = LLM_MODEL if "gemini" in LLM_MODEL else "gemini-2.5-flash-lite"
             self._gemini = genai.GenerativeModel(model_name)
             self._model = model_name
         else:

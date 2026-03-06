@@ -23,7 +23,7 @@ ANTHROPIC_API_KEY=sk-ant-...           # or use OpenAI or Gemini
 # LLM_PROVIDER=gemini                  # uncomment to use Gemini
 # OPENAI_API_KEY=sk-...                # required if using OpenAI
 # GOOGLE_API_KEY=...                   # required if using Gemini
-# LLM_MODEL=gemini-2.0-flash-exp       # or gemini-1.5-pro, etc.
+# LLM_MODEL=gemini-2.5-flash-lite      # or gemini-1.5-pro, gemini-1.5-flash, etc.
 
 # Required for Google OAuth
 GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com

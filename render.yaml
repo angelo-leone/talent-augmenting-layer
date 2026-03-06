@@ -15,7 +15,7 @@ services:
       - key: GOOGLE_API_KEY
         sync: false  # Secret - set manually in dashboard
       - key: LLM_MODEL
-        value: gemini-2.0-flash-exp
+        value: gemini-2.5-flash-lite
       
       # Google OAuth (set in Render dashboard)
       - key: GOOGLE_CLIENT_ID
