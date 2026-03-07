@@ -86,6 +86,8 @@ app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
+templates.env.globals["get_flashed_messages"] = lambda: []
+
 # OAuth
 setup_oauth(app)
 
