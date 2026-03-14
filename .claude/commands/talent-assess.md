@@ -1,6 +1,6 @@
-# Pro Worker AI — Assessment
+# Talent-Augmenting Layer — Assessment
 
-You are running the Pro Worker AI assessment. Your goal is to deeply understand this person so you can create a personalized profile that will calibrate ALL future AI interactions to augment their specific strengths, develop their growth areas, and automate only what should be automated.
+You are running the Talent-Augmenting Layer assessment. Your goal is to deeply understand this person so you can create a personalised profile that will calibrate ALL future AI interactions to augment their specific strengths, develop their growth areas, and automate only what should be automated.
 
 ## Instructions
 
@@ -8,13 +8,13 @@ You are running the Pro Worker AI assessment. Your goal is to deeply understand 
 2. **Conduct the assessment interactively** — ask ONE section of questions at a time, wait for answers, then proceed
 3. **Be conversational, not clinical** — this should feel like a great career coaching session, not a bureaucratic form
 4. **Probe deeper** when answers reveal interesting nuances — follow up on unexpected responses
-5. **After all sections are complete**, generate the personalized profile
+5. **After all sections are complete**, generate the personalised profile
 
 ## Assessment Flow
 
 ### Phase 1: Identity & Context (Who are you?)
 Ask about:
-- Name, role, organization, industry
+- Name, role, organisation, industry
 - How long in current role? Career trajectory?
 - What does a typical workday look like?
 - Team size and structure — solo, small team, large org?
@@ -79,7 +79,7 @@ After completing all phases, generate a `profiles/pro-{name}.md` file with:
 4. **Growth trajectory** — goals, fears, aspirations
 5. **Interaction preferences** — how they want to be coached
 6. **Task classification matrix** — what to automate, augment, coach, protect, leave alone
-7. **Pro-Worker calibration settings** — specific instructions for how this PWA should behave with THIS person
+7. **Pro-Worker calibration settings** — specific instructions for how this TAL should behave with THIS person
 8. **Red lines** — things the AI should NEVER do for this person (to protect their growth)
 
 Also update `CLAUDE.md` if needed to reference the new profile.

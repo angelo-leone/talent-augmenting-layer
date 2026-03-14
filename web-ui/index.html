@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro Worker AI — Assessment</title>
+    <title>Talent-Augmenting Layer — Assessment</title>
     <style>
         :root {
             --bg: #0f0f0f;
@@ -141,8 +141,8 @@
     <div class="container">
         <!-- Header -->
         <div id="header">
-            <h1>Pro Worker AI</h1>
-            <p class="subtitle">Personalized AI augmentation assessment. ~10 minutes.</p>
+            <h1>Talent-Augmenting Layer</h1>
+            <p class="subtitle">Personalised AI augmentation assessment. ~10 minutes.</p>
             <div class="progress-bar"><div class="progress-fill" id="progress" style="width: 0%"></div></div>
         </div>
 
@@ -158,7 +158,7 @@
                 <input type="text" id="q-role" placeholder="e.g. Associate, Senior Analyst, Team Lead">
             </div>
             <div class="card">
-                <div class="question">Organization and industry?</div>
+                <div class="question">Organisation and industry?</div>
                 <input type="text" id="q-org" placeholder="e.g. PUBLIC, public sector consulting">
             </div>
             <div class="nav">
@@ -313,14 +313,14 @@ const INDUSTRY_KEYWORDS = {
 
 // ── Compact system prompt for ChatGPT export ───────────────────────────────
 
-const SYSTEM_PROMPT_COMPACT = `# Pro Worker AI
+const SYSTEM_PROMPT_COMPACT = `# Talent-Augmenting Layer
 
-You are a Pro Worker AI. Augment human intelligence, don't replace it. Success = user learned, grew, or made a better decision.
+You are a Talent-Augmenting Layer. Augment human intelligence, don't replace it. Success = user learned, grew, or made a better decision.
 
 ## Profile
-Read the user's Pro Worker AI profile from custom instructions. It has expertise ratings, calibration YAML, task classifications, and red lines. Follow the calibration settings exactly. If no profile exists, say: "Say 'assess me' to create your Pro Worker AI profile."
+Read the user's Talent-Augmenting Layer profile from custom instructions. It has expertise ratings, calibration YAML, task classifications, and red lines. Follow the calibration settings exactly. If no profile exists, say: "Say 'assess me' to create your Talent-Augmenting Layer profile."
 
-## Behavior Rules
+## Behaviour Rules
 
 **ADD friction** when: novice/developing domain, high-stakes task, or user says "just do it" for complex work.
 > Ask: "What's your initial thinking before I share mine?"
@@ -362,7 +362,7 @@ Read the user's Pro Worker AI profile from custom instructions. It has expertise
 ## Profile Updates
 After substantive sessions, if you observed skill changes, output a PROFILE UPDATE BLOCK with date, changes, and updated calibration YAML. Tell user to copy it back into their custom instructions.
 
-*PWA v0.2.0 -- CC BY-NC-SA 4.0 -- github.com/angelo-leone/worker-augmenting-layer*`;
+*TAL v0.2.0 -- CC BY-NC-SA 4.0 -- github.com/angelo-leone/worker-augmenting-layer*`;
 
 // ── Assessment Questions ────────────────────────────────────────────────────
 
@@ -729,7 +729,7 @@ function computeResults() {
     const esa_ratings = esa_keys.map(k => answers[k] || 3);
     const esa_avg = esa_ratings.reduce((a,b) => a+b, 0) / esa_ratings.length;
 
-    // PWRI composite
+    // TALRI composite
     const pwri = (
         (10 - adr_score) * 0.30 +
         gp_score * 0.30 +
@@ -781,11 +781,11 @@ function computeResults() {
 
     // ── Generate 9-section profile markdown ──────────────────────────────────
 
-    const profile = `# Pro Worker AI Profile — ${name}
+    const profile = `# Talent-Augmenting Layer Profile — ${name}
 
 > Generated: ${new Date().toISOString().slice(0,10)}
 > Last updated: ${new Date().toISOString().slice(0,10)}
-> Assessment version: PWAQ v2.0 (web)
+> Assessment version: TALQ v2.0 (web)
 
 ---
 
@@ -795,7 +795,7 @@ function computeResults() {
 |-------|-------|
 | **Name** | ${name} |
 | **Role** | ${role} |
-| **Organization** | ${org} |
+| **Organisation** | ${org} |
 | **Responsibilities** | ${responsibilities || 'Not specified'} |
 
 ---
@@ -807,7 +807,7 @@ function computeResults() {
 | **AI Dependency Risk (ADR)** | ${adr_score}/10 | ${adr_score<=3?'Low — healthy AI relationship':adr_score<=6?'Moderate — some dependency patterns':'High — significant dependency risk'} |
 | **Growth Potential (GP)** | ${gp_score}/10 | ${gp_score<=3?'Low — limited growth orientation':gp_score<=6?'Moderate — developing growth mindset':'High — strong growth orientation'} |
 | **AI Literacy (ALI)** | ${ali_score}/10 | ${ali_score<=3?'Low — building AI skills':ali_score<=6?'Moderate — competent AI user':'High — sophisticated AI user'} |
-| **Pro Worker Readiness (PWRI)** | ${pwri.toFixed(1)}/10 | Composite readiness score |
+| **Pro Worker Readiness (TALRI)** | ${pwri.toFixed(1)}/10 | Composite readiness score |
 
 ---
 
@@ -893,20 +893,20 @@ challenge_level: ${gp_score >= 6 ? 'high' : 'medium'}
 
 | Date | Change | Trigger |
 |------|--------|---------|
-| ${new Date().toISOString().slice(0,10)} | Initial profile created | PWAQ v2.0 web assessment |
+| ${new Date().toISOString().slice(0,10)} | Initial profile created | TALQ v2.0 web assessment |
 `;
 
     // ── Render Results ───────────────────────────────────────────────────────
 
     const el = document.getElementById('section-5');
     el.innerHTML = `
-        <h2>Your Pro Worker AI Profile</h2>
+        <h2>Your Talent-Augmenting Layer Profile</h2>
         <p class="subtitle">${name} — ${role}${org ? (' at ' + org) : ''}</p>
 
         <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:1rem;">
             <div class="score-card">
                 <div class="score-big">${pwri.toFixed(1)}</div>
-                <div class="score-label">PWRI Score (0-10)</div>
+                <div class="score-label">TALRI Score (0-10)</div>
             </div>
             <div class="score-card">
                 <div class="score-big">${adr_score}</div>
@@ -986,7 +986,7 @@ ${window._generatedProfile}`;
 
 function copyForClaude() {
     // For Claude Projects: just the full profile (CLAUDE.md handles the system prompt)
-    const output = `# Pro Worker AI — Profile for Claude Project
+    const output = `# Talent-Augmenting Layer — Profile for Claude Project
 
 Paste this into your Claude Project's custom instructions. If you also use the full CLAUDE.md system prompt, paste only the profile section below.
 

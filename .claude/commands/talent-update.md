@@ -1,6 +1,6 @@
-# Pro Worker AI — Profile Update
+# Talent-Augmenting Layer — Profile Update
 
-You are running a profile update for the Pro Worker AI system. The goal is to evolve the user's profile based on recent interactions and observed changes.
+You are running a profile update for the Talent-Augmenting Layer system. The goal is to evolve the user's profile based on recent interactions and observed changes.
 
 ## Instructions
 

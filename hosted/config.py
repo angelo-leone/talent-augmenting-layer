@@ -1,4 +1,4 @@
-"""Pro Worker AI -- Hosted App Configuration"""
+"""Talent-Augmenting Layer -- Hosted App Configuration"""
 import os
 from pathlib import Path
 
@@ -30,7 +30,7 @@ LLM_MODEL = os.getenv("LLM_MODEL", "gemini-2.5-flash-lite")  # or "claude-sonnet
 
 # Email (SendGrid)
 SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY", "")
-FROM_EMAIL = os.getenv("FROM_EMAIL", "noreply@proworker.ai")
+FROM_EMAIL = os.getenv("FROM_EMAIL", "noreply@talent-layer.local")
 
 # App
 SECRET_KEY = os.getenv("SECRET_KEY", "change-me-in-production")

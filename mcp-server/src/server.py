@@ -1,34 +1,34 @@
 """
-Pro Worker AI — MCP Server
+Talent-Augmenting Layer — MCP Server
 
-Exposes personalized AI augmentation as MCP tools, resources, and prompts.
+Exposes personalised AI augmentation as MCP tools, resources, and prompts.
 Works with any MCP-compatible client: Claude Code, Claude Desktop, Cursor, etc.
 
 Tools:
-  - proworker_get_profile: Load a user's profile
-  - proworker_get_calibration: Get current calibration for injecting into system prompts
-  - proworker_classify_task: Classify a task into automate/augment/coach/protect/hands-off
-  - proworker_log_interaction: Log an interaction for tracking skill progression
-  - proworker_get_progression: Get skill progression stats
-  - proworker_list_profiles: List all available profiles
-  - proworker_status: Comprehensive status report for a user
-  - proworker_org_summary: Org-level aggregation across all profiles
-  - proworker_save_profile: Save/update a profile
-  - proworker_delete_profile: Delete a profile
-  - proworker_assess_start: Start an onboarding assessment (returns protocol for the LLM)
-  - proworker_assess_score: Compute scores from raw assessment answers
-  - proworker_assess_create_profile: Generate and save a profile from assessment data
-  - proworker_suggest_domains: Suggest expertise domains based on role/industry
+  - talent_get_profile: Load a user's profile
+  - talent_get_calibration: Get current calibration for injecting into system prompts
+  - talent_classify_task: Classify a task into automate/augment/coach/protect/hands-off
+  - talent_log_interaction: Log an interaction for tracking skill progression
+  - talent_get_progression: Get skill progression stats
+  - talent_list_profiles: List all available profiles
+  - talent_status: Comprehensive status report for a user
+  - talent_org_summary: Org-level aggregation across all profiles
+  - talent_save_profile: Save/update a profile
+  - talent_delete_profile: Delete a profile
+  - talent_assess_start: Start an onboarding assessment (returns protocol for the LLM)
+  - talent_assess_score: Compute scores from raw assessment answers
+  - talent_assess_create_profile: Generate and save a profile from assessment data
+  - talent_suggest_domains: Suggest expertise domains based on role/industry
 
 Resources:
-  - proworker://profile/{name}: The full profile as markdown
-  - proworker://system-prompt/{name}: Complete system prompt with profile injected
-  - proworker://coaching-modules: Available coaching session modules
+  - talent://profile/{name}: The full profile as markdown
+  - talent://system-prompt/{name}: Complete system prompt with profile injected
+  - talent://coaching-modules: Available coaching session modules
 
 Prompts:
-  - proworker-system: Full system prompt with profile for any LLM
-  - proworker-assess: Interactive onboarding assessment (chatbot-driven)
-  - proworker-coach: Coaching session prompt
+  - talent-system: Full system prompt with profile for any LLM
+  - talent-assess: Interactive onboarding assessment (chatbot-driven)
+  - talent-coach: Coaching session prompt
 """
 
 from __future__ import annotations
@@ -64,7 +64,9 @@ from .assessment import (
 
 def get_profiles_dir() -> Path:
     """Resolve profiles directory. Check env var, then default locations."""
-    env_dir = os.environ.get("PROWORKER_PROFILES_DIR")
+    env_dir = os.environ.get("TALENT_AUGMENTING_LAYER_PROFILES_DIR")
+    if not env_dir:
+        env_dir = os.environ.get("PROWORKER_PROFILES_DIR")
     if env_dir:
         return Path(env_dir)
 
@@ -75,7 +77,7 @@ def get_profiles_dir() -> Path:
         return profiles_dir
 
     # Fallback to home directory
-    home = Path.home() / ".proworker-ai" / "profiles"
+    home = Path.home() / ".talent-augmenting-layer" / "profiles"
     home.mkdir(parents=True, exist_ok=True)
     return home
 
@@ -87,7 +89,7 @@ def get_repo_root() -> Path:
 
 # ── Server Setup ─────────────────────────────────────────────────────────────
 
-app = Server("proworker-ai")
+app = Server("talent-augmenting-layer")
 store = ProfileStore(get_profiles_dir())
 repo_root = get_repo_root()
 
@@ -98,9 +100,9 @@ repo_root = get_repo_root()
 async def list_tools() -> list[Tool]:
     return [
         Tool(
-            name="proworker_get_profile",
+            name="talent_get_profile",
             description=(
-                "Load a Pro Worker AI profile by name. Returns the full profile "
+                "Load a Talent-Augmenting Layer profile by name. Returns the full profile "
                 "with expertise map, calibration settings, task classification, "
                 "and red lines. Use this at the start of every conversation."
             ),
@@ -116,9 +118,9 @@ async def list_tools() -> list[Tool]:
             }
         ),
         Tool(
-            name="proworker_get_calibration",
+            name="talent_get_calibration",
             description=(
-                "Get the Pro Worker AI calibration settings for a user. Returns "
+                "Get the Talent-Augmenting Layer calibration settings for a user. Returns "
                 "a compact JSON block suitable for injecting into any LLM system prompt. "
                 "Includes friction levels, coaching domains, red lines, and interaction preferences."
             ),
@@ -134,11 +136,11 @@ async def list_tools() -> list[Tool]:
             }
         ),
         Tool(
-            name="proworker_classify_task",
+            name="talent_classify_task",
             description=(
-                "Classify a task according to the user's Pro Worker AI profile. "
+                "Classify a task according to the user's Talent-Augmenting Layer profile. "
                 "Returns one of: automate, augment, coach, protect, hands_off — "
-                "along with the recommended AI behavior for that task."
+                "along with the recommended AI behaviour for that task."
             ),
             inputSchema={
                 "type": "object",
@@ -156,7 +158,7 @@ async def list_tools() -> list[Tool]:
             }
         ),
         Tool(
-            name="proworker_log_interaction",
+            name="talent_log_interaction",
             description=(
                 "Log an interaction for skill tracking. Call this after substantive "
                 "AI interactions to track the user's engagement patterns and skill development."
@@ -191,7 +193,7 @@ async def list_tools() -> list[Tool]:
             }
         ),
         Tool(
-            name="proworker_get_progression",
+            name="talent_get_progression",
             description=(
                 "Get skill progression analysis for a user. Shows interaction "
                 "counts, engagement patterns, domain-level growth/atrophy signals, "
@@ -206,12 +208,12 @@ async def list_tools() -> list[Tool]:
             }
         ),
         Tool(
-            name="proworker_list_profiles",
-            description="List all available Pro Worker AI profiles.",
+            name="talent_list_profiles",
+            description="List all available Talent-Augmenting Layer profiles.",
             inputSchema={"type": "object", "properties": {}}
         ),
         Tool(
-            name="proworker_status",
+            name="talent_status",
             description=(
                 "Get a comprehensive status report for a user: profile summary, "
                 "current calibration, skill progression stats, trend direction, "
@@ -227,16 +229,16 @@ async def list_tools() -> list[Tool]:
             }
         ),
         Tool(
-            name="proworker_org_summary",
+            name="talent_org_summary",
             description=(
-                "Get an organization-level summary across all profiles. Shows "
+                "Get an organisation-level summary across all profiles. Shows "
                 "aggregate dependency risk, growth potential, expertise distribution, "
                 "trend alerts, and per-domain skill breakdown. For org dashboards."
             ),
             inputSchema={"type": "object", "properties": {}}
         ),
         Tool(
-            name="proworker_delete_profile",
+            name="talent_delete_profile",
             description="Delete a user's profile and interaction logs.",
             inputSchema={
                 "type": "object",
@@ -247,11 +249,11 @@ async def list_tools() -> list[Tool]:
             }
         ),
         Tool(
-            name="proworker_save_profile",
+            name="talent_save_profile",
             description=(
                 "Save or update a user's profile markdown content. Use this after "
-                "running /proworker-assess to write the generated profile, or "
-                "after /proworker-update to save changes."
+                "running /talent-assess to write the generated profile, or "
+                "after /talent-update to save changes."
             ),
             inputSchema={
                 "type": "object",
@@ -264,13 +266,13 @@ async def list_tools() -> list[Tool]:
         ),
         # ── Embedded Assessment Tools ────────────────────────────────────
         Tool(
-            name="proworker_assess_start",
+            name="talent_assess_start",
             description=(
-                "Start a Pro Worker AI onboarding assessment. Returns the full assessment "
-                "protocol with all questions, behavioral anchors, and instructions for how "
+                "Start a Talent-Augmenting Layer onboarding assessment. Returns the full assessment "
+                "protocol with all questions, behavioural anchors, and instructions for how "
                 "to run the assessment conversationally. The chatbot uses this to ask "
-                "questions one at a time, collect answers, then call proworker_assess_score "
-                "and proworker_assess_create_profile to compute scores and save the profile. "
+                "questions one at a time, collect answers, then call talent_assess_score "
+                "and talent_assess_create_profile to compute scores and save the profile. "
                 "Call this at the beginning of any onboarding conversation."
             ),
             inputSchema={
@@ -285,12 +287,12 @@ async def list_tools() -> list[Tool]:
             }
         ),
         Tool(
-            name="proworker_assess_score",
+            name="talent_assess_score",
             description=(
-                "Compute all Pro Worker AI scores from raw assessment answers. "
+                "Compute all Talent-Augmenting Layer scores from raw assessment answers. "
                 "Takes the numeric answers collected during the assessment (A1-A5, B1-B5, D1-D4 "
                 "as integers 1-5) and domain expertise ratings. Returns computed ADR, GP, ALI, "
-                "ESA, and composite PWRI scores with interpretations and recommended calibration."
+                "ESA, and composite TALRI scores with interpretations and recommended calibration."
             ),
             inputSchema={
                 "type": "object",
@@ -315,10 +317,10 @@ async def list_tools() -> list[Tool]:
             }
         ),
         Tool(
-            name="proworker_assess_create_profile",
+            name="talent_assess_create_profile",
             description=(
-                "Generate and save a complete Pro Worker AI profile from assessment data. "
-                "Call this after proworker_assess_score to create the profile file. Takes "
+                "Generate and save a complete Talent-Augmenting Layer profile from assessment data. "
+                "Call this after talent_assess_score to create the profile file. Takes "
                 "the computed scores, demographic info, goals, task classifications, and "
                 "preferences collected during the assessment conversation. Returns the "
                 "generated profile and saves it to disk."
@@ -336,7 +338,7 @@ async def list_tools() -> list[Tool]:
                     },
                     "answers": {
                         "type": "object",
-                        "description": "Dict of item_id to score (same as proworker_assess_score)"
+                        "description": "Dict of item_id to score (same as talent_assess_score)"
                     },
                     "domain_ratings": {
                         "type": "object",
@@ -404,7 +406,7 @@ async def list_tools() -> list[Tool]:
             }
         ),
         Tool(
-            name="proworker_suggest_domains",
+            name="talent_suggest_domains",
             description=(
                 "Suggest expertise domains for a user based on their role, industry, and "
                 "responsibilities. Returns a curated list of domain suggestions with descriptions "
@@ -437,8 +439,25 @@ async def list_tools() -> list[Tool]:
 
 @app.call_tool()
 async def call_tool(name: str, arguments: dict) -> list[TextContent]:
+    legacy_aliases = {
+        "proworker_get_profile": "talent_get_profile",
+        "proworker_get_calibration": "talent_get_calibration",
+        "proworker_classify_task": "talent_classify_task",
+        "proworker_log_interaction": "talent_log_interaction",
+        "proworker_get_progression": "talent_get_progression",
+        "proworker_list_profiles": "talent_list_profiles",
+        "proworker_status": "talent_status",
+        "proworker_org_summary": "talent_org_summary",
+        "proworker_delete_profile": "talent_delete_profile",
+        "proworker_save_profile": "talent_save_profile",
+        "proworker_assess_start": "talent_assess_start",
+        "proworker_assess_score": "talent_assess_score",
+        "proworker_assess_create_profile": "talent_assess_create_profile",
+        "proworker_suggest_domains": "talent_suggest_domains",
+    }
+    name = legacy_aliases.get(name, name)
 
-    if name == "proworker_get_profile":
+    if name == "talent_get_profile":
         user_name = arguments["name"]
         raw = store.read_profile_raw(user_name)
         if raw:
@@ -447,10 +466,10 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
         return [TextContent(
             type="text",
             text=f"No profile found for '{user_name}'. "
-                 f"Available profiles: {profiles or 'None — run /proworker-assess to create one.'}"
+                 f"Available profiles: {profiles or 'None — run /talent-assess to create one.'}"
         )]
 
-    elif name == "proworker_get_calibration":
+    elif name == "talent_get_calibration":
         user_name = arguments["name"]
         profile = store.read_profile(user_name)
         if not profile:
@@ -475,7 +494,7 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
         import json
         return [TextContent(type="text", text=json.dumps(calibration, indent=2))]
 
-    elif name == "proworker_classify_task":
+    elif name == "talent_classify_task":
         user_name = arguments["name"]
         task_desc = arguments["task_description"]
         profile = store.read_profile(user_name)
@@ -494,10 +513,10 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             type="text",
             text=f"Task: {task_desc}\n"
                  f"Classification: {category}\n"
-                 f"Recommended behavior: {behaviors.get(category, 'Unknown')}"
+                 f"Recommended behaviour: {behaviors.get(category, 'Unknown')}"
         )]
 
-    elif name == "proworker_log_interaction":
+    elif name == "talent_log_interaction":
         user_name = arguments["name"]
         log = InteractionLog(
             timestamp=datetime.datetime.now().isoformat(),
@@ -510,19 +529,19 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
         store.log_interaction(user_name, log)
         return [TextContent(type="text", text=f"Logged interaction for {user_name}: {log.domain} ({log.task_category}, {log.skill_signal})")]
 
-    elif name == "proworker_get_progression":
+    elif name == "talent_get_progression":
         user_name = arguments["name"]
         import json
         progression = store.get_skill_progression(user_name)
         return [TextContent(type="text", text=json.dumps(progression, indent=2))]
 
-    elif name == "proworker_list_profiles":
+    elif name == "talent_list_profiles":
         profiles = store.list_profiles()
         if profiles:
             return [TextContent(type="text", text=f"Available profiles: {', '.join(profiles)}")]
-        return [TextContent(type="text", text="No profiles found. Run /proworker-assess to create one.")]
+        return [TextContent(type="text", text="No profiles found. Run /talent-assess to create one.")]
 
-    elif name == "proworker_status":
+    elif name == "talent_status":
         user_name = arguments["name"]
         profile = store.read_profile(user_name)
         if not profile:
@@ -543,7 +562,7 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             expertise_lines.append(f"  {e.domain}: {e.rating}/5 ({e.label()}){marker}")
 
         # Build status report
-        status = f"""## Pro Worker AI Status: {profile.name}
+        status = f"""## Talent-Augmenting Layer Status: {profile.name}
 
 **Role**: {profile.role} at {profile.organization}
 **Friction level**: {profile.calibration.default_friction_level}
@@ -576,7 +595,7 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             recs.append("- WARNING: High passive engagement. Increase cognitive forcing across all domains.")
         if progression.get("atrophy_warnings"):
             for domain in progression["atrophy_warnings"]:
-                recs.append(f"- ATROPHY RISK in {domain}: Schedule a /proworker-coach session.")
+                recs.append(f"- ATROPHY RISK in {domain}: Schedule a /talent-coach session.")
         if progression.get("trend_direction") == "declining":
             recs.append("- DECLINING TREND: Engagement is dropping. Consider a check-in or friction increase.")
         if progression.get("total_interactions", 0) == 0:
@@ -587,26 +606,26 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
         status += chr(10).join(recs)
         return [TextContent(type="text", text=status)]
 
-    elif name == "proworker_org_summary":
+    elif name == "talent_org_summary":
         import json as json_mod
         summary = store.get_org_summary()
         return [TextContent(type="text", text=json_mod.dumps(summary, indent=2))]
 
-    elif name == "proworker_delete_profile":
+    elif name == "talent_delete_profile":
         user_name = arguments["name"]
         deleted = store.delete_profile(user_name)
         if deleted:
             return [TextContent(type="text", text=f"Profile for '{user_name}' deleted.")]
         return [TextContent(type="text", text=f"No profile found for '{user_name}'.")]
 
-    elif name == "proworker_save_profile":
+    elif name == "talent_save_profile":
         user_name = arguments["name"]
         content = arguments["content"]
         path = store.write_profile_raw(user_name, content)
         return [TextContent(type="text", text=f"Profile saved to {path}")]
 
     # ── Embedded Assessment Handlers ─────────────────────────────────
-    elif name == "proworker_assess_start":
+    elif name == "talent_assess_start":
         protocol = get_assessment_protocol()
         user_name = arguments.get("name", "")
         if user_name:
@@ -615,12 +634,12 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             if existing:
                 protocol["note"] = (
                     f"A profile already exists for '{user_name}'. This assessment will "
-                    f"replace the existing profile. You can also use proworker_update to "
+                    f"replace the existing profile. You can also use /talent-update to "
                     f"make incremental changes instead."
                 )
         return [TextContent(type="text", text=json.dumps(protocol, indent=2))]
 
-    elif name == "proworker_assess_score":
+    elif name == "talent_assess_score":
         answers_raw = arguments.get("answers", {})
         domain_ratings_raw = arguments.get("domain_ratings", {})
 
@@ -639,12 +658,12 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
                 f"GP: {scores['gp']['score']}/10 ({scores['gp']['level']}), "
                 f"ALI: {scores['ali']['score']}/10 ({scores['ali']['level']}), "
                 f"ESA mean: {scores['esa']['mean']}/5, "
-                f"PWRI: {scores['pwri']['score']}/10 ({scores['pwri']['label']})"
+                f"TALRI: {scores['pwri']['score']}/10 ({scores['pwri']['label']})"
             ),
         }
         return [TextContent(type="text", text=json.dumps(result, indent=2))]
 
-    elif name == "proworker_assess_create_profile":
+    elif name == "talent_assess_create_profile":
         user_name = arguments["name"]
         answers_raw = arguments.get("answers", {})
         domain_ratings_raw = arguments.get("domain_ratings", {})
@@ -697,14 +716,14 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
                 "calibration": calibration,
                 "message": (
                     f"Profile for {user_name} created successfully! "
-                    f"PWRI: {scores['pwri']['score']}/10 ({scores['pwri']['label']}). "
+                    f"TALRI: {scores['pwri']['score']}/10 ({scores['pwri']['label']}). "
                     f"The profile has been saved and will be used to personalize all future interactions."
                 ),
             }, indent=2)
         )]
 
 
-    elif name == "proworker_suggest_domains":
+    elif name == "talent_suggest_domains":
         role = arguments.get("role", "")
         industry = arguments.get("industry", "")
         responsibilities = arguments.get("responsibilities", "")
@@ -731,14 +750,14 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
 async def list_resource_templates() -> list[ResourceTemplate]:
     return [
         ResourceTemplate(
-            uriTemplate="proworker://profile/{name}",
-            name="Pro Worker AI Profile",
-            description="A user's full Pro Worker AI profile",
+            uriTemplate="talent://profile/{name}",
+            name="Talent-Augmenting Layer Profile",
+            description="A user's full Talent-Augmenting Layer profile",
             mimeType="text/markdown"
         ),
         ResourceTemplate(
-            uriTemplate="proworker://system-prompt/{name}",
-            name="Pro Worker AI System Prompt",
+            uriTemplate="talent://system-prompt/{name}",
+            name="Talent-Augmenting Layer System Prompt",
             description="Complete system prompt with user profile injected — ready to paste into any LLM",
             mimeType="text/markdown"
         ),
@@ -753,7 +772,7 @@ async def list_resources() -> list[Resource]:
     coaching_path = repo_root / "assessment" / "coaching-modules.md"
     if coaching_path.exists():
         resources.append(Resource(
-            uri="proworker://coaching-modules",
+            uri="talent://coaching-modules",
             name="Coaching Modules",
             description="Structured coaching session designs for common growth domains",
             mimeType="text/markdown"
@@ -763,9 +782,9 @@ async def list_resources() -> list[Resource]:
     framework_path = repo_root / "assessment" / "framework.md"
     if framework_path.exists():
         resources.append(Resource(
-            uri="proworker://framework",
+            uri="talent://framework",
             name="Assessment Framework",
-            description="Research-backed assessment framework for Pro Worker AI",
+            description="Research-backed assessment framework for Talent-Augmenting Layer",
             mimeType="text/markdown"
         ))
 
@@ -773,9 +792,9 @@ async def list_resources() -> list[Resource]:
     lit_path = repo_root / "assessment" / "literature-foundations.md"
     if lit_path.exists():
         resources.append(Resource(
-            uri="proworker://literature",
+            uri="talent://literature",
             name="Literature Foundations",
-            description="Research backing for Pro Worker AI techniques",
+            description="Research backing for Talent-Augmenting Layer techniques",
             mimeType="text/markdown"
         ))
 
@@ -783,9 +802,9 @@ async def list_resources() -> list[Resource]:
     for name in store.list_profiles():
         safe = name.lower().replace(" ", "-")
         resources.append(Resource(
-            uri=f"proworker://profile/{safe}",
+            uri=f"talent://profile/{safe}",
             name=f"Profile: {name}",
-            description=f"Pro Worker AI profile for {name}",
+            description=f"Talent-Augmenting Layer profile for {name}",
             mimeType="text/markdown"
         ))
 
@@ -795,26 +814,28 @@ async def list_resources() -> list[Resource]:
 @app.read_resource()
 async def read_resource(uri: str) -> str:
     uri_str = str(uri)
+    if uri_str.startswith("proworker://"):
+        uri_str = uri_str.replace("proworker://", "talent://", 1)
 
-    if uri_str == "proworker://coaching-modules":
+    if uri_str == "talent://coaching-modules":
         path = repo_root / "assessment" / "coaching-modules.md"
         return path.read_text(encoding="utf-8") if path.exists() else "Coaching modules not found."
 
-    if uri_str == "proworker://framework":
+    if uri_str == "talent://framework":
         path = repo_root / "assessment" / "framework.md"
         return path.read_text(encoding="utf-8") if path.exists() else "Framework not found."
 
-    if uri_str == "proworker://literature":
+    if uri_str == "talent://literature":
         path = repo_root / "assessment" / "literature-foundations.md"
         return path.read_text(encoding="utf-8") if path.exists() else "Literature not found."
 
-    if uri_str.startswith("proworker://profile/"):
-        name = uri_str.replace("proworker://profile/", "")
+    if uri_str.startswith("talent://profile/"):
+        name = uri_str.replace("talent://profile/", "")
         raw = store.read_profile_raw(name)
         return raw or f"Profile not found: {name}"
 
-    if uri_str.startswith("proworker://system-prompt/"):
-        name = uri_str.replace("proworker://system-prompt/", "")
+    if uri_str.startswith("talent://system-prompt/"):
+        name = uri_str.replace("talent://system-prompt/", "")
         return _build_system_prompt(name)
 
     return f"Unknown resource: {uri_str}"
@@ -833,7 +854,7 @@ def _build_system_prompt(name: str) -> str:
         system_prompt += "\n\n---\n\n"
         system_prompt += f"# Active User Profile\n\n{profile_raw}"
     else:
-        system_prompt += f"\n\n> No profile found for '{name}'. Suggest running /proworker-assess.\n"
+        system_prompt += f"\n\n> No profile found for '{name}'. Suggest running /talent-assess.\n"
 
     return system_prompt
 
@@ -844,11 +865,11 @@ def _build_system_prompt(name: str) -> str:
 async def list_prompts() -> list[Prompt]:
     return [
         Prompt(
-            name="proworker-system",
+            name="talent-system",
             description=(
-                "Complete Pro Worker AI system prompt for any LLM. "
+                "Complete Talent-Augmenting Layer system prompt for any LLM. "
                 "Includes the base instructions + the user's profile. "
-                "Paste this into any LLM's system prompt to activate Pro Worker AI."
+                "Paste this into any LLM's system prompt to activate Talent-Augmenting Layer."
             ),
             arguments=[
                 PromptArgument(
@@ -859,8 +880,8 @@ async def list_prompts() -> list[Prompt]:
             ]
         ),
         Prompt(
-            name="proworker-assess",
-            description="Run the Pro Worker AI assessment to create a new profile.",
+            name="talent-assess",
+            description="Run the Talent-Augmenting Layer assessment to create a new profile.",
             arguments=[
                 PromptArgument(
                     name="name",
@@ -870,8 +891,8 @@ async def list_prompts() -> list[Prompt]:
             ]
         ),
         Prompt(
-            name="proworker-coach",
-            description="Start a Pro Worker AI coaching session.",
+            name="talent-coach",
+            description="Start a Talent-Augmenting Layer coaching session.",
             arguments=[
                 PromptArgument(
                     name="name",
@@ -891,12 +912,18 @@ async def list_prompts() -> list[Prompt]:
 @app.get_prompt()
 async def get_prompt(name: str, arguments: dict | None = None) -> GetPromptResult:
     args = arguments or {}
+    legacy_prompt_aliases = {
+        "proworker-system": "talent-system",
+        "proworker-assess": "talent-assess",
+        "proworker-coach": "talent-coach",
+    }
+    name = legacy_prompt_aliases.get(name, name)
 
-    if name == "proworker-system":
+    if name == "talent-system":
         user_name = args.get("name", "")
         system_prompt = _build_system_prompt(user_name)
         return GetPromptResult(
-            description=f"Pro Worker AI system prompt for {user_name}",
+            description=f"Talent-Augmenting Layer system prompt for {user_name}",
             messages=[
                 PromptMessage(
                     role="user",
@@ -908,23 +935,23 @@ async def get_prompt(name: str, arguments: dict | None = None) -> GetPromptResul
             ]
         )
 
-    elif name == "proworker-assess":
+    elif name == "talent-assess":
         user_name = args.get("name", "a new user")
         protocol = get_assessment_protocol()
         assess_content = (
-            f"# Pro Worker AI — Onboarding Assessment\n\n"
-            f"You are about to run a Pro Worker AI assessment for {user_name}.\n\n"
+            f"# Talent-Augmenting Layer — Onboarding Assessment\n\n"
+            f"You are about to run a Talent-Augmenting Layer assessment for {user_name}.\n\n"
             f"## Instructions\n\n{protocol['instructions']}\n\n"
             f"## Tools to use\n\n"
-            f"1. Call `proworker_assess_start` to get the full question bank\n"
+            f"1. Call `talent_assess_start` to get the full question bank\n"
             f"2. Ask questions conversationally, collecting scores for each item\n"
-            f"3. Call `proworker_assess_score` with all collected answers to compute scores\n"
-            f"4. Call `proworker_assess_create_profile` with scores + qualitative data to save\n\n"
-            f"Begin by calling `proworker_assess_start` now, then greet the user warmly "
+            f"3. Call `talent_assess_score` with all collected answers to compute scores\n"
+            f"4. Call `talent_assess_create_profile` with scores + qualitative data to save\n\n"
+            f"Begin by calling `talent_assess_start` now, then greet the user warmly "
             f"and start the assessment conversation."
         )
         return GetPromptResult(
-            description=f"Pro Worker AI Assessment for {user_name}",
+            description=f"Talent-Augmenting Layer Assessment for {user_name}",
             messages=[
                 PromptMessage(
                     role="user",
@@ -933,10 +960,10 @@ async def get_prompt(name: str, arguments: dict | None = None) -> GetPromptResul
             ]
         )
 
-    elif name == "proworker-coach":
+    elif name == "talent-coach":
         user_name = args.get("name", "")
         focus = args.get("focus", "")
-        coach_path = repo_root / ".claude" / "commands" / "proworker-coach.md"
+        coach_path = repo_root / ".claude" / "commands" / "talent-coach.md"
         coach_content = ""
         if coach_path.exists():
             coach_content = coach_path.read_text(encoding="utf-8")

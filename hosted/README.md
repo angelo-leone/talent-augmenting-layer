@@ -1,4 +1,4 @@
-# Pro Worker AI -- Hosted Web App
+# Talent-Augmenting Layer -- Hosted Web App
 
 A FastAPI application providing LLM-powered conversational assessment, persistent
 user profiles with Google OAuth, 2-week email reminders for profile check-ins, and
@@ -57,13 +57,13 @@ Open http://localhost:8000 in your browser.
 From the project root:
 
 ```bash
-docker build -f hosted/Dockerfile -t proworker-hosted .
+docker build -f hosted/Dockerfile -t talent-augmenting-layer-hosted .
 docker run -p 8000:8000 \
   -e ANTHROPIC_API_KEY=sk-ant-... \
   -e GOOGLE_CLIENT_ID=... \
   -e GOOGLE_CLIENT_SECRET=... \
   -e SECRET_KEY=... \
-  proworker-hosted
+  talent-augmenting-layer-hosted
 ```
 
 ## Google OAuth Setup
@@ -113,14 +113,14 @@ docker run -p 8000:8000 \
 2. Click **New +** → **Web Service**
 3. Connect your repository
 4. Configure:
-   - **Name**: `proworker-hosted`
+   - **Name**: `talent-augmenting-layer-hosted`
    - **Runtime**: Docker
    - **Dockerfile Path**: `./hosted/Dockerfile`
    - **Plan**: Free (or Starter for production)
 5. Add environment variables (see step 3 above)
 6. Create a PostgreSQL database:
    - Click **New +** → **PostgreSQL**
-   - **Name**: `proworker-db`
+   - **Name**: `talent-augmenting-layer-db`
    - **Plan**: Free (90-day trial) or Starter ($7/mo)
    - Copy the **Internal Database URL**
    - Add to web service as `DATABASE_URL` environment variable

@@ -1,12 +1,12 @@
-# Pro Worker AI — Quick Start Guide
+# Talent-Augmenting Layer — Quick Start Guide
 
-> Get Pro Worker AI running on any LLM platform in under 5 minutes.
+> Get Talent-Augmenting Layer running on any LLM platform in under 5 minutes.
 
 ---
 
 ## Step 1: Take the Assessment
 
-Before using Pro Worker AI, you need a **profile**. Two options:
+Before using Talent-Augmenting Layer, you need a **profile**. Two options:
 
 ### Option A: Conversational Assessment (Recommended)
 1. Open any LLM (ChatGPT, Claude, Gemini, etc.)
@@ -21,7 +21,7 @@ Before using Pro Worker AI, you need a **profile**. Two options:
 
 ### Option C: MCP Assessment (Claude Code / Cursor / Windsurf)
 1. Set up the MCP server (see Tier 3 below)
-2. Type `/proworker-assess` or ask the AI to assess you
+2. Type `/talent-assess` or ask the AI to assess you
 3. Profile is automatically saved to `profiles/pro-yourname.md`
 
 ---
@@ -33,7 +33,7 @@ Before using Pro Worker AI, you need a **profile**. Two options:
 1. Go to **Settings > Personalization > Custom instructions**
 2. In **"What would you like ChatGPT to know about you?"** — paste your profile markdown
 3. In **"How would you like ChatGPT to respond?"** — paste the contents of `SYSTEM_PROMPT_COMPACT.md`
-4. Save. Every new conversation now uses Pro Worker AI.
+4. Save. Every new conversation now uses Talent-Augmenting Layer.
 
 > **Limitation**: ChatGPT custom instructions have a ~1,500 character limit per field. The compact prompt fits; for longer profiles, use a Custom GPT instead.
 
@@ -47,7 +47,7 @@ Before using Pro Worker AI, you need a **profile**. Two options:
    - "Coach me on [skill]"
    - "Update my profile"
    - "Assess me (create new profile)"
-5. Name it "Pro Worker AI" and save
+5. Name it "Talent-Augmenting Layer" and save
 6. Use this GPT for all your work conversations
 
 ### Google Gemini — Gem
@@ -56,7 +56,7 @@ Before using Pro Worker AI, you need a **profile**. Two options:
 2. Click **Create a Gem**
 3. In the **Instructions** field — paste the full contents of `SYSTEM_PROMPT.md`
 4. Below the instructions, paste your profile markdown (Gems support long instructions)
-5. Name it "Pro Worker AI"
+5. Name it "Talent-Augmenting Layer"
 6. Save and use for your work conversations
 
 ### Claude — Project (Recommended)
@@ -65,7 +65,7 @@ Before using Pro Worker AI, you need a **profile**. Two options:
 2. Create a new project
 3. In **Project Instructions** — paste the full contents of `SYSTEM_PROMPT.md`
 4. In **Project Knowledge** — upload your profile `.md` file
-5. Every conversation in this project uses Pro Worker AI
+5. Every conversation in this project uses Talent-Augmenting Layer
 
 ### Claude — Web (No Project)
 
@@ -92,7 +92,7 @@ See [Tier 3: MCP Server Setup](#tier-3-mcp-server) below.
 
 1. If the LLM supports **system prompts** — paste `SYSTEM_PROMPT.md` as the system message, paste your profile after it
 2. If the LLM only has **one text box** — paste `SYSTEM_PROMPT_COMPACT.md` + your profile at the start
-3. The behavioral rules are model-agnostic and work with any capable LLM
+3. The behavioural rules are model-agnostic and work with any capable LLM
 
 ---
 
@@ -101,7 +101,7 @@ See [Tier 3: MCP Server Setup](#tier-3-mcp-server) below.
 Your profile should evolve as you grow. Three ways to update:
 
 ### Automatic (During Conversations)
-Pro Worker AI will output a `PROFILE UPDATE BLOCK` at the end of substantive sessions when it observes skill changes. When you see this block:
+Talent-Augmenting Layer will output a `PROFILE UPDATE BLOCK` at the end of substantive sessions when it observes skill changes. When you see this block:
 1. Copy the changes
 2. Update your profile in custom instructions / project settings
 3. The updated profile takes effect in your next conversation
@@ -128,7 +128,7 @@ For Claude Code, Cursor, Windsurf, or any MCP-compatible editor.
 ### Install
 
 ```bash
-cd pro-worker-ai/mcp-server
+cd talent-augmenting-layer/mcp-server
 pip install -e .
 ```
 
@@ -139,12 +139,12 @@ Add to your MCP settings (e.g., `.claude/settings.json`, `.cursor/mcp.json`):
 ```json
 {
   "mcpServers": {
-    "proworker-ai": {
+    "talent-augmenting-layer": {
       "command": "python",
       "args": ["-m", "src.server"],
-      "cwd": "/path/to/pro-worker-ai/mcp-server",
+      "cwd": "/path/to/talent-augmenting-layer/mcp-server",
       "env": {
-        "PROWORKER_PROFILES_DIR": "/path/to/pro-worker-ai/profiles"
+        "TALENT_AUGMENTING_LAYER_PROFILES_DIR": "/path/to/talent-augmenting-layer/profiles"
       }
     }
   }
@@ -153,16 +153,16 @@ Add to your MCP settings (e.g., `.claude/settings.json`, `.cursor/mcp.json`):
 
 ### Use
 
-- `/proworker-assess` — Run the full assessment
-- `/proworker-coach` — Start a coaching session
-- `/proworker-update` — Update your profile
+- `/talent-assess` — Run the full assessment
+- `/talent-coach` — Start a coaching session
+- `/talent-update` — Update your profile
 - The AI auto-loads your profile, classifies tasks, logs interactions, and tracks skill progression
 
 ---
 
 ## Tier 4: Hosted Web App
 
-For organizations or individuals who want persistent profiles, automated reminders, and a dashboard.
+For organisations or individuals who want persistent profiles, automated reminders, and a dashboard.
 
 ### Features
 - **LLM-powered conversational assessment** (not a form — a real conversation)
@@ -194,12 +194,12 @@ See `hosted/README.md` for deployment instructions.
 └─────────────────────────────────────────────────────────────┘
 
 All tiers share:
-  ✓ Same PWAQ assessment (14 fixed items + adaptive domains)
-  ✓ Same scoring formulas (ADR, GP, ALI, ESA, PWRI)
+  ✓ Same TALQ assessment (14 fixed items + adaptive domains)
+  ✓ Same scoring formulas (ADR, GP, ALI, ESA, TALRI)
   ✓ Same profile format (9 sections, portable markdown)
-  ✓ Same behavioral rules (4 modes, de-skilling detection, task triage)
+  ✓ Same behavioural rules (4 modes, de-skilling detection, task triage)
 ```
 
 ---
 
-*Pro Worker AI v0.2.0 — CC BY-NC-SA 4.0 — github.com/angelo-leone/worker-augmenting-layer*
+*Talent-Augmenting Layer v0.2.0 — CC BY-NC-SA 4.0 — github.com/angelo-leone/worker-augmenting-layer*

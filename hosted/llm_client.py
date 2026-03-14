@@ -1,4 +1,4 @@
-"""Pro Worker AI -- LLM API wrapper.
+"""Talent-Augmenting Layer -- LLM API wrapper.
 
 Supports Anthropic, OpenAI, and Google Gemini APIs.  The ``chat`` method sends a
 system prompt plus a list of user/assistant messages and returns the
@@ -206,7 +206,7 @@ class LLMClient:
         ``generate_profile_markdown`` expect.
         """
         system = (
-            "You are an assessment scoring assistant for Pro Worker AI. "
+            "You are an assessment scoring assistant for Talent-Augmenting Layer. "
             "Given the assessment conversation below, extract ALL the structured data needed. "
             "Return ONLY valid JSON with these exact keys:\n"
             "{\n"
