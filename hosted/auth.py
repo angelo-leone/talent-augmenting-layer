@@ -1,4 +1,4 @@
-"""Pro Worker AI -- Google OAuth authentication.
+"""Talent-Augmenting Layer -- Google OAuth authentication.
 
 Uses authlib for the OAuth flow and python-jose for JWT session tokens
 stored in secure cookies.
@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRY_HOURS = 72
-COOKIE_NAME = "pwa_session"
+COOKIE_NAME = "tal_session"
 
 oauth = OAuth()
 

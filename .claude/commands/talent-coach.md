@@ -1,6 +1,6 @@
-# Pro Worker AI — Coaching Session
+# Talent-Augmenting Layer — Coaching Session
 
-You are running a targeted coaching session. The goal is to help the user develop a specific skill or work through a challenge using pro-worker principles.
+You are running a targeted coaching session. The goal is to help the user develop a specific skill or work through a challenge using talent-augmenting principles.
 
 ## Instructions
 

@@ -1,6 +1,6 @@
-# Pro Worker AI — Integration Guide
+# Talent-Augmenting Layer — Integration Guide
 
-> How to use Pro Worker AI with any LLM, agent, or tool.
+> How to use Talent-Augmenting Layer with any LLM, agent, or tool.
 > The portability story is the product differentiator.
 
 ---
@@ -22,8 +22,8 @@
 │  Copy-paste into any LLM · zero dependencies · works everywhere     │
 └─────────────────────────────────────────────────────────────────────┘
 
-All tiers share: same PWAQ (14 fixed items + adaptive domains),
-same scoring, same profile format, same behavioral rules.
+All tiers share: same TALQ (14 fixed items + adaptive domains),
+same scoring, same profile format, same behavioural rules.
 ```
 
 ---
@@ -92,7 +92,7 @@ Reference file: `platform-configs/claude-project.md`
 1. Create a new **Project** in Claude (web or desktop)
 2. Add the system prompt from `claude-project.md` as project instructions
 3. Upload the user's profile as a project knowledge file
-4. All conversations within the project use the Pro Worker AI behavior
+4. All conversations within the project use the Talent-Augmenting Layer behaviour
 
 **Advantages over Tier 1**:
 - Persistent context (no re-pasting each session)
@@ -105,13 +105,13 @@ Reference file: `platform-configs/claude-project.md`
 
 ## Tier 3: MCP Server (Claude Code, Cursor, Windsurf)
 
-**What it is**: A full tool integration layer that exposes Pro Worker AI as 14 MCP tools, 5 resources, and 3 prompts. Provides automatic interaction tracking, server-side scoring, and programmatic profile management.
+**What it is**: A full tool integration layer that exposes Talent-Augmenting Layer as 14 MCP tools, 5 resources, and 3 prompts. Provides automatic interaction tracking, server-side scoring, and programmatic profile management.
 
 ### Setup
 
 1. **Install the server**:
 ```bash
-cd pro-worker-ai/mcp-server
+cd talent-augmenting-layer/mcp-server
 pip install -e .
 ```
 
@@ -121,12 +121,12 @@ For **Claude Code** (`.claude/settings.json`):
 ```json
 {
   "mcpServers": {
-    "proworker-ai": {
+    "talent-augmenting-layer": {
       "command": "python",
       "args": ["-m", "src.server"],
-      "cwd": "/path/to/pro-worker-ai/mcp-server",
+      "cwd": "/path/to/talent-augmenting-layer/mcp-server",
       "env": {
-        "PROWORKER_PROFILES_DIR": "/path/to/pro-worker-ai/profiles"
+        "TALENT_AUGMENTING_LAYER_PROFILES_DIR": "/path/to/talent-augmenting-layer/profiles"
       }
     }
   }
@@ -137,12 +137,12 @@ For **Cursor** (`.cursor/mcp.json`):
 ```json
 {
   "mcpServers": {
-    "proworker-ai": {
+    "talent-augmenting-layer": {
       "command": "python",
       "args": ["-m", "src.server"],
-      "cwd": "/path/to/pro-worker-ai/mcp-server",
+      "cwd": "/path/to/talent-augmenting-layer/mcp-server",
       "env": {
-        "PROWORKER_PROFILES_DIR": "/path/to/pro-worker-ai/profiles"
+        "TALENT_AUGMENTING_LAYER_PROFILES_DIR": "/path/to/talent-augmenting-layer/profiles"
       }
     }
   }
@@ -155,72 +155,72 @@ For **Claude Desktop** (`claude_desktop_config.json`):
 ```json
 {
   "mcpServers": {
-    "proworker-ai": {
+    "talent-augmenting-layer": {
       "command": "python",
       "args": ["-m", "src.server"],
-      "cwd": "/path/to/pro-worker-ai/mcp-server",
+      "cwd": "/path/to/talent-augmenting-layer/mcp-server",
       "env": {
-        "PROWORKER_PROFILES_DIR": "/path/to/pro-worker-ai/profiles"
+        "TALENT_AUGMENTING_LAYER_PROFILES_DIR": "/path/to/talent-augmenting-layer/profiles"
       }
     }
   }
 }
 ```
 
-3. **Run the assessment**: Use `/proworker-assess` (slash command) or call `proworker_assess_start` via MCP
+3. **Run the assessment**: Use `/talent-assess` (slash command) or call `talent_assess_start` via MCP
 
 ### Tools (14 total)
 
 | Tool | Input | Output |
 |------|-------|--------|
-| `proworker_get_profile` | `{name}` | Full profile markdown |
-| `proworker_get_calibration` | `{name}` | Compact calibration JSON for system prompt injection |
-| `proworker_classify_task` | `{name, task_description}` | Task classification + recommended AI behavior |
-| `proworker_log_interaction` | `{name, category, domain, engagement, signal}` | Logged interaction entry for skill tracking |
-| `proworker_get_progression` | `{name}` | Skill progression stats, trends, atrophy warnings |
-| `proworker_list_profiles` | `{}` | List of all profile names |
-| `proworker_status` | `{name}` | Comprehensive status report |
-| `proworker_org_summary` | `{}` | Organization-level aggregation across all profiles |
-| `proworker_delete_profile` | `{name}` | Delete profile + interaction logs |
-| `proworker_save_profile` | `{name, content}` | Save raw profile markdown to disk |
-| `proworker_assess_start` | `{name?}` | Full assessment protocol (questions + instructions) |
-| `proworker_assess_score` | `{answers, domain_ratings}` | Computed scores (ADR, GP, ALI, ESA, PWRI) |
-| `proworker_assess_create_profile` | `{name, role, org, ...}` | Generated profile saved to disk |
-| `proworker_suggest_domains` | `{role, industry, responsibilities?}` | Suggested expertise domains from industry taxonomy |
+| `talent_get_profile` | `{name}` | Full profile markdown |
+| `talent_get_calibration` | `{name}` | Compact calibration JSON for system prompt injection |
+| `talent_classify_task` | `{name, task_description}` | Task classification + recommended AI behaviour |
+| `talent_log_interaction` | `{name, category, domain, engagement, signal}` | Logged interaction entry for skill tracking |
+| `talent_get_progression` | `{name}` | Skill progression stats, trends, atrophy warnings |
+| `talent_list_profiles` | `{}` | List of all profile names |
+| `talent_status` | `{name}` | Comprehensive status report |
+| `talent_org_summary` | `{}` | Organisation-level aggregation across all profiles |
+| `talent_delete_profile` | `{name}` | Delete profile + interaction logs |
+| `talent_save_profile` | `{name, content}` | Save raw profile markdown to disk |
+| `talent_assess_start` | `{name?}` | Full assessment protocol (questions + instructions) |
+| `talent_assess_score` | `{answers, domain_ratings}` | Computed scores (ADR, GP, ALI, ESA, TALRI) |
+| `talent_assess_create_profile` | `{name, role, org, ...}` | Generated profile saved to disk |
+| `talent_suggest_domains` | `{role, industry, responsibilities?}` | Suggested expertise domains from industry taxonomy |
 
 ### Resources (5 total)
 
 | URI | Content |
 |-----|---------|
-| `proworker://profile/{name}` | Full profile markdown |
-| `proworker://system-prompt/{name}` | CLAUDE.md + profile (ready for any LLM) |
-| `proworker://coaching-modules` | Structured coaching sessions (5 modules, 13 sessions) |
-| `proworker://framework` | Assessment framework and methodology |
-| `proworker://literature` | Research literature backing the system |
+| `talent://profile/{name}` | Full profile markdown |
+| `talent://system-prompt/{name}` | CLAUDE.md + profile (ready for any LLM) |
+| `talent://coaching-modules` | Structured coaching sessions (5 modules, 13 sessions) |
+| `talent://framework` | Assessment framework and methodology |
+| `talent://literature` | Research literature backing the system |
 
 ### Prompts (3 total)
 
 | Prompt | Description |
 |--------|-------------|
-| `proworker-system` | Full system prompt for any LLM (CLAUDE.md + user profile) |
-| `proworker-assess` | Onboarding assessment (chatbot-driven, conversational) |
-| `proworker-coach` | Coaching session (with optional focus domain) |
+| `talent-system` | Full system prompt for any LLM (CLAUDE.md + user profile) |
+| `talent-assess` | Onboarding assessment (chatbot-driven, conversational) |
+| `talent-coach` | Coaching session (with optional focus domain) |
 
 ### Slash Commands
 
 | Command | Action |
 |---------|--------|
-| `/proworker-assess` | Run initial assessment or full re-assessment |
-| `/proworker-coach` | Start a targeted coaching session on a specific skill |
-| `/proworker-update` | Update profile based on recent interactions |
+| `/talent-assess` | Run initial assessment or full re-assessment |
+| `/talent-coach` | Start a targeted coaching session on a specific skill |
+| `/talent-update` | Update profile based on recent interactions |
 
-**Profile updates**: Automatic via `proworker_log_interaction`. The server tracks interaction patterns, engagement levels, and skill signals. Profile updates are applied through `proworker_save_profile`.
+**Profile updates**: Automatic via `talent_log_interaction`. The server tracks interaction patterns, engagement levels, and skill signals. Profile updates are applied through `talent_save_profile`.
 
 **Advantages over Tier 2**:
 - Automatic interaction tracking and skill progression analysis
-- Server-side scoring (PWAQ scores computed by the assessment engine)
-- Organization-level analytics via `proworker_org_summary`
-- Domain suggestion engine (`proworker_suggest_domains`)
+- Server-side scoring (TALQ scores computed by the assessment engine)
+- Organisation-level analytics via `talent_org_summary`
+- Domain suggestion engine (`talent_suggest_domains`)
 - Programmatic profile management (create, read, update, delete)
 - Works with any MCP-compatible client
 
@@ -255,8 +255,8 @@ For **Claude Desktop** (`claude_desktop_config.json`):
    **Docker** (recommended):
    ```bash
    cd hosted
-   docker build -t proworker-hosted .
-   docker run -p 5000:5000 --env-file .env proworker-hosted
+   docker build -t talent-augmenting-layer-hosted .
+   docker run -p 5000:5000 --env-file .env talent-augmenting-layer-hosted
    ```
 
    **Direct**:
@@ -284,7 +284,7 @@ For **Claude Desktop** (`claude_desktop_config.json`):
 - Built-in authentication and user management
 - Automated email check-in reminders
 - Profile versioning and history
-- Suitable for non-technical users and organizational rollouts
+- Suitable for non-technical users and organisational rollouts
 
 ---
 
@@ -293,17 +293,17 @@ For **Claude Desktop** (`claude_desktop_config.json`):
 The profile is the portable unit. All four tiers produce and consume the same 9-section markdown format:
 
 ```markdown
-# Pro Worker AI Profile: {Name}
+# Talent-Augmenting Layer Profile: {Name}
 
 ## 1. Identity & Context
-Role, organization, industry, context summary
+Role, organisation, industry, context summary
 
 ## 2. Expertise Map
 Domain → Level (Novice/Developing/Proficient/Advanced/Expert) + AI mode
 
 ## 3. AI Relationship Status (Calibration)
-PWAQ scores: ADR, GP, ALI, ESA, PWRI
-YAML calibration block with friction levels and behavioral settings
+TALQ scores: ADR, GP, ALI, ESA, TALRI
+YAML calibration block with friction levels and behavioural settings
 
 ## 4. Growth Trajectory
 Career goals, skills to develop, skills to protect
@@ -360,10 +360,10 @@ The user copies relevant updates into their profile manually. This is the lowest
 ### Track B: Server-Managed Sync (Tier 3)
 
 The MCP server handles profile updates programmatically:
-1. `proworker_log_interaction` records every substantive interaction
-2. `proworker_get_progression` analyzes trends and flags atrophy risks
-3. `/proworker-update` (slash command) triggers a profile revision based on accumulated logs
-4. `proworker_save_profile` writes the updated profile to disk
+1. `talent_log_interaction` records every substantive interaction
+2. `talent_get_progression` analyzes trends and flags atrophy risks
+3. `/talent-update` (slash command) triggers a profile revision based on accumulated logs
+4. `talent_save_profile` writes the updated profile to disk
 
 ### Track C: Hosted App Sync (Tier 4)
 
@@ -378,11 +378,11 @@ The hosted web app provides automated sync:
 Regardless of tier, users should periodically review their profile:
 - **Every 2 weeks**: Quick check — are the task classifications still accurate?
 - **Every 2 months**: ADR check — have AI dependency patterns changed?
-- **Every 6 months**: Full re-assessment via `/proworker-assess` or ASSESSMENT_PROMPT.md
+- **Every 6 months**: Full re-assessment via `/talent-assess` or ASSESSMENT_PROMPT.md
 
 ---
 
-## Organizational Deployment
+## Organisational Deployment
 
 ### Team Setup
 
@@ -395,7 +395,7 @@ Regardless of tier, users should periodically review their profile:
 
 3. **Run onboarding** for each team member via MCP assessment or hosted app
 
-4. **Use the Streamlit dashboard** (`dashboard/app.py`) for organization-level monitoring:
+4. **Use the Streamlit dashboard** (`dashboard/app.py`) for organisation-level monitoring:
    - Aggregate dependency risk across the team
    - Skill distribution heat maps
    - Atrophy alerts by domain
@@ -403,10 +403,10 @@ Regardless of tier, users should periodically review their profile:
 
 ### Onboarding Flow for New Team Members
 
-1. New member takes the PWAQ assessment (via any tier)
+1. New member takes the TALQ assessment (via any tier)
 2. Profile is generated and saved to the shared profiles directory
-3. Member configures their LLM/IDE with the Pro Worker AI system prompt
-4. First coaching session (`/proworker-coach`) establishes the baseline
+3. Member configures their LLM/IDE with the Talent-Augmenting Layer system prompt
+4. First coaching session (`/talent-coach`) establishes the baseline
 5. Regular check-ins track skill development over time
 
 ### Deployment Options
@@ -428,35 +428,35 @@ Regardless of tier, users should periodically review their profile:
 
 | # | Tool | Purpose |
 |---|------|---------|
-| 1 | `proworker_get_profile` | Load full profile markdown |
-| 2 | `proworker_get_calibration` | Get compact calibration JSON |
-| 3 | `proworker_classify_task` | Classify task into AI interaction mode |
-| 4 | `proworker_log_interaction` | Log interaction for skill tracking |
-| 5 | `proworker_get_progression` | Get skill progression stats and trends |
-| 6 | `proworker_list_profiles` | List all available profiles |
-| 7 | `proworker_status` | Comprehensive user status report |
-| 8 | `proworker_org_summary` | Organization-level analytics |
-| 9 | `proworker_delete_profile` | Delete profile and logs |
-| 10 | `proworker_save_profile` | Save raw profile markdown |
-| 11 | `proworker_assess_start` | Start assessment protocol |
-| 12 | `proworker_assess_score` | Compute PWAQ scores from raw answers |
-| 13 | `proworker_assess_create_profile` | Generate and save profile from assessment |
-| 14 | `proworker_suggest_domains` | Suggest expertise domains by role/industry |
+| 1 | `talent_get_profile` | Load full profile markdown |
+| 2 | `talent_get_calibration` | Get compact calibration JSON |
+| 3 | `talent_classify_task` | Classify task into AI interaction mode |
+| 4 | `talent_log_interaction` | Log interaction for skill tracking |
+| 5 | `talent_get_progression` | Get skill progression stats and trends |
+| 6 | `talent_list_profiles` | List all available profiles |
+| 7 | `talent_status` | Comprehensive user status report |
+| 8 | `talent_org_summary` | Organisation-level analytics |
+| 9 | `talent_delete_profile` | Delete profile and logs |
+| 10 | `talent_save_profile` | Save raw profile markdown |
+| 11 | `talent_assess_start` | Start assessment protocol |
+| 12 | `talent_assess_score` | Compute TALQ scores from raw answers |
+| 13 | `talent_assess_create_profile` | Generate and save profile from assessment |
+| 14 | `talent_suggest_domains` | Suggest expertise domains by role/industry |
 
 ### Quick Reference: 5 Resources
 
 | URI | Content |
 |-----|---------|
-| `proworker://profile/{name}` | Full profile markdown |
-| `proworker://system-prompt/{name}` | CLAUDE.md + profile |
-| `proworker://coaching-modules` | Structured coaching sessions |
-| `proworker://framework` | Assessment framework |
-| `proworker://literature` | Research literature |
+| `talent://profile/{name}` | Full profile markdown |
+| `talent://system-prompt/{name}` | CLAUDE.md + profile |
+| `talent://coaching-modules` | Structured coaching sessions |
+| `talent://framework` | Assessment framework |
+| `talent://literature` | Research literature |
 
 ### Quick Reference: 3 Prompts
 
 | Prompt | Description |
 |--------|-------------|
-| `proworker-system` | Full system prompt for any LLM |
-| `proworker-assess` | Chatbot-driven onboarding assessment |
-| `proworker-coach` | Targeted coaching session |
+| `talent-system` | Full system prompt for any LLM |
+| `talent-assess` | Chatbot-driven onboarding assessment |
+| `talent-coach` | Targeted coaching session |

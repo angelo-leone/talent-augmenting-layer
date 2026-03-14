@@ -1,4 +1,4 @@
-# Pro Worker AI Profile — [NAME]
+# Talent-Augmenting Layer Profile — [NAME]
 
 > Generated: [DATE]
 > Last updated: [DATE]
@@ -12,7 +12,7 @@
 |-------|-------|
 | **Name** | |
 | **Role** | |
-| **Organization** | |
+| **Organisation** | |
 | **Industry** | |
 | **Experience in role** | |
 | **Team structure** | |
@@ -145,4 +145,4 @@ Things this AI should NEVER do for this person:
 
 | Date | Change | Trigger |
 |------|--------|---------|
-| [DATE] | Initial profile created | /proworker-assess |
+| [DATE] | Initial profile created | /talent-assess |

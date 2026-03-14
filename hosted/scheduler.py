@@ -1,4 +1,4 @@
-"""Pro Worker AI -- Background scheduler for check-in reminders.
+"""Talent-Augmenting Layer -- Background scheduler for check-in reminders.
 
 Uses APScheduler to run a daily job that identifies users overdue for a
 profile check-in and sends them a reminder email.

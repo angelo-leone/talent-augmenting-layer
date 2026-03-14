@@ -1,4 +1,4 @@
-# Pro Worker AI Profile — Angelo
+# Talent-Augmenting Layer Profile — Angelo
 
 > Generated: 2026-02-27
 > Last updated: 2026-02-27
@@ -12,7 +12,7 @@
 |-------|-------|
 | **Name** | Angelo |
 | **Role** | Associate |
-| **Organization** | PUBLIC (public.io) |
+| **Organisation** | PUBLIC (public.io) |
 | **Industry** | Public sector consulting — innovation, digital, evaluation, tech policy |
 | **Experience in role** | Associate-level at a fluid, multidisciplinary consultancy |
 | **Team structure** | Collaborative firm, project-based teams |
@@ -44,7 +44,7 @@
 ### AI & Technology Skills
 | Domain | Rating (1-5) | Evidence | Growth Direction |
 |--------|-------------|----------|-----------------|
-| AI literacy & capabilities understanding | 3 (Proficient) | Heavy daily user, building pro-worker AI system | **GROW to 4-5** — targeted goal (AI/tech policy) |
+| AI literacy & capabilities understanding | 3 (Proficient) | Heavy daily user, building talent-augmenting layer system | **GROW to 4-5** — targeted goal (AI/tech policy) |
 | Prompt engineering / AI interaction | 3 (Proficient) | Daily use, varied patterns | Develop through practice |
 | Critical evaluation of AI output | 3 (Proficient) | Varies by task — sometimes accepts, sometimes rewrites | **STRENGTHEN** — key to preventing de-skilling |
 | AI/Tech policy knowledge | 3 (Proficient) | Online safety research, agentic AI programmes | **GROW to 4-5** — targeted goal |
@@ -71,7 +71,7 @@
 - Heavy daily use across tasks (+2)
 - Self-aware about writing/thinking atrophy risk (+1, but awareness is protective)
 - Varies approach by task (-1, healthy pattern)
-- Working on pro-worker AI system itself (-1, meta-awareness is highly protective)
+- Working on talent-augmenting layer system itself (-1, meta-awareness is highly protective)
 - Still needs to develop more systematic critical evaluation habits (+2)
 
 **De-skilling concerns**:
@@ -81,7 +81,7 @@
 
 **Strengths in AI usage**:
 - Self-awareness about risks (very protective)
-- Building meta-tools (pro-worker AI project shows deep engagement)
+- Building meta-tools (talent-augmenting layer project shows deep engagement)
 - Hybrid background means he can evaluate AI output from multiple angles
 - Research synthesis background means he can quality-check AI literature reviews
 
@@ -92,7 +92,7 @@
 **Career goals (1-2 years)**:
 - Deepen expertise in **AI/tech policy & methodology** — become the go-to person at PUBLIC
 - Strengthen **economic analysis / VFM** capabilities — complement qualitative strength with quantitative rigor
-- Build a product/tool in the **pro-worker AI space** — potential marketplace offering through PUBLIC
+- Build a product/tool in the **talent-augmenting layer space** — potential marketplace offering through PUBLIC
 
 **Skills to develop**:
 1. Economic / VFM analysis (3 → 4)
@@ -210,7 +210,7 @@ Use these contrasts when coaching Angelo in his developing domains:
 **Economic / VFM Analysis**
 | Common Assumption | Reality | Principle |
 |------------------|---------|-----------|
-| "Cheaper = better value" | VFM balances economy, efficiency, effectiveness, and equity (the 4Es) | Value is multi-dimensional — optimize across axes, not on cost alone |
+| "Cheaper = better value" | VFM balances economy, efficiency, effectiveness, and equity (the 4Es) | Value is multi-dimensional — optimise across axes, not on cost alone |
 | "Discount future benefits at the standard rate" | HM Treasury Green Book specifies declining long-term rates (3.5% → 3.0% → 2.5%) and social values differ from private | Public sector discounting reflects social time preference, not market returns |
 | "Compare total costs" | Compare NET PRESENT VALUE of incremental costs vs. incremental benefits | Marginal analysis: only the DELTA between options matters |
 | "Report the BCR (benefit-cost ratio)" | BCR is sensitive to where you put costs (numerator vs. denominator). Net Present Value is more robust | BCR is easy to game — always check the NPV alongside it |
@@ -268,4 +268,4 @@ Things this AI should NEVER do for Angelo:
 
 | Date | Change | Trigger |
 |------|--------|---------|
-| 2026-02-27 | Initial profile created | /proworker-assess |
+| 2026-02-27 | Initial profile created | /talent-assess |

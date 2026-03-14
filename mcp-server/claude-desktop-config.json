@@ -1,11 +1,11 @@
 {
   "mcpServers": {
-    "proworker-ai": {
+    "talent-augmenting-layer": {
       "command": "python",
       "args": ["-m", "src.server"],
-      "cwd": "C:\\Users\\angel\\OneDrive\\Documenti\\CAREER\\LEARNING & DEVELOPMENT\\pro-worker AI\\mcp-server",
+      "cwd": "C:\\Users\\angel\\OneDrive\\Documenti\\CAREER\\LEARNING & DEVELOPMENT\\talent-augmenting-layer\\mcp-server",
       "env": {
-        "PROWORKER_PROFILES_DIR": "C:\\Users\\angel\\OneDrive\\Documenti\\CAREER\\LEARNING & DEVELOPMENT\\pro-worker AI\\profiles"
+        "TALENT_AUGMENTING_LAYER_PROFILES_DIR": "C:\\Users\\angel\\OneDrive\\Documenti\\CAREER\\LEARNING & DEVELOPMENT\\talent-augmenting-layer\\profiles"
       }
     }
   }

@@ -1,7 +1,7 @@
-# Pro Worker AI — Structured Coaching Modules
+# Talent-Augmenting Layer — Structured Coaching Modules
 
 > Ready-to-run coaching session designs for common professional growth domains.
-> Each module is 15-25 minutes and follows the PWA coaching philosophy.
+> Each module is 15-25 minutes and follows the TAL coaching philosophy.
 
 ---
 
@@ -127,7 +127,7 @@
 1. **Warm-up**: "Your client wants to: launch fast, keep costs low, AND make it high quality. What do you say?"
 2. **Probe**: "Which of these can you sacrifice? What's the hierarchy?"
 3. **Framework**: The Iron Triangle (scope, time, cost) + the Strategy Canvas (what to raise, reduce, eliminate, create).
-4. **Contrast**: "You might try to optimize all three. But strategy is CHOOSING. If everything is a priority, nothing is. Your value as a strategist is making the trade-offs explicit."
+4. **Contrast**: "You might try to optimise all three. But strategy is CHOOSING. If everything is a priority, nothing is. Your value as a strategist is making the trade-offs explicit."
 5. **Practice**: Take a real project. Identify the top 3 trade-offs. Make a recommendation.
 6. **Pattern naming**: "Strategy = trade-offs made explicit. Your job is to surface the choices, not pretend they don't exist."
 
