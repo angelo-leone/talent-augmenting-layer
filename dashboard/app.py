@@ -1,5 +1,5 @@
 """
-Pro Worker AI — Organization Dashboard
+Talent-Augmenting Layer — Organisation Dashboard
 
 Streamlit dashboard for org-level workforce augmentation analytics.
 Tracks: dependency risk, skill progression, de-skilling alerts, engagement trends.
@@ -27,12 +27,12 @@ store = ProfileStore(PROFILES_DIR)
 # ── Page Config ──────────────────────────────────────────────────────────────
 
 st.set_page_config(
-    page_title="Pro Worker AI — Org Dashboard",
+    page_title="Talent-Augmenting Layer — Org Dashboard",
     page_icon="🎯",
     layout="wide",
 )
 
-st.title("Pro Worker AI — Organization Dashboard")
+st.title("Talent-Augmenting Layer — Organisation Dashboard")
 st.markdown("*Workforce augmentation analytics. Track skill growth, dependency risk, and de-skilling.*")
 
 # ── Load Data ────────────────────────────────────────────────────────────────
@@ -40,7 +40,7 @@ st.markdown("*Workforce augmentation analytics. Track skill growth, dependency r
 summary = store.get_org_summary()
 
 if "message" in summary and summary.get("total_profiles", 0) == 0:
-    st.warning("No profiles found. Run `/proworker-assess` for team members to populate the dashboard.")
+    st.warning("No profiles found. Run `/talent-assess` for team members to populate the dashboard.")
     st.stop()
 
 profiles = summary["profiles"]
@@ -51,7 +51,7 @@ domain_summary = summary["domain_summary"]
 
 # ── Top-Level Metrics ────────────────────────────────────────────────────────
 
-st.header("Organization Overview")
+st.header("Organisation Overview")
 
 col1, col2, col3, col4, col5 = st.columns(5)
 
@@ -121,7 +121,7 @@ for p in sorted(profiles, key=lambda x: x["dependency_risk"], reverse=True):
 
 # ── Domain Analysis ──────────────────────────────────────────────────────────
 
-st.header("Org-Wide Skill Distribution")
+st.header("Organisation-Wide Skill Distribution")
 
 if domain_summary:
     # Sort by average rating
@@ -141,6 +141,6 @@ if domain_summary:
 
 st.divider()
 st.markdown(
-    "*Pro Worker AI — Making workers better, not dependent. "
+    "*Talent-Augmenting Layer — Making workers better, not dependent. "
     "Powered by research from Bucinca, Acemoglu, Mollick.*"
 )

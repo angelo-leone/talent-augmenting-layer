@@ -1,4 +1,4 @@
-"""Pro Worker AI -- Hosted FastAPI Application.
+"""Talent-Augmenting Layer -- Hosted FastAPI Application.
 
 Provides: LLM-powered conversational assessment, persistent user profiles
 with Google OAuth, 2-week email reminders, and profile export for any LLM.
@@ -63,10 +63,10 @@ async def lifespan(app: FastAPI):
     await create_tables()
     sched = setup_scheduler()
     sched.start()
-    logger.info("Pro Worker AI hosted app started")
+    logger.info("Talent-Augmenting Layer hosted app started")
     yield
     sched.shutdown(wait=False)
-    logger.info("Pro Worker AI hosted app stopped")
+    logger.info("Talent-Augmenting Layer hosted app stopped")
 
 
 # ---------------------------------------------------------------------------
@@ -74,8 +74,8 @@ async def lifespan(app: FastAPI):
 # ---------------------------------------------------------------------------
 
 app = FastAPI(
-    title="Pro Worker AI",
-    description="Personalized AI augmentation -- hosted edition",
+    title="Talent-Augmenting Layer",
+    description="Personalised AI augmentation -- hosted edition",
     version="1.0.0",
     lifespan=lifespan,
 )
@@ -109,7 +109,7 @@ def get_llm() -> LLMClient:
 def _assessment_system_prompt() -> str:
     protocol = get_assessment_protocol()
     return (
-        "You are a Pro Worker AI assessment interviewer. Your job is to have a "
+        "You are a Talent-Augmenting Layer assessment interviewer. Your job is to have a "
         "natural, warm conversation to build a professional profile.\n\n"
         f"{protocol['instructions']}\n\n"
         "IMPORTANT RULES FOR THIS HOSTED CHAT:\n"
@@ -235,7 +235,7 @@ async def assess_message(request: Request):
         # If this is the first message in a new session, start the conversation
         if not conversation and not user_message:
             user_message = (
-                f"Hi, I'm {user['name']}. I'd like to start my Pro Worker AI assessment."
+                f"Hi, I'm {user['name']}. I'd like to start my Talent-Augmenting Layer assessment."
             )
 
         # Append user message
@@ -482,7 +482,7 @@ async def api_export_profile(request: Request, fmt: str):
         return PlainTextResponse(
             profile.content_md,
             media_type="text/markdown",
-            headers={"Content-Disposition": "attachment; filename=pro-worker-profile.md"},
+            headers={"Content-Disposition": "attachment; filename=talent-augmenting-layer-profile.md"},
         )
 
     if fmt == "json":
@@ -492,7 +492,7 @@ async def api_export_profile(request: Request, fmt: str):
                 "scores": scores_data,
                 "content_md": profile.content_md,
             },
-            headers={"Content-Disposition": "attachment; filename=pro-worker-profile.json"},
+            headers={"Content-Disposition": "attachment; filename=talent-augmenting-layer-profile.json"},
         )
 
     if fmt == "chatgpt":
@@ -500,7 +500,7 @@ async def api_export_profile(request: Request, fmt: str):
         return PlainTextResponse(
             wrapper,
             media_type="text/plain",
-            headers={"Content-Disposition": "attachment; filename=pro-worker-chatgpt.txt"},
+            headers={"Content-Disposition": "attachment; filename=talent-augmenting-layer-chatgpt.txt"},
         )
 
     if fmt == "claude":
@@ -508,7 +508,7 @@ async def api_export_profile(request: Request, fmt: str):
         return PlainTextResponse(
             wrapper,
             media_type="text/plain",
-            headers={"Content-Disposition": "attachment; filename=pro-worker-claude.txt"},
+            headers={"Content-Disposition": "attachment; filename=talent-augmenting-layer-claude.txt"},
         )
 
     if fmt == "gemini":
@@ -516,7 +516,7 @@ async def api_export_profile(request: Request, fmt: str):
         return PlainTextResponse(
             wrapper,
             media_type="text/plain",
-            headers={"Content-Disposition": "attachment; filename=pro-worker-gemini.txt"},
+            headers={"Content-Disposition": "attachment; filename=talent-augmenting-layer-gemini.txt"},
         )
 
     raise HTTPException(status_code=400, detail=f"Unknown format: {fmt}")
@@ -525,8 +525,8 @@ async def api_export_profile(request: Request, fmt: str):
 def _wrap_for_platform(platform_name: str, profile_md: str) -> str:
     """Wrap profile markdown with platform-specific instructions."""
     return (
-        f"# Pro Worker AI Profile ({platform_name})\n\n"
-        f"Paste this into your {platform_name} to enable personalized AI augmentation.\n"
+        f"# Talent-Augmenting Layer Profile ({platform_name})\n\n"
+        f"Paste this into your {platform_name} to enable personalised AI augmentation.\n"
         f"The profile below tells the AI how to interact with you based on your expertise,\n"
         f"growth areas, and preferences.\n\n"
         f"---\n\n"

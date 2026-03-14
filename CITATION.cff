@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
-title: "Pro Worker AI: A Personalized AI Augmentation Layer for Workforce Development"
+title: "Talent-Augmenting Layer: A Personalised AI Augmentation Layer for Workforce Development"
 type: software
 authors:
   - family-names: Leone
@@ -8,7 +8,7 @@ authors:
 license: CC-BY-NC-SA-4.0
 version: "0.2.0"
 date-released: "2026-02-27"
-url: "https://github.com/angelo-leone/pro-worker-ai"
+url: "https://github.com/angelo-leone/talent-augmenting-layer"
 keywords:
   - AI augmentation
   - workforce development
@@ -16,14 +16,14 @@ keywords:
   - de-skilling prevention
   - contrastive explanations
   - MCP server
-  - personalized learning
+  - personalised learning
   - AI literacy
   - human-AI interaction
-  - pro-worker AI
+  - talent-augmenting layer
 abstract: >-
-  Pro Worker AI (PWA) is a personalized AI augmentation layer that
+  Talent-Augmenting Layer (TAL) is a personalised AI augmentation layer that
   transforms how AI interacts with knowledge workers. Instead of
-  treating users as generic recipients of AI output, PWA assesses
+  treating users as generic recipients of AI output, TAL assesses
   expertise, goals, and work patterns to calibrate every AI interaction
   — coaching in growth areas, accelerating in expert domains, automating
   mechanical tasks, and protecting skills at risk of atrophying.

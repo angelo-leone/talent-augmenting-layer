@@ -1,12 +1,12 @@
 """
-Pro Worker AI — Embedded Assessment Engine
+Talent-Augmenting Layer — Embedded Assessment Engine
 
-The full PWAQ (Pro Worker Assessment Questionnaire) embedded in the MCP server.
+The full TALQ (Talent-Augmenting Layer Questionnaire) embedded in the MCP server.
 Any chatbot connected via MCP can drive the onboarding assessment conversationally,
 compute scores, and auto-create/update the user's profile.
 
 Architecture:
-  - Question bank: All PWAQ items with behavioral anchors (stateless)
+  - Question bank: All TALQ items with behavioural anchors (stateless)
   - Score computation: Server-side math from raw answers (stateless)
   - Profile generation: Creates a full profile markdown from scores + demographics
   - The LLM drives the conversation; the MCP does the math and storage
@@ -298,7 +298,7 @@ def compute_esa(domain_ratings: dict[str, int]) -> dict:
 
 
 def compute_pwri(adr_score: int, gp_score: int, ali_score: int, esa_mean: float) -> dict:
-    """Compute the composite Pro Worker Readiness Index."""
+    """Compute the composite Talent Readiness Index."""
     esa_scaled = esa_mean * 2  # Scale 1-5 to 0-10 range
 
     pwri = (
@@ -335,7 +335,7 @@ def compute_all_scores(answers: dict[str, int], domain_ratings: dict[str, int]) 
         domain_ratings: Dict of domain -> rating, e.g. {"Writing": 4, "Strategy": 3, ...}
 
     Returns:
-        Complete scoring summary with all sub-scores and composite PWRI.
+        Complete scoring summary with all sub-scores and composite TALRI.
     """
     adr = compute_adr(answers)
     gp = compute_gp(answers)
@@ -355,7 +355,7 @@ def compute_all_scores(answers: dict[str, int], domain_ratings: dict[str, int]) 
 # ── Calibration Matrix ──────────────────────────────────────────────────────
 
 def compute_calibration(scores: dict, domain_ratings: dict[str, int]) -> dict:
-    """Derive Pro Worker AI calibration settings from assessment scores.
+    """Derive Talent-Augmenting Layer calibration settings from assessment scores.
 
     Implements the calibration matrix from the psychometric instrument.
     """
@@ -435,7 +435,7 @@ def generate_profile_markdown(
     feedback_style: str = "balanced",
     communication_style: str = "conversational",
 ) -> str:
-    """Generate a complete Pro Worker AI profile as markdown.
+    """Generate a complete Talent-Augmenting Layer profile as markdown.
 
     This is the full profile format matching profiles/TEMPLATE.md,
     generated from scored assessment data.
@@ -477,11 +477,11 @@ def generate_profile_markdown(
     for i, rl in enumerate(red_lines, 1):
         red_lines_text += f"\n{i}. **{rl}**"
 
-    profile = f"""# Pro Worker AI Profile — {name}
+    profile = f"""# Talent-Augmenting Layer Profile — {name}
 
 > Generated: {today}
 > Last updated: {today}
-> Assessment version: 2.0 (PWAQ)
+> Assessment version: 2.0 (TALQ)
 
 ---
 
@@ -491,7 +491,7 @@ def generate_profile_markdown(
 |-------|-------|
 | **Name** | {name} |
 | **Role** | {role} |
-| **Organization** | {organization} |
+| **Organisation** | {organization} |
 | **Industry** | {industry} |
 
 **Context summary**: {context_summary}
@@ -520,7 +520,7 @@ def generate_profile_markdown(
 **Growth Potential Score**: {gp['score']}/10 — **{gp['level']}**
 {gp['pwa_response']}
 
-**Pro Worker Readiness Index (PWRI)**: {pwri['score']}/10 — **{pwri['label']}**
+**Talent Readiness Index (TALRI)**: {pwri['score']}/10 — **{pwri['label']}**
 {pwri['meaning']}
 
 **Career goals (1-2 years)**:
@@ -565,7 +565,7 @@ def generate_profile_markdown(
 
 ---
 
-## 7. Pro-Worker Calibration Settings
+## 7. Talent-Augmenting Calibration Settings
 
 ```yaml
 default_friction_level: {calibration.get('default_friction_level', 'medium')}
@@ -590,7 +590,7 @@ Things this AI should NEVER do for {name}:
 
 ---
 
-## Assessment Scores (PWAQ v2.0)
+## Assessment Scores (TALQ v2.0)
 
 | Metric | Score | Level |
 |--------|-------|-------|
@@ -598,7 +598,7 @@ Things this AI should NEVER do for {name}:
 | Growth Potential (GP) | {gp['score']}/10 | {gp['level']} |
 | AI Literacy Index (ALI) | {ali['score']}/10 | {ali['level']} |
 | Expertise Mean (ESA) | {scores['esa']['mean']}/5 | — |
-| **Pro Worker Readiness (PWRI)** | **{pwri['score']}/10** | **{pwri['label']}** |
+| **Talent Readiness (TALRI)** | **{pwri['score']}/10** | **{pwri['label']}** |
 
 ---
 
@@ -606,7 +606,7 @@ Things this AI should NEVER do for {name}:
 
 | Date | Change | Trigger |
 |------|--------|---------|
-| {today} | Initial profile created via MCP assessment | proworker_assess |
+| {today} | Initial profile created via MCP assessment | talent_assess |
 """
     return profile
 
@@ -622,33 +622,33 @@ def get_assessment_protocol() -> dict:
     return {
         "protocol_version": "2.0",
         "instructions": (
-            "You are running a Pro Worker AI assessment. Your job is to have a natural, "
+            "You are running a Talent-Augmenting Layer assessment. Your job is to have a natural, "
             "conversational assessment with the user. Do NOT present this as a rigid survey. "
             "Instead, weave the questions into a genuine conversation about their work and "
             "how they use AI.\n\n"
             "FLOW:\n"
-            "1. IDENTITY: Ask about their name, role, organization, industry. Get a sense of "
+            "1. IDENTITY: Ask about their name, role, organisation, industry. Get a sense of "
             "   their work context. (2-3 minutes)\n"
             "2. SECTION A — AI Dependency Risk: Ask the 5 questions naturally, one at a time. "
-            "   For each, read the behavioral anchors and ask which best describes them. "
-            "   They can pick a number 1-5 or describe their behavior and you infer the score. "
+            "   For each, read the behavioural anchors and ask which best describes them. "
+            "   They can pick a number 1-5 or describe their behaviour and you infer the score. "
             "   (3-4 minutes)\n"
             "3. SECTION B — Growth Potential: Same approach, 5 questions. (3-4 minutes)\n"
             "4. SECTION D — AI Literacy: 4 questions. (2-3 minutes)\n"
             "5. EXPERTISE DOMAINS: Ask what domains/skills are most relevant to their work. "
             "   For each domain they name, ask them to rate themselves 1-5 using the ESA scale. "
-            "   Validate with a behavioral example. Aim for 5-10 domains. (3-5 minutes)\n"
+            "   Validate with a behavioural example. Aim for 5-10 domains. (3-5 minutes)\n"
             "6. GOALS & CONTEXT: Ask about career goals, skills they want to develop, skills "
             "   they worry about losing to AI, tasks they want automated vs kept human. "
             "   Ask about their preferred learning style and feedback preferences. (3-4 minutes)\n"
-            "7. SCORE & SAVE: Call proworker_assess_score with all collected answers, then "
-            "   call proworker_assess_create_profile with the scores plus qualitative data. "
+            "7. SCORE & SAVE: Call talent_assess_score with all collected answers, then "
+            "   call talent_assess_create_profile with the scores plus qualitative data. "
             "   Present the results to the user and ask if anything feels off.\n\n"
             "IMPORTANT GUIDELINES:\n"
             "- Be warm and conversational, not clinical\n"
             "- Explain WHY you're asking each question briefly\n"
-            "- If the user gives a vague answer, probe with the behavioral anchors\n"
-            "- It's OK to adjust scores based on behavioral evidence (expert interviewer mode)\n"
+            "- If the user gives a vague answer, probe with the behavioural anchors\n"
+            "- It's OK to adjust scores based on behavioural evidence (expert interviewer mode)\n"
             "- The whole assessment should take 15-20 minutes\n"
             "- At the end, present scores and ask: 'Do these feel accurate? Anything you'd adjust?'"
         ),
@@ -671,7 +671,7 @@ def get_assessment_protocol() -> dict:
         },
         "esa": {
             "name": "Expertise Self-Assessment",
-            "description": "Per-domain skill rating on a 1-5 behaviorally anchored scale.",
+            "description": "Per-domain skill rating on a 1-5 behaviourally anchored scale.",
             "anchors": ESA_ANCHORS,
             "validation_prompts": ESA_VALIDATION_PROMPTS,
             "instructions": (

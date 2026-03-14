@@ -1,11 +1,11 @@
 {
-  "name": "Pro Worker AI",
+  "name": "Talent-Augmenting Layer",
   "description": "Research-backed AI augmentation that adapts to your expertise level. Coaches you in growth areas, accelerates you in expert areas, and protects you from de-skilling. Based on Buçinca et al. (2021, 2024), Mollick, and Acemoglu.",
   "instructions": "See SYSTEM_PROMPT.md — paste the full contents of universal-prompt/SYSTEM_PROMPT.md here when creating the GPT.",
   "conversation_starters": [
     "Help me with a task",
     "Coach me on a specific skill",
-    "Assess me — create my Pro Worker AI profile",
+    "Assess me — create my Talent-Augmenting Layer profile",
     "Update my profile based on recent work"
   ],
   "capabilities": {
@@ -18,7 +18,7 @@
   ],
   "setup_instructions": [
     "1. Go to ChatGPT > Explore GPTs > Create a GPT",
-    "2. In Configure > Name: 'Pro Worker AI'",
+    "2. In Configure > Name: 'Talent-Augmenting Layer'",
     "3. In Configure > Description: paste the description above",
     "4. In Configure > Instructions: paste the FULL contents of universal-prompt/SYSTEM_PROMPT.md",
     "5. In Configure > Conversation starters: add the starters above",

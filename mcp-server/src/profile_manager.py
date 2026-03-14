@@ -1,5 +1,5 @@
 """
-Profile Manager — CRUD operations for Pro Worker AI profiles.
+Profile Manager — CRUD operations for Talent-Augmenting Layer profiles.
 
 Handles reading, writing, searching, and updating user profiles.
 Profiles are stored as markdown files in a configurable directory.
@@ -175,21 +175,42 @@ class ProfileStore:
 
     def _profile_path(self, name: str) -> Path:
         safe_name = re.sub(r"[^a-z0-9]", "-", name.lower()).strip("-")
+        return self.profiles_dir / f"tal-{safe_name}.md"
+
+    def _legacy_profile_path(self, name: str) -> Path:
+        safe_name = re.sub(r"[^a-z0-9]", "-", name.lower()).strip("-")
         return self.profiles_dir / f"pro-{safe_name}.md"
+
+    def _resolve_existing_profile_path(self, name: str) -> Path | None:
+        """Return existing tal- or legacy pro- profile path for a user."""
+        tal_path = self._profile_path(name)
+        if tal_path.exists():
+            return tal_path
+        legacy_path = self._legacy_profile_path(name)
+        if legacy_path.exists():
+            return legacy_path
+        return None
 
     def list_profiles(self) -> list[str]:
         """Return names of all existing profiles."""
-        profiles = []
-        for f in self.profiles_dir.glob("pro-*.md"):
-            name = f.stem.replace("pro-", "").replace("-", " ").title()
-            profiles.append(name)
-        return profiles
+        names: set[str] = set()
+        for pattern in ("tal-*.md", "pro-*.md"):
+            for f in self.profiles_dir.glob(pattern):
+                stem = f.stem
+                if stem.startswith("tal-"):
+                    raw_name = stem.replace("tal-", "", 1)
+                else:
+                    raw_name = stem.replace("pro-", "", 1)
+                names.add(raw_name.replace("-", " ").title())
+        return sorted(names)
 
     def profile_exists(self, name: str) -> bool:
-        return self._profile_path(name).exists()
+        return self._resolve_existing_profile_path(name) is not None
 
     def read_profile_raw(self, name: str) -> str | None:
-        path = self._profile_path(name)
+        path = self._resolve_existing_profile_path(name)
+        if path is None:
+            return None
         if path.exists():
             return path.read_text(encoding="utf-8")
         return None
@@ -311,7 +332,7 @@ class ProfileStore:
         """Analyze interaction logs to show skill progression."""
         logs = self.read_interaction_log(name)
         if not logs:
-            return {"message": "No interaction logs yet. Use the system and run /proworker-update to start tracking."}
+            return {"message": "No interaction logs yet. Use the system and run /talent-update to start tracking."}
 
         # Count by domain and signal
         domain_signals: dict[str, dict[str, int]] = {}
@@ -380,11 +401,11 @@ class ProfileStore:
 
     def delete_profile(self, name: str) -> bool:
         """Delete a profile and its interaction log."""
-        path = self._profile_path(name)
+        path = self._resolve_existing_profile_path(name)
         safe_name = re.sub(r"[^a-z0-9]", "-", name.lower()).strip("-")
         log_path = self.profiles_dir / f"log-{safe_name}.jsonl"
         deleted = False
-        if path.exists():
+        if path and path.exists():
             path.unlink()
             deleted = True
         if log_path.exists():

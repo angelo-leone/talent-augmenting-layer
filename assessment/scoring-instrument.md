@@ -1,14 +1,14 @@
-# Pro Worker AI — Psychometric Scoring Instrument
+# Talent-Augmenting Layer — Psychometric Scoring Instrument
 
 > A validated, reproducible scoring system for user profiling.
-> Produces consistent, comparable scores across users and organizations.
+> Produces consistent, comparable scores across users and organisations.
 
 ---
 
 ## Design Principles
 
 1. **Likert-scale items** — Every question maps to a 1-5 numeric scale
-2. **Behavioral anchors** — Each scale point has a concrete behavioral description
+2. **Behavioural anchors** — Each scale point has a concrete behavioural description
 3. **Multi-item constructs** — Each score is computed from 3-5 items (internal consistency)
 4. **Reverse-coded items** — Prevent acquiescence bias
 5. **Weighted aggregation** — Domain-specific weights based on empirical importance
@@ -16,7 +16,7 @@
 
 ---
 
-## Instrument: Pro Worker Assessment Questionnaire (PWAQ)
+## Instrument: Pro Worker Assessment Questionnaire (TALQ)
 
 ### Section A: AI Dependency Risk (ADR Score)
 
@@ -79,7 +79,7 @@ ADR_score = round(ADR_raw * 2)  # Scale to 0-10
 ```
 
 **Interpretation:**
-| ADR Score | Risk Level | PWA Response |
+| ADR Score | Risk Level | TAL Response |
 |-----------|-----------|--------------|
 | 0-3 | Low | Light augmentation, expert acceleration |
 | 4-5 | Moderate | Balanced approach, periodic cognitive forcing |
@@ -149,7 +149,7 @@ GP_score = round(GP_raw * 2)  # Scale to 0-10
 ```
 
 **Interpretation:**
-| GP Score | Potential | PWA Response |
+| GP Score | Potential | TAL Response |
 |----------|----------|--------------|
 | 0-3 | Low-engagement | Focus on motivation, small wins, reduce overwhelm |
 | 4-5 | Developing | Regular coaching, build habits, celebrate progress |
@@ -160,13 +160,13 @@ GP_score = round(GP_raw * 2)  # Scale to 0-10
 
 ### Section C: Expertise Self-Assessment (ESA)
 
-**Per-domain rating using behaviorally anchored scale.**
+**Per-domain rating using behaviourally anchored scale.**
 
 For each domain relevant to the user's role, ask:
 
 *"Rate your current ability in [DOMAIN]:"*
 
-| Score | Label | Behavioral Anchor |
+| Score | Label | Behavioural Anchor |
 |-------|-------|-------------------|
 | 1 | Novice | I follow rules and instructions. I need someone to guide me through this. I can't handle unexpected situations. |
 | 2 | Developing | I recognize patterns from experience. I can handle routine situations but need guidance for complex ones. I'm building confidence. |
@@ -174,12 +174,12 @@ For each domain relevant to the user's role, ask:
 | 4 | Advanced | I handle exceptions and complexity. I mentor others in this area. I see connections others miss. I improve processes. |
 | 5 | Expert | I innovate in this field. I have deep intuition. I teach and shape how others approach this. I'm recognized for this expertise. |
 
-**Validation check**: For each self-rated domain, ask for a behavioral example:
+**Validation check**: For each self-rated domain, ask for a behavioural example:
 - Rating 1-2: "What's a recent situation where you needed help in this area?"
 - Rating 3: "Describe a complex challenge you handled independently."
 - Rating 4-5: "Give an example of how you've mentored others or innovated."
 
-If the behavioral evidence doesn't match the self-rating, adjust ±1.
+If the behavioural evidence doesn't match the self-rating, adjust ±1.
 
 ---
 
@@ -237,12 +237,12 @@ ALI_score = round(ALI_raw * 2)  # Scale to 0-10
 
 ## Composite Scoring
 
-### Pro Worker Readiness Index (PWRI)
+### Pro Worker Readiness Index (TALRI)
 
 Combines all sections into a single composite:
 
 ```
-PWRI = (
+TALRI = (
     (10 - ADR_score) * 0.30    # Inverted: lower dependency = higher readiness
     + GP_score * 0.30           # Higher growth potential = higher readiness
     + mean(ESA_ratings) * 0.8   # Scale 1-5 to 0-10 range: (mean * 2)
@@ -251,7 +251,7 @@ PWRI = (
 ```
 
 **Interpretation:**
-| PWRI | Label | Meaning |
+| TALRI | Label | Meaning |
 |------|-------|---------|
 | 0-3 | At Risk | High dependency, low growth orientation. Focus: de-skilling recovery, motivation building |
 | 4-5 | Developing | Mixed signals. Focus: build healthy AI habits, targeted coaching |
@@ -260,7 +260,7 @@ PWRI = (
 
 ### Calibration Matrix
 
-The four sub-scores determine the PWA calibration:
+The four sub-scores determine the TAL calibration:
 
 ```
 IF ADR >= 7:
@@ -297,11 +297,11 @@ IF ESA has domains rated 1-2:
 
 ### Interview Mode (20-30 minutes)
 1. Read each item aloud, discuss the anchors
-2. Probe with behavioral examples for key items
+2. Probe with behavioural examples for key items
 3. Adjust scores based on evidence vs. self-report
 4. More accurate but more time-intensive
 
-### Organizational Mode (5 minutes per person)
+### Organisational Mode (5 minutes per person)
 1. Use the short form: A1, A3, B2, B5, D1, D3 (6 items)
 2. Plus domain ESA ratings
 3. Produces approximate ADR, GP, ALI scores

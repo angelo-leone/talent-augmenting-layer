@@ -1,4 +1,4 @@
-# Pro Worker AI — Personalized AI Augmentation Layer
+# Talent-Augmenting Layer — Personalised AI Augmentation Layer
 
 [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![MCP Tools](https://img.shields.io/badge/MCP%20Tools-14-blue)]()
@@ -6,15 +6,15 @@
 
 > **Works with**: ChatGPT | Claude | Gemini | Cursor | Windsurf | Any LLM
 
-> Make workers better, not dependent. A personalized AI augmentation system that follows you across every platform.
+> Make workers better, not dependent. A personalised AI augmentation system that follows you across every platform.
 
 ---
 
 ## What Is This?
 
-Pro Worker AI (PWA) is a **personalized AI augmentation layer** that transforms how AI interacts with you. It works with any LLM, on any platform, through a 4-tier architecture designed for cross-platform portability. Instead of treating you as a generic user, PWA:
+Talent-Augmenting Layer (TAL) is a **personalised AI augmentation layer** that transforms how AI interacts with you. It works with any LLM, on any platform, through a 4-tier architecture designed for cross-platform portability. Instead of treating you as a generic user, TAL:
 
-1. **Assesses** your expertise, goals, work style, and growth areas using the PWAQ (Pro Worker AI Questionnaire)
+1. **Assesses** your expertise, goals, work style, and growth areas using the TALQ (Talent-Augmenting Layer Questionnaire)
 2. **Creates** a living profile in portable markdown that calibrates all AI interactions to YOUR context
 3. **Adapts** — coaching you in areas where you're growing, accelerating you where you're expert, automating what should be automated, and protecting skills at risk of atrophying
 4. **Evolves** — your profile updates as you grow, keeping the AI aligned with your changing needs
@@ -34,7 +34,7 @@ Current AI tools have one mode: **maximum helpfulness**. This creates three fail
 | **Over-reliance** | Workers accept AI output without critical evaluation | Humans with AI perform better than humans alone but WORSE than AI alone — because they blindly accept wrong suggestions (Buçinca 2021) |
 | **Autopilot** | Workers disengage from cognitive work | Junior employees who "just hand in" AI work perform worse than those who engage critically (Mollick 2023) |
 
-**Pro Worker AI exists to prevent all three.**
+**Talent-Augmenting Layer exists to prevent all three.**
 
 ---
 
@@ -42,7 +42,7 @@ Current AI tools have one mode: **maximum helpfulness**. This creates three fail
 
 ### Architecture: 4 Tiers
 
-Pro Worker AI is a **layer**, not a product tied to one platform. It works through 4 tiers, from zero-dependency copy-paste to a full hosted web app:
+Talent-Augmenting Layer is a **layer**, not a product tied to one platform. It works through 4 tiers, from zero-dependency copy-paste to a full hosted web app:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -65,12 +65,12 @@ Pro Worker AI is a **layer**, not a product tied to one platform. It works throu
 ┌─────────────────────────────────────────────────────────────────┐
 │                  profiles/pro-{name}.md                          │
 │  Portable markdown · same format across all tiers               │
-│  Identity · Expertise Map · PWAQ Scores · Task Classification   │
+│  Identity · Expertise Map · TALQ Scores · Task Classification   │
 │  Growth Trajectory · Contrast Libraries · Red Lines             │
 └─────────────────────────────────────────────────────────────────┘
 
-All tiers share: same PWAQ instrument, same scoring,
-same profile format, same behavioral rules.
+All tiers share: same TALQ instrument, same scoring,
+same profile format, same behavioural rules.
 ```
 
 ### The Five Modes
@@ -131,31 +131,31 @@ Add to your MCP client config (Claude Code, Cursor, Windsurf, Claude Desktop):
 ```json
 {
   "mcpServers": {
-    "proworker-ai": {
+    "talent-augmenting-layer": {
       "command": "python",
       "args": ["-m", "src.server"],
-      "cwd": "/path/to/pro-worker-ai/mcp-server",
+      "cwd": "/path/to/talent-augmenting-layer/mcp-server",
       "env": {
-        "PROWORKER_PROFILES_DIR": "/path/to/pro-worker-ai/profiles"
+        "TALENT_AUGMENTING_LAYER_PROFILES_DIR": "/path/to/talent-augmenting-layer/profiles"
       }
     }
   }
 }
 ```
-Run `/proworker-assess` to create your profile.
+Run `/talent-assess` to create your profile.
 
 ### Hosted Web App
 
 Browser-based app with Google login, LLM-powered assessment, and email check-in reminders:
 ```bash
-cd hosted && docker build -t proworker . && docker run -p 5000:5000 --env-file .env proworker
+cd hosted && docker build -t talent-augmenting-layer . && docker run -p 5000:5000 --env-file .env talent-augmenting-layer
 ```
 See `hosted/README.md` for full setup (OAuth credentials, LLM API key, SMTP config).
 
 ### Day-to-Day Commands (MCP / Claude Code)
-- `/proworker-assess` — Run initial assessment or full re-assessment
-- `/proworker-update` — Update profile based on recent interactions
-- `/proworker-coach` — Start a targeted coaching session on a specific skill
+- `/talent-assess` — Run initial assessment or full re-assessment
+- `/talent-update` — Update profile based on recent interactions
+- `/talent-coach` — Start a targeted coaching session on a specific skill
 
 See `docs/integration-guide.md` for detailed platform-specific instructions.
 
@@ -163,7 +163,7 @@ See `docs/integration-guide.md` for detailed platform-specific instructions.
 
 ## Cross-Platform Portability
 
-Pro Worker AI is designed as a **layer** -- not tied to any specific tool, LLM, or platform. The 4-tier architecture means it works everywhere:
+Talent-Augmenting Layer is designed as a **layer** -- not tied to any specific tool, LLM, or platform. The 4-tier architecture means it works everywhere:
 
 | Tier | Platforms | Setup |
 |------|-----------|-------|
@@ -198,7 +198,7 @@ Built on empirical research, not opinions:
 ## File Structure
 
 ```
-pro-worker-ai/
+talent-augmenting-layer/
 ├── CLAUDE.md                           # Core system prompt (the brain)
 ├── README.md                           # This file
 ├── CITATION.cff                        # Machine-readable citation metadata
@@ -206,9 +206,9 @@ pro-worker-ai/
 ├── COPYRIGHT                           # Attribution notice
 ├── .claude/
 │   ├── commands/
-│   │   ├── proworker-assess.md         # /proworker-assess slash command
-│   │   ├── proworker-update.md         # /proworker-update slash command
-│   │   └── proworker-coach.md          # /proworker-coach slash command
+│   │   ├── talent-assess.md         # /talent-assess slash command
+│   │   ├── talent-update.md         # /talent-update slash command
+│   │   └── talent-coach.md          # /talent-coach slash command
 │   └── settings.local.json            # Claude Code permissions
 ├── universal-prompt/                   # Tier 1: Works with any LLM
 │   ├── SYSTEM_PROMPT.md                # Full system prompt (~4k tokens)
@@ -231,7 +231,7 @@ pro-worker-ai/
 │   ├── config.py                       # Environment configuration
 │   ├── database.py                     # Database models and persistence
 │   ├── llm_client.py                   # LLM integration for conversational assessment
-│   ├── scoring.py                      # PWAQ scoring engine
+│   ├── scoring.py                      # TALQ scoring engine
 │   ├── auth.py                         # Google OAuth authentication
 │   ├── email_service.py                # 2-week check-in email reminders
 │   ├── scheduler.py                    # Background task scheduling
@@ -242,7 +242,7 @@ pro-worker-ai/
 │   └── README.md                       # Hosted app setup guide
 ├── assessment/
 │   ├── framework.md                    # Assessment methodology
-│   ├── scoring-instrument.md           # PWAQ psychometric instrument
+│   ├── scoring-instrument.md           # TALQ psychometric instrument
 │   ├── coaching-modules.md             # Structured coaching sessions (5 modules, 13 sessions)
 │   ├── ab-testing-framework.md         # A/B testing design for outcomes research
 │   └── literature-foundations.md       # Research backing
@@ -258,41 +258,41 @@ pro-worker-ai/
 └── context/                            # Research papers (Buçinca, Acemoglu, Mollick)
 ```
 
-> **Related project**: [Pro-Worker AI Benchmark](https://github.com/angelo-leone/pro-worker-benchmark) -- a 3-layer evaluation framework for measuring whether LLMs augment or replace human intelligence.
+> **Related project**: [Talent-Augmenting Layer Benchmark](https://github.com/angelo-leone/pro-worker-benchmark) -- a 3-layer evaluation framework for measuring whether LLMs augment or replace human intelligence.
 
 ---
 
 ## What Makes This Different From Memory?
 
-Good question. Memory stores facts. **Pro Worker AI is how memory is used.**
+Good question. Memory stores facts. **Talent-Augmenting Layer is how memory is used.**
 
-| Feature | Plain Memory | Pro Worker AI |
+| Feature | Plain Memory | Talent-Augmenting Layer |
 |---------|-------------|---------------|
 | Stores user info | Yes | Yes |
-| Adapts AI behavior | No — just recalls | Yes — systematically calibrates every interaction |
+| Adapts AI behaviour | No — just recalls | Yes — systematically calibrates every interaction |
 | Protects skills | No | Yes — cognitive forcing, de-skilling prevention |
 | Coaches growth | No | Yes — targeted scaffolding in growth areas |
 | Classifies tasks | No | Yes — automate/augment/coach/protect/hands-off |
 | Evolves over time | Appends facts | Tracks skill progression, adjusts calibration |
 | Research-backed | No | Yes — grounded in HCI and workforce learning literature |
 
-Memory is the database. **PWA is the operating system.**
+Memory is the database. **TAL is the operating system.**
 
 ---
 
 ## Contributing
 
-This is an open-source personalized AI augmentation layer. Current status:
+This is an open-source personalised AI augmentation layer. Current status:
 
 - [x] Core system prompt with 4 interaction modes (CLAUDE.md)
-- [x] Interactive assessment with profile generation (PWAQ)
+- [x] Interactive assessment with profile generation (TALQ)
 - [x] Psychometric scoring instrument with validated Likert scales
 - [x] Tier 1: Universal system prompt for any LLM (4 files)
 - [x] Tier 2: Platform-native configs for ChatGPT, Gemini, Claude (3 files)
 - [x] Tier 3: MCP server with 14 tools, 5 resources, 3 prompts
 - [x] Tier 4: Hosted web app with Google OAuth, LLM assessment, email check-ins
 - [x] Embedded chatbot-driven onboarding (any MCP client can run the assessment)
-- [x] Organization-level dashboard (Streamlit)
+- [x] Organisation-level dashboard (Streamlit)
 - [x] Skill progression tracking with trend analysis and atrophy detection
 - [x] 4-tier integration guide with cross-platform sync
 - [x] A/B testing framework for outcomes research
@@ -316,15 +316,15 @@ See [LICENSE](LICENSE) for the full text.
 
 ## Citation
 
-If you use Pro Worker AI in research or publications, please cite:
+If you use Talent-Augmenting Layer in research or publications, please cite:
 
 ```bibtex
-@software{leone2026proworkerai,
+@software{leone2026talentaugmentinglayer,
   author    = {Leone, Angelo},
-  title     = {Pro Worker AI: A Personalized AI Augmentation Layer for Workforce Development},
+  title     = {Talent-Augmenting Layer: A Personalised AI Augmentation Layer for Workforce Development},
   version   = {0.2.0},
   year      = {2026},
-  url       = {https://github.com/angelo-leone/pro-worker-ai},
+  url       = {https://github.com/angelo-leone/talent-augmenting-layer},
   license   = {CC-BY-NC-SA-4.0}
 }
 ```

@@ -1,4 +1,4 @@
-# Literature Foundations for Pro Worker AI
+# Literature Foundations for Talent-Augmenting Layer
 
 > Key findings from GenAI, education, and workforce learning research that inform the assessment and coaching framework.
 
@@ -12,7 +12,7 @@
 
 **Trade-off**: Users dislike the friction. But they make better decisions.
 
-**Application in PWA**:
+**Application in TAL**:
 - Apply cognitive forcing for novice-level domains
 - Apply cognitive forcing for high-stakes decisions regardless of expertise
 - Reduce friction when users demonstrate consistent critical engagement
@@ -25,7 +25,7 @@
 
 **Mechanism**: Standard AI explanations are "laundry lists" of reasons. Contrastive explanations target the user's knowledge gap specifically — the delta between their mental model and reality.
 
-**Application in PWA**:
+**Application in TAL**:
 - When correcting or explaining, always contrast with what the user likely assumed
 - Build "human mental models" for common domains to enable contrast
 - Focus on the DELTA, not the full explanation
@@ -38,7 +38,7 @@
 
 **State variables**: AI confidence, human skill level, human motivation, task difficulty.
 
-**Application in PWA**:
+**Application in TAL**:
 - Don't use one-size-fits-all approach
 - Track state across interactions
 - Adjust friction dynamically
@@ -56,7 +56,7 @@
 - Training didn't matter much — just using AI did the work
 - AI works like a social tool — persuasion and communication skills transfer
 
-**Application in PWA**:
+**Application in TAL**:
 - The leveling effect is DANGEROUS without critical engagement
 - "Just handing in" is the anti-pattern we must prevent
 - Experts should be accelerated, not held back
@@ -70,7 +70,7 @@
 
 **Mechanism**: AI provides a cognitive crutch. Without practice, neural pathways weaken. The skill literally degrades.
 
-**Application in PWA**:
+**Application in TAL**:
 - Monitor for de-skilling signals
 - Protect core skills with deliberate friction
 - Regular "AI-free" challenges for developing areas
@@ -94,7 +94,7 @@
 - Human-in-the-loop design that leverages human judgment
 - Extend the period where humans provide genuine complementary value
 
-**Application in PWA**:
+**Application in TAL**:
 - The whole system IS the "diffuse" strategy in action
 - Make each individual worker more capable and AI-literate
 - Ensure humans maintain the skills that make them irreplaceable
@@ -111,7 +111,7 @@
 
 ### Deliberate Practice (Ericsson)
 - Improvement requires practice at the edge of ability with feedback
-- AI can provide instant, personalized feedback loops
+- AI can provide instant, personalised feedback loops
 - But only if the user DOES the work first
 
 ### Self-Determination Theory (Deci & Ryan)
@@ -122,7 +122,7 @@
 ### Bloom's Taxonomy Applied
 - AI excels at lower levels: Remember, Understand, Apply
 - Humans must maintain higher levels: Analyze, Evaluate, Create
-- PWA should force upward through the taxonomy
+- TAL should force upward through the taxonomy
 
 ### Growth Mindset (Dweck)
 - Frame friction as opportunity, not obstacle
@@ -133,11 +133,11 @@
 
 ## 8. Complementarity Economics (Acemoglu)
 
-**Core argument**: AI should make human labor MORE valuable, not replace it.
+**Core argument**: AI should make human labour MORE valuable, not replace it.
 
 **Pro-worker criteria**:
 - Does the technology create new tasks for humans?
-- Does it increase the marginal product of human labor?
+- Does it increase the marginal product of human labour?
 - Does it distribute productivity gains to workers?
 
 **Anti-worker patterns**:
@@ -145,7 +145,7 @@
 - Surveillance and control (AI monitors workers)
 - Deskilling (AI degrades human capability)
 
-**Application in PWA**:
+**Application in TAL**:
 - Every interaction should increase the user's marginal product
 - The system should create new capabilities, not just save time
 - Track whether the user is becoming more valuable or more replaceable

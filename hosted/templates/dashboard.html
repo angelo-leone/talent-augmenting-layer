@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard -- Pro Worker AI{% endblock %}
+{% block title %}Dashboard -- Talent-Augmenting Layer{% endblock %}
 
 {% block content %}
 <div class="dashboard">
@@ -18,7 +18,7 @@
             <h1>{{ user.name }}</h1>
             <p class="text-muted">
                 {% if scores.get("pwri") %}
-                PWRI {{ scores.pwri.score }}/10 &mdash; {{ scores.pwri.label }}
+                TALRI {{ scores.pwri.score }}/10 &mdash; {{ scores.pwri.label }}
                 {% endif %}
                 &middot; Version {{ profile.version }}
                 &middot; Updated {{ profile.created_at.strftime('%b %d, %Y') }}
@@ -35,7 +35,7 @@
         {% if scores.get("pwri") %}
         <div class="score-card score-card-primary">
             <div class="score-big">{{ scores.pwri.score }}</div>
-            <div class="score-label">PWRI</div>
+            <div class="score-label">TALRI</div>
             <div class="score-sublabel">{{ scores.pwri.label }}</div>
         </div>
         {% endif %}

@@ -1,4 +1,4 @@
-"""Pro Worker AI -- Email service for 2-week check-in reminders.
+"""Talent-Augmenting Layer -- Email service for 2-week check-in reminders.
 
 Uses SendGrid when SENDGRID_API_KEY is set; otherwise falls back to logging.
 """
@@ -38,7 +38,7 @@ def generate_checkin_questions(profile_data: dict[str, Any]) -> list[dict[str, A
         "text": "Over the past two weeks, how would you rate your professional growth?",
         "type": "choice",
         "options": [
-            "Significant growth -- I learned or improved noticeably",
+            "Significant growth -- I learnt or improved noticeably",
             "Some growth -- small wins and steady progress",
             "Flat -- no real change",
             "Decline -- I feel less sharp than before",
@@ -135,21 +135,21 @@ async def send_checkin_reminder(
     for i, q in enumerate(questions, 1):
         question_lines.append(f"  {i}. {q['text']}")
 
-    subject = f"Pro Worker AI -- Your 2-week check-in, {user_name}"
+    subject = f"Talent-Augmenting Layer -- Your 2-week check-in, {user_name}"
     body_text = (
         f"Hi {user_name},\n\n"
-        f"It's been two weeks since your last Pro Worker AI profile update. "
+        f"It's been two weeks since your last Talent-Augmenting Layer profile update. "
         f"Take 2 minutes to reflect on your growth:\n\n"
         + "\n".join(question_lines)
         + f"\n\nComplete your check-in here:\n{checkin_url}\n\n"
         f"This helps keep your AI calibration accurate and tracks your skill development over time.\n\n"
-        f"-- Pro Worker AI\n"
+        f"-- Talent-Augmenting Layer\n"
         f"Making workers better, not dependent."
     )
     body_html = (
         f"<div style='font-family: -apple-system, sans-serif; max-width: 600px; margin: 0 auto; "
         f"background: #1a1a2e; color: #eee; padding: 2rem; border-radius: 12px;'>"
-        f"<h2 style='color: #e94560;'>Pro Worker AI Check-in</h2>"
+        f"<h2 style='color: #e94560;'>Talent-Augmenting Layer Check-in</h2>"
         f"<p>Hi {user_name},</p>"
         f"<p>It's been two weeks since your last profile update. "
         f"Take 2 minutes to reflect on your growth:</p>"
@@ -164,7 +164,7 @@ async def send_checkin_reminder(
         f"background: #e94560; color: white; text-decoration: none; border-radius: 8px; "
         f"font-weight: 600;'>Complete Check-in</a></p>"
         f"<p style='color: #999; font-size: 0.85em; margin-top: 2em;'>"
-        f"Pro Worker AI -- Making workers better, not dependent.</p>"
+        f"Talent-Augmenting Layer -- Making workers better, not dependent.</p>"
         f"</div>"
     )
 

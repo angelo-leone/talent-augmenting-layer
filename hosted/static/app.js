@@ -1,5 +1,5 @@
 /**
- * Pro Worker AI -- Assessment Chat UI
+ * Talent-Augmenting Layer -- Assessment Chat UI
  *
  * Handles the conversational assessment flow: sending messages to the API,
  * rendering responses with basic markdown, and handling assessment completion.

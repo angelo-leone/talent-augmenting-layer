@@ -1,6 +1,6 @@
-# Pro Worker AI — Gemini Gem Setup
+# Talent-Augmenting Layer — Gemini Gem Setup
 
-> Set up Pro Worker AI as a Gemini Gem for Google Workspace users.
+> Set up Talent-Augmenting Layer as a Gemini Gem for Google Workspace users.
 
 ## Requirements
 - Gemini Advanced subscription (for Gems feature)
@@ -13,7 +13,7 @@
 3. Click **+ New Gem**
 
 ### 2. Configure the Gem
-1. **Name**: Pro Worker AI
+1. **Name**: Talent-Augmenting Layer
 2. **Instructions**: Paste the FULL contents of `universal-prompt/SYSTEM_PROMPT.md`
 3. After the system prompt, add a separator and paste your profile:
 
@@ -29,9 +29,9 @@
 
 ### 3. First-Time Assessment
 If you don't have a profile yet:
-1. Open the Pro Worker AI Gem
-2. Say: "Assess me — I'd like to create my Pro Worker AI profile"
-3. The Gem will guide you through the ~15 minute PWAQ assessment
+1. Open the Talent-Augmenting Layer Gem
+2. Say: "Assess me — I'd like to create my Talent-Augmenting Layer profile"
+3. The Gem will guide you through the ~15 minute TALQ assessment
 4. Copy the generated profile and paste it back into the Gem's instructions
 
 ### 4. Keeping Your Profile Updated
@@ -47,4 +47,4 @@ If you don't have a profile yet:
 
 ---
 
-*Pro Worker AI v0.2.0 — CC BY-NC-SA 4.0*
+*Talent-Augmenting Layer v0.2.0 — CC BY-NC-SA 4.0*

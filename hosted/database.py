@@ -1,4 +1,4 @@
-"""Pro Worker AI -- Database models and session management.
+"""Talent-Augmenting Layer -- Database models and session management.
 
 SQLAlchemy 2.0 async style with aiosqlite for local dev.
 """

@@ -1,7 +1,7 @@
 [project]
-name = "proworker-ai-mcp"
+name = "talent-augmenting-layer-mcp"
 version = "0.2.0"
-description = "Pro Worker AI — MCP server for personalized AI augmentation across any LLM"
+description = "Talent-Augmenting Layer — MCP server for personalised AI augmentation across any LLM"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "CC-BY-NC-SA-4.0"
@@ -12,7 +12,7 @@ keywords = [
     "workforce development",
     "cognitive forcing",
     "de-skilling prevention",
-    "personalized learning",
+    "personalised learning",
 ]
 dependencies = [
     "mcp>=1.0.0",
@@ -37,4 +37,4 @@ build-backend = "hatchling.build"
 packages = ["src"]
 
 [project.scripts]
-proworker-mcp = "src.server:main"
+talent-layer-mcp = "src.server:main"

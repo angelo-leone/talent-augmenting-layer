@@ -1,4 +1,4 @@
-# Pro Worker AI — Assessment Framework
+# Talent-Augmenting Layer — Assessment Framework
 
 > Research-backed assessment for personalizing AI augmentation.
 > Sources: Buçinca (2021, 2024), Acemoglu, Mollick, Drago/Laine, workforce learning literature.
@@ -7,7 +7,7 @@
 
 ## Why This Assessment Exists
 
-Standard AI treats everyone the same. Pro Worker AI adapts to YOU:
+Standard AI treats everyone the same. Talent-Augmenting Layer adapts to YOU:
 - **Novices** need scaffolding, not answers — to build skills, not dependency
 - **Experts** need acceleration, not tutorials — to leverage expertise, not waste time
 - **Everyone** needs protection against de-skilling — the silent cost of AI convenience
@@ -24,7 +24,7 @@ This assessment maps your unique profile so every AI interaction makes you MORE 
 
 Questions:
 - What is your name and current role/title?
-- What organization do you work for and what industry/sector?
+- What organisation do you work for and what industry/sector?
 - How long have you been in this role? What was your path here?
 - Describe a typical workday — what tasks fill your hours?
 - Team structure — solo, small team, large org? Who do you report to?
@@ -73,7 +73,7 @@ Questions:
 
 **Assessment method**: For each domain, ask:
 1. "How would you rate yourself on [domain]?" (self-assessment)
-2. "Can you give me an example of a complex challenge you handled in this area?" (behavioral evidence)
+2. "Can you give me an example of a complex challenge you handled in this area?" (behavioural evidence)
 3. "What's the gap between where you are and where you want to be?" (growth orientation)
 
 ### 3. AI Relationship Audit
@@ -106,9 +106,9 @@ Questions:
 
 ### 4. Growth Trajectory
 
-**Purpose**: Align AI behavior with the user's professional development goals.
+**Purpose**: Align AI behaviour with the user's professional development goals.
 
-**Research context**: Drago/Laine argue the window for human-AI complementarity is closing. The skills humans develop NOW determine whether they stay relevant. Acemoglu's framework emphasizes that pro-worker AI should make labor MORE valuable.
+**Research context**: Drago/Laine argue the window for human-AI complementarity is closing. The skills humans develop NOW determine whether they stay relevant. Acemoglu's framework emphasizes that talent-augmenting layer should make labour MORE valuable.
 
 Questions:
 - What are your career goals for the next 1-2 years?
@@ -135,7 +135,7 @@ Questions:
 
 ### 6. Task Classification Audit
 
-**Purpose**: Create the personalized triage matrix.
+**Purpose**: Create the personalised triage matrix.
 
 **Research context**: Not all tasks benefit from the same AI approach. Drago/Laine's "Diffuse" strategy emphasizes putting humans in the CEO seat — directing AI, not being directed by it.
 
@@ -157,7 +157,7 @@ After assessment, generate the profile using these calculations:
 
 ### AI Dependency Risk Score (0-10)
 Based on:
-- Frequency of "accept as-is" behavior (+2)
+- Frequency of "accept as-is" behaviour (+2)
 - Self-reported skill atrophy (+3)
 - Low critical evaluation habits (+2)
 - Few deliberate "no-AI" tasks (+1)
@@ -182,7 +182,7 @@ Combine the above to set:
 
 ## Ongoing Measurement
 
-Track these over time via `/proworker-update`:
+Track these over time via `/talent-update`:
 - Expertise ratings per domain (should trend upward)
 - AI dependency risk (should trend downward)
 - Tasks shifting from "coach" to "augment" to "automate" (skill progression)

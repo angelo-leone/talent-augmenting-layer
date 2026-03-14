@@ -1,9 +1,9 @@
-# Render Blueprint for Pro Worker AI Hosted App
+# Render Blueprint for Talent-Augmenting Layer Hosted App
 # Deploy with: https://render.com/docs/blueprint-spec
 
 services:
   - type: web
-    name: proworker-hosted
+    name: talent-augmenting-layer-hosted
     runtime: docker
     dockerfilePath: ./hosted/Dockerfile
     plan: free  # or 'starter' for production
@@ -29,7 +29,7 @@ services:
       
       # App Configuration
       - key: APP_URL
-        value: https://proworker-hosted.onrender.com  # Update with your actual URL
+        value: https://talent-augmenting-layer-hosted.onrender.com  # Update with your actual URL
       
       # Optional: Email (SendGrid)
       - key: SENDGRID_API_KEY
@@ -40,11 +40,11 @@ services:
       # Database (automatically provided by Render if you add a PostgreSQL database)
       - key: DATABASE_URL
         fromDatabase:
-          name: proworker-db
+          name: talent-augmenting-layer-db
           property: connectionString
 
 databases:
-  - name: proworker-db
-    databaseName: proworker
+  - name: talent-augmenting-layer-db
+    databaseName: talent-augmenting-layer
     plan: free  # 90-day free tier, then paid
     # Note: Free tier expires after 90 days. For long-term, use 'starter' plan ($7/mo)

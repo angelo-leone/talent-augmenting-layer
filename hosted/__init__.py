@@ -1,1 +1,1 @@
-"""Pro Worker AI -- Hosted web application package."""
+"""Talent-Augmenting Layer -- Hosted web application package."""
