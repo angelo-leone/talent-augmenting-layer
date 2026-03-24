@@ -16,6 +16,41 @@ from dataclasses import dataclass, field, asdict
 from typing import Optional
 
 
+def parse_tal_log(text: str) -> list[dict]:
+    """Extract ``<tal_log>`` JSON blocks from LLM response text.
+
+    Returns a list of dicts with keys matching the telemetry schema:
+    task_category, domain, engagement_level, skill_signal, notes.
+    Silently skips malformed blocks.
+    """
+    results: list[dict] = []
+    TAG_OPEN = "<tal_log>"
+    TAG_CLOSE = "</tal_log>"
+    start = 0
+    while True:
+        idx = text.find(TAG_OPEN, start)
+        if idx == -1:
+            break
+        end = text.find(TAG_CLOSE, idx + len(TAG_OPEN))
+        if end == -1:
+            break
+        payload = text[idx + len(TAG_OPEN):end].strip()
+        try:
+            data = json.loads(payload)
+            if isinstance(data, dict):
+                results.append({
+                    "task_category": str(data.get("task_category", "augment")),
+                    "domain": str(data.get("domain", "")),
+                    "engagement_level": str(data.get("engagement_level", "active")),
+                    "skill_signal": str(data.get("skill_signal", "none")),
+                    "notes": str(data.get("notes", "")),
+                })
+        except (json.JSONDecodeError, TypeError):
+            pass
+        start = end + len(TAG_CLOSE)
+    return results
+
+
 # ── Data Models ──────────────────────────────────────────────────────────────
 
 @dataclass

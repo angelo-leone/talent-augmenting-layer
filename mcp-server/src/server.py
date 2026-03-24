@@ -51,13 +51,19 @@ from mcp.types import (
     GetPromptResult,
 )
 
-from .profile_manager import ProfileStore, InteractionLog
+from .profile_manager import ProfileStore, InteractionLog, parse_tal_log
 from .assessment import (
     get_assessment_protocol,
     compute_all_scores,
     compute_calibration,
     generate_profile_markdown,
     suggest_domains,
+)
+from .pdf_handler import (
+    extract_pdf_text,
+    extract_pdf_metadata,
+    get_pdf_page_count,
+    chunk_pdf_text,
 )
 
 # ── Configuration ────────────────────────────────────────────────────────────
@@ -434,6 +440,121 @@ async def list_tools() -> list[Tool]:
                 "required": ["role", "industry"]
             }
         ),
+        Tool(
+            name="talent_parse_telemetry",
+            description=(
+                "Parse <tal_log> telemetry blocks from an LLM response and record them. "
+                "The system prompt instructs the LLM to emit <tal_log> JSON blocks after "
+                "each substantive interaction. Call this tool with the full LLM response "
+                "text to extract and log all telemetry entries. Each entry is saved to "
+                "the local JSONL interaction log and optionally pushed to the hosted API."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "User's name (for profile-linked logging)"
+                    },
+                    "response_text": {
+                        "type": "string",
+                        "description": "The full LLM response text containing <tal_log> blocks"
+                    },
+                    "session_id": {
+                        "type": "string",
+                        "description": "Optional session identifier for grouping turns",
+                        "default": ""
+                    }
+                },
+                "required": ["name", "response_text"]
+            }
+        ),
+        # ── PDF Reading Tools ────────────────────────────────────────
+        Tool(
+            name="pdf_extract_text",
+            description=(
+                "Extract text from a PDF file. Returns the full text content of the PDF "
+                "with page markers. Useful for agents to read and analyze PDF documents."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "file_path": {
+                        "type": "string",
+                        "description": "Path to the PDF file (absolute or relative to workspace)"
+                    },
+                    "page_start": {
+                        "type": "integer",
+                        "description": "Optional starting page (0-indexed)",
+                        "default": 0
+                    },
+                    "page_end": {
+                        "type": "integer",
+                        "description": "Optional ending page (exclusive, 0-indexed)",
+                        "default": None
+                    }
+                },
+                "required": ["file_path"]
+            }
+        ),
+        Tool(
+            name="pdf_get_metadata",
+            description=(
+                "Extract metadata from a PDF file. Returns title, author, subject, "
+                "creation date, and other document properties."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "file_path": {
+                        "type": "string",
+                        "description": "Path to the PDF file"
+                    }
+                },
+                "required": ["file_path"]
+            }
+        ),
+        Tool(
+            name="pdf_get_page_count",
+            description="Get the total number of pages in a PDF file.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "file_path": {
+                        "type": "string",
+                        "description": "Path to the PDF file"
+                    }
+                },
+                "required": ["file_path"]
+            }
+        ),
+        Tool(
+            name="pdf_chunk_text",
+            description=(
+                "Split extracted PDF text into overlapping chunks for processing. "
+                "Useful for feeding large PDFs to agents in manageable pieces."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "text": {
+                        "type": "string",
+                        "description": "The text to chunk"
+                    },
+                    "chunk_size": {
+                        "type": "integer",
+                        "description": "Size of each chunk in characters",
+                        "default": 2000
+                    },
+                    "overlap": {
+                        "type": "integer",
+                        "description": "Number of characters to overlap between chunks",
+                        "default": 200
+                    }
+                },
+                "required": ["text"]
+            }
+        ),
     ]
 
 
@@ -741,6 +862,126 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             }, indent=2)
         )]
 
+    # ── Telemetry Parsing Handler ────────────────────────────────
+    elif name == "talent_parse_telemetry":
+        user_name = arguments.get("name", "")
+        response_text = arguments.get("response_text", "")
+        session_id = arguments.get("session_id", "")
+
+        entries = parse_tal_log(response_text)
+        if not entries:
+            return [TextContent(
+                type="text",
+                text=json.dumps({
+                    "status": "no_logs_found",
+                    "message": "No <tal_log> blocks found in the response text.",
+                })
+            )]
+
+        logged_count = 0
+        for entry in entries:
+            # Log locally via ProfileStore
+            store.log_interaction(
+                name=user_name,
+                task_category=entry.get("task_category", "augment"),
+                domain=entry.get("domain", ""),
+                engagement_level=entry.get("engagement_level", "active"),
+                skill_signal=entry.get("skill_signal", "none"),
+                notes=entry.get("notes", ""),
+            )
+            logged_count += 1
+
+            # Push to hosted API if configured
+            api_url = os.getenv("TAL_HOSTED_API_URL", "")
+            api_token = os.getenv("TAL_HOSTED_API_TOKEN", "")
+            if api_url and api_token:
+                import httpx
+                try:
+                    async with httpx.AsyncClient(timeout=10) as client:
+                        await client.post(
+                            f"{api_url.rstrip('/')}/api/telemetry/chat-log",
+                            json={
+                                **entry,
+                                "session_id": session_id,
+                                "ai_mode": "standard",
+                            },
+                            headers={"Authorization": f"Bearer {api_token}"},
+                        )
+                except Exception as exc:
+                    pass  # Don't fail the tool on API push failure
+
+        return [TextContent(
+            type="text",
+            text=json.dumps({
+                "status": "logged",
+                "entries_found": len(entries),
+                "entries_logged": logged_count,
+                "entries": entries,
+            }, indent=2)
+        )]
+
+    # ── PDF Reading Handlers ─────────────────────────────────────
+    elif name == "pdf_extract_text":
+        try:
+            file_path = arguments.get("file_path")
+            page_start = arguments.get("page_start", 0)
+            page_end = arguments.get("page_end")
+            
+            page_range = (page_start, page_end) if page_end is not None else None
+            text = extract_pdf_text(file_path, page_range)
+            
+            return [TextContent(
+                type="text",
+                text=text
+            )]
+        except FileNotFoundError as e:
+            return [TextContent(type="text", text=f"Error: {str(e)}")]
+        except ValueError as e:
+            return [TextContent(type="text", text=f"Error: {str(e)}")]
+
+    elif name == "pdf_get_metadata":
+        try:
+            file_path = arguments.get("file_path")
+            metadata = extract_pdf_metadata(file_path)
+            return [TextContent(type="text", text=json.dumps(metadata, indent=2))]
+        except FileNotFoundError as e:
+            return [TextContent(type="text", text=f"Error: {str(e)}")]
+        except ValueError as e:
+            return [TextContent(type="text", text=f"Error: {str(e)}")]
+
+    elif name == "pdf_get_page_count":
+        try:
+            file_path = arguments.get("file_path")
+            page_count = get_pdf_page_count(file_path)
+            return [TextContent(
+                type="text",
+                text=json.dumps({"file": file_path, "page_count": page_count})
+            )]
+        except FileNotFoundError as e:
+            return [TextContent(type="text", text=f"Error: {str(e)}")]
+        except ValueError as e:
+            return [TextContent(type="text", text=f"Error: {str(e)}")]
+
+    elif name == "pdf_chunk_text":
+        try:
+            text = arguments.get("text")
+            chunk_size = arguments.get("chunk_size", 2000)
+            overlap = arguments.get("overlap", 200)
+            
+            chunks = chunk_pdf_text(text, chunk_size, overlap)
+            
+            return [TextContent(
+                type="text",
+                text=json.dumps({
+                    "chunk_count": len(chunks),
+                    "chunk_size": chunk_size,
+                    "overlap": overlap,
+                    "chunks": chunks
+                }, indent=2)
+            )]
+        except Exception as e:
+            return [TextContent(type="text", text=f"Error: {str(e)}")]
+
     return [TextContent(type="text", text=f"Unknown tool: {name}")]
 
 
@@ -855,6 +1096,12 @@ def _build_system_prompt(name: str) -> str:
         system_prompt += f"# Active User Profile\n\n{profile_raw}"
     else:
         system_prompt += f"\n\n> No profile found for '{name}'. Suggest running /talent-assess.\n"
+
+    # Inject automation mode if enabled via env var or already in profile
+    auto_env = os.environ.get("TAL_AUTOMATION_MODE", "").lower() in ("1", "true", "yes")
+    already_tagged = profile_raw and "<mode>automation_only</mode>" in profile_raw
+    if auto_env and not already_tagged:
+        system_prompt += "\n\n<mode>automation_only</mode>\n"
 
     return system_prompt
 

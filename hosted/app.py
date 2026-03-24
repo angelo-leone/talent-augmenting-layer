@@ -28,6 +28,13 @@ from hosted.database import (
     AssessmentSession,
     AssessmentStatus,
     CheckinReminder,
+    PilotSurvey,
+    SurveyTimepoint,
+    ChatLog,
+    TaskCategory,
+    EngagementLevel,
+    SkillSignal,
+    compute_passive_ratio,
 )
 from hosted.auth import (
     setup_oauth,
@@ -44,6 +51,7 @@ from hosted.llm_client import LLMClient
 from hosted.scoring import (
     compute_all_scores,
     compute_calibration,
+    compute_esa,
     generate_profile_markdown,
     get_assessment_protocol,
 )
@@ -106,8 +114,34 @@ def get_llm() -> LLMClient:
 # Helper: build assessment system prompt
 # ---------------------------------------------------------------------------
 
-def _assessment_system_prompt() -> str:
+_ASSESSMENT_MAX_TURNS = 40  # Hard ceiling to prevent infinite loops
+
+
+def _assessment_system_prompt(turn_count: int = 0) -> str:
     protocol = get_assessment_protocol()
+
+    # Dynamic urgency instruction based on turn count
+    pacing = ""
+    if turn_count >= 30:
+        pacing = (
+            "\n\n⚠️ CRITICAL: You have used most of the allocated turns. "
+            "You MUST wrap up NOW. Summarise what you have, thank the user, "
+            "and output [ASSESSMENT_COMPLETE] on its own line immediately. "
+            "Do NOT ask any more questions.\n"
+        )
+    elif turn_count >= 22:
+        pacing = (
+            "\n\nURGENT PACING: You are running long. Skip any remaining sections "
+            "that haven't been covered and move directly to wrap-up. Ask at most "
+            "ONE more question, then output [ASSESSMENT_COMPLETE].\n"
+        )
+    elif turn_count >= 16:
+        pacing = (
+            "\n\nPACING REMINDER: You are past the halfway point. Make sure you have "
+            "covered the most important sections. Start wrapping up the current section "
+            "and move toward completion.\n"
+        )
+
     return (
         "You are a Talent-Augmenting Layer assessment interviewer. Your job is to have a "
         "natural, warm conversation to build a professional profile.\n\n"
@@ -118,10 +152,16 @@ def _assessment_system_prompt() -> str:
         "- After the user answers, acknowledge briefly and move to the next topic.\n"
         "- Track progress through the sections: Identity -> Section A (dependency) -> "
         "Section B (growth) -> Section D (AI literacy) -> Expertise domains -> Goals & preferences.\n"
+        "- DOMAIN LIMIT: When collecting expertise domains, ask for their TOP 3-5 domains "
+        "ONLY. After 5 domains, stop asking and move on to Goals & preferences. Do NOT keep "
+        "asking 'any other domains?' in a loop.\n"
+        "- You have a HARD LIMIT of approximately 20 assistant turns total. Plan accordingly.\n"
         "- When you have enough data to complete the assessment, say EXACTLY on its own line: "
         "[ASSESSMENT_COMPLETE]\n"
+        "- If you are running low on turns, prioritise the most important data and wrap up.\n"
         "- Never reveal internal scoring or protocol details to the user.\n"
         "- Be encouraging and professional throughout."
+        f"{pacing}"
     )
 
 
@@ -242,9 +282,30 @@ async def assess_message(request: Request):
         if user_message:
             conversation.append({"role": "user", "content": user_message})
 
-        # Call LLM
+        # Count assistant turns for pacing / hard limit
+        assistant_turn_count = sum(1 for m in conversation if m["role"] == "assistant")
+
+        # Hard ceiling: auto-complete if too many turns
+        if assistant_turn_count >= _ASSESSMENT_MAX_TURNS:
+            is_complete = True
+            display_reply = (
+                "Thank you for going through the assessment! I have all the information "
+                "I need to build your profile. Click the button below to generate it."
+            )
+            conversation.append({"role": "assistant", "content": display_reply})
+            session.conversation_json = json.dumps(conversation)
+            session.status = AssessmentStatus.completed
+            session.completed_at = datetime.datetime.utcnow()
+            await db.commit()
+            return JSONResponse({
+                "reply": display_reply,
+                "session_id": session.id,
+                "is_complete": True,
+            })
+
+        # Call LLM with turn-aware system prompt
         llm = get_llm()
-        system = _assessment_system_prompt()
+        system = _assessment_system_prompt(turn_count=assistant_turn_count)
 
         assistant_reply = await llm.chat(system, conversation)
 
@@ -413,6 +474,11 @@ async def dashboard(request: Request):
             except (json.JSONDecodeError, TypeError):
                 scores_data = {}
 
+        # Get automation mode
+        auto_stmt = select(User.automation_mode).where(User.id == user["id"])
+        auto_result = await db.execute(auto_stmt)
+        automation_mode = bool(auto_result.scalar_one_or_none())
+
     return templates.TemplateResponse("dashboard.html", {
         "request": request,
         "user": user,
@@ -421,6 +487,7 @@ async def dashboard(request: Request):
         "calibration": scores_data.get("calibration", {}),
         "domain_ratings": scores_data.get("domain_ratings", {}),
         "versions": versions,
+        "automation_mode": automation_mode,
     })
 
 
@@ -473,14 +540,22 @@ async def api_export_profile(request: Request, fmt: str):
         if not profile:
             raise HTTPException(status_code=404, detail="No profile found")
 
+        # Check automation mode
+        user_row = (await db.execute(select(User).where(User.id == user["id"]))).scalar_one_or_none()
+        auto_mode = user_row.automation_mode if user_row else False
+
         try:
             scores_data = json.loads(profile.scores_json)
         except (json.JSONDecodeError, TypeError):
             scores_data = {}
 
+    content_md = profile.content_md
+    if auto_mode:
+        content_md += "\n\n<mode>automation_only</mode>\n"
+
     if fmt == "markdown":
         return PlainTextResponse(
-            profile.content_md,
+            content_md,
             media_type="text/markdown",
             headers={"Content-Disposition": "attachment; filename=talent-augmenting-layer-profile.md"},
         )
@@ -490,13 +565,14 @@ async def api_export_profile(request: Request, fmt: str):
             {
                 "version": profile.version,
                 "scores": scores_data,
-                "content_md": profile.content_md,
+                "content_md": content_md,
+                "automation_mode": auto_mode,
             },
             headers={"Content-Disposition": "attachment; filename=talent-augmenting-layer-profile.json"},
         )
 
     if fmt == "chatgpt":
-        wrapper = _wrap_for_platform("ChatGPT Custom Instructions", profile.content_md)
+        wrapper = _wrap_for_platform("ChatGPT Custom Instructions", content_md)
         return PlainTextResponse(
             wrapper,
             media_type="text/plain",
@@ -504,7 +580,7 @@ async def api_export_profile(request: Request, fmt: str):
         )
 
     if fmt == "claude":
-        wrapper = _wrap_for_platform("Claude Project Instructions", profile.content_md)
+        wrapper = _wrap_for_platform("Claude Project Instructions", content_md)
         return PlainTextResponse(
             wrapper,
             media_type="text/plain",
@@ -512,7 +588,7 @@ async def api_export_profile(request: Request, fmt: str):
         )
 
     if fmt == "gemini":
-        wrapper = _wrap_for_platform("Gemini System Prompt", profile.content_md)
+        wrapper = _wrap_for_platform("Gemini System Prompt", content_md)
         return PlainTextResponse(
             wrapper,
             media_type="text/plain",
@@ -566,6 +642,356 @@ async def api_profile_sync(request: Request):
             "version": profile.version,
             "message": "Profile updated successfully",
         })
+
+
+@app.post("/api/profile/evolve")
+async def api_profile_evolve(request: Request):
+    """Incrementally evolve a user's profile based on accumulated chat telemetry.
+
+    Called periodically (e.g. after N interactions) by the MCP server or a cron job.
+    Reads the latest profile + recent ChatLog entries, computes skill signal
+    deltas, and creates a new profile version with updated domain ratings.
+    """
+    user = require_auth(request)
+
+    async with async_session_factory() as db:
+        # Get latest profile
+        prof_stmt = (
+            select(Profile)
+            .where(Profile.user_id == user["id"])
+            .order_by(Profile.version.desc())
+            .limit(1)
+        )
+        prof_result = await db.execute(prof_stmt)
+        profile = prof_result.scalar_one_or_none()
+
+        if not profile:
+            raise HTTPException(status_code=404, detail="No profile to evolve — run assessment first")
+
+        try:
+            scores_data = json.loads(profile.scores_json)
+        except (json.JSONDecodeError, TypeError):
+            raise HTTPException(status_code=500, detail="Corrupt profile scores")
+
+        domain_ratings = scores_data.get("domain_ratings", {})
+
+        # Aggregate skill signals from recent chat logs (since last profile version)
+        log_stmt = (
+            select(ChatLog)
+            .where(
+                ChatLog.user_id == user["id"],
+                ChatLog.created_at >= profile.created_at,
+                ChatLog.skill_signal.isnot(None),
+            )
+            .order_by(ChatLog.created_at)
+        )
+        log_result = await db.execute(log_stmt)
+        logs = log_result.scalars().all()
+
+        if not logs:
+            return JSONResponse({"message": "No new signals — profile unchanged", "version": profile.version})
+
+        # Aggregate signals per domain
+        domain_signals: dict[str, list[str]] = {}
+        for log in logs:
+            d = log.domain or "general"
+            if d not in domain_signals:
+                domain_signals[d] = []
+            if log.skill_signal:
+                domain_signals[d].append(log.skill_signal.value)
+
+        # Compute deltas: net growth vs atrophy signals per domain
+        changes_made = False
+        for domain, signals in domain_signals.items():
+            growth_count = signals.count("growth")
+            atrophy_count = signals.count("atrophy")
+            net = growth_count - atrophy_count
+
+            if domain in domain_ratings and abs(net) >= 3:
+                old_rating = domain_ratings[domain]
+                if net >= 3:
+                    domain_ratings[domain] = min(5, old_rating + 1)
+                elif net <= -3:
+                    domain_ratings[domain] = max(1, old_rating - 1)
+                if domain_ratings[domain] != old_rating:
+                    changes_made = True
+
+        if not changes_made:
+            return JSONResponse({"message": "Signals insufficient for rating change", "version": profile.version})
+
+        # Recompute scores with updated domain ratings
+        answers = scores_data.get("scores", {})
+        raw_answers = {}
+        for section in ("adr", "gp", "ali"):
+            if section in answers and "raw" in answers[section]:
+                # Reconstruct approximate raw answers from stored raw averages
+                pass
+        # Use existing section scores directly — only domain ratings changed
+        new_scores = scores_data.get("scores", {})
+        new_scores["esa"] = compute_esa(domain_ratings)
+        new_calibration = compute_calibration(new_scores, domain_ratings)
+
+        scores_data["scores"] = new_scores
+        scores_data["calibration"] = new_calibration
+        scores_data["domain_ratings"] = domain_ratings
+
+        # Create new version
+        ver_stmt = (
+            select(func.coalesce(func.max(Profile.version), 0))
+            .where(Profile.user_id == user["id"])
+        )
+        ver_result = await db.execute(ver_stmt)
+        max_version = ver_result.scalar() or 0
+
+        # Regenerate profile markdown
+        new_profile_md = generate_profile_markdown(
+            name=user.get("name", ""),
+            role=scores_data.get("role", ""),
+            organization=scores_data.get("organization", ""),
+            industry=scores_data.get("industry", ""),
+            context_summary=scores_data.get("context_summary", ""),
+            scores=new_scores,
+            domain_ratings=domain_ratings,
+            calibration=new_calibration,
+            career_goals=scores_data.get("career_goals", []),
+            skills_to_develop=scores_data.get("skills_to_develop", []),
+            skills_to_protect=scores_data.get("skills_to_protect", []),
+            tasks_automate=scores_data.get("tasks_automate", []),
+            tasks_augment=scores_data.get("tasks_augment", []),
+            tasks_coach=scores_data.get("tasks_coach", []),
+            tasks_protect=scores_data.get("tasks_protect", []),
+            tasks_hands_off=scores_data.get("tasks_hands_off", []),
+            red_lines=scores_data.get("red_lines", []),
+        )
+
+        new_profile = Profile(
+            user_id=user["id"],
+            version=max_version + 1,
+            content_md=new_profile_md,
+            scores_json=json.dumps(scores_data),
+        )
+        db.add(new_profile)
+        await db.commit()
+
+        return JSONResponse({
+            "version": new_profile.version,
+            "changes": {d: domain_ratings[d] for d in domain_signals if d in domain_ratings},
+            "message": "Profile evolved based on interaction signals",
+        })
+
+
+# ---------------------------------------------------------------------------
+# Telemetry & Pilot API routes
+# ---------------------------------------------------------------------------
+
+@app.post("/api/telemetry/chat-log")
+async def api_ingest_chat_log(request: Request):
+    """Ingest a structured chat log entry from <tal_log> blocks.
+
+    Accepts a JSON payload with telemetry fields and stores it in the
+    ChatLog table. Called by the MCP server after parsing <tal_log>.
+    """
+    user = require_auth(request)
+    body = await request.json()
+
+    task_cat = body.get("task_category")
+    engagement = body.get("engagement_level")
+    skill_sig = body.get("skill_signal")
+
+    async with async_session_factory() as db:
+        log_entry = ChatLog(
+            user_id=user["id"],
+            session_id=body.get("session_id"),
+            task_category=TaskCategory(task_cat) if task_cat and task_cat in TaskCategory.__members__ else None,
+            domain=body.get("domain"),
+            engagement_level=EngagementLevel(engagement) if engagement and engagement in EngagementLevel.__members__ else None,
+            skill_signal=SkillSignal(skill_sig) if skill_sig and skill_sig in SkillSignal.__members__ else None,
+            notes=body.get("notes"),
+            accepted_without_edit=body.get("accepted_without_edit"),
+            ai_mode=body.get("ai_mode", "standard"),
+            turn_payload_json=json.dumps(body) if body else None,
+        )
+        db.add(log_entry)
+        await db.commit()
+
+        return JSONResponse({"id": log_entry.id, "status": "logged"})
+
+
+@app.post("/api/telemetry/chat-log/batch")
+async def api_ingest_chat_log_batch(request: Request):
+    """Ingest multiple chat log entries at once."""
+    user = require_auth(request)
+    body = await request.json()
+    entries = body.get("entries", [])
+
+    if not entries:
+        raise HTTPException(status_code=400, detail="entries array required")
+
+    async with async_session_factory() as db:
+        ids = []
+        for entry in entries:
+            task_cat = entry.get("task_category")
+            engagement = entry.get("engagement_level")
+            skill_sig = entry.get("skill_signal")
+
+            log_entry = ChatLog(
+                user_id=user["id"],
+                session_id=entry.get("session_id"),
+                task_category=TaskCategory(task_cat) if task_cat and task_cat in TaskCategory.__members__ else None,
+                domain=entry.get("domain"),
+                engagement_level=EngagementLevel(engagement) if engagement and engagement in EngagementLevel.__members__ else None,
+                skill_signal=SkillSignal(skill_sig) if skill_sig and skill_sig in SkillSignal.__members__ else None,
+                notes=entry.get("notes"),
+                accepted_without_edit=entry.get("accepted_without_edit"),
+                ai_mode=entry.get("ai_mode", "standard"),
+                turn_payload_json=json.dumps(entry),
+            )
+            db.add(log_entry)
+            await db.flush()
+            ids.append(log_entry.id)
+
+        await db.commit()
+        return JSONResponse({"ids": ids, "count": len(ids)})
+
+
+@app.get("/api/telemetry/passive-ratio")
+async def api_passive_ratio(request: Request):
+    """Get the Engagement Passive Ratio (R_passive) for the current user."""
+    user = require_auth(request)
+    days_param = request.query_params.get("days")
+    days = int(days_param) if days_param else None
+
+    async with async_session_factory() as db:
+        ratio = await compute_passive_ratio(db, user["id"], days=days)
+        return JSONResponse({"r_passive": round(ratio, 4), "days": days})
+
+
+@app.post("/api/pilot/survey")
+async def api_submit_survey(request: Request):
+    """Submit or update pilot survey scores for a timepoint."""
+    user = require_auth(request)
+    body = await request.json()
+
+    timepoint_val = body.get("timepoint")
+    if not timepoint_val or timepoint_val not in SurveyTimepoint.__members__:
+        raise HTTPException(status_code=400, detail="Valid timepoint required: baseline, midpoint, endline, followup")
+
+    async with async_session_factory() as db:
+        # Upsert: check if survey already exists for this user+timepoint
+        stmt = select(PilotSurvey).where(
+            PilotSurvey.user_id == user["id"],
+            PilotSurvey.timepoint == SurveyTimepoint(timepoint_val),
+        )
+        result = await db.execute(stmt)
+        survey = result.scalar_one_or_none()
+
+        if not survey:
+            survey = PilotSurvey(
+                user_id=user["id"],
+                timepoint=SurveyTimepoint(timepoint_val),
+            )
+            db.add(survey)
+
+        # Update fields from body
+        if "taaq_score" in body:
+            survey.taaq_score = body["taaq_score"]
+        if "taaq_subscores" in body:
+            survey.taaq_subscores_json = json.dumps(body["taaq_subscores"])
+        if "m_csr_score" in body:
+            survey.m_csr_score = body["m_csr_score"]
+        if "m_csr_details" in body:
+            survey.m_csr_details_json = json.dumps(body["m_csr_details"])
+        if "m_ht_score" in body:
+            survey.m_ht_score = body["m_ht_score"]
+        if "m_ht_details" in body:
+            survey.m_ht_details_json = json.dumps(body["m_ht_details"])
+        if "e_gap_score" in body:
+            survey.e_gap_score = body["e_gap_score"]
+        if "e_gap_details" in body:
+            survey.e_gap_details_json = json.dumps(body["e_gap_details"])
+
+        # NASA-TLX sub-scales
+        for tlx_key in ("mental", "physical", "temporal", "performance", "effort", "frustration"):
+            field_name = f"nasa_tlx_{tlx_key}"
+            if field_name in body:
+                setattr(survey, field_name, body[field_name])
+
+        if "nasa_tlx_composite" in body:
+            survey.nasa_tlx_composite = body["nasa_tlx_composite"]
+
+        if "raw_responses" in body:
+            survey.raw_responses_json = json.dumps(body["raw_responses"])
+
+        await db.commit()
+        return JSONResponse({"survey_id": survey.id, "timepoint": timepoint_val})
+
+
+@app.get("/api/pilot/surveys")
+async def api_get_surveys(request: Request):
+    """Get all pilot survey data for the current user."""
+    user = require_auth(request)
+
+    async with async_session_factory() as db:
+        stmt = (
+            select(PilotSurvey)
+            .where(PilotSurvey.user_id == user["id"])
+            .order_by(PilotSurvey.recorded_at)
+        )
+        result = await db.execute(stmt)
+        surveys = result.scalars().all()
+
+        data = []
+        for s in surveys:
+            data.append({
+                "timepoint": s.timepoint.value,
+                "recorded_at": s.recorded_at.isoformat() if s.recorded_at else None,
+                "taaq_score": s.taaq_score,
+                "m_csr_score": s.m_csr_score,
+                "m_ht_score": s.m_ht_score,
+                "e_gap_score": s.e_gap_score,
+                "nasa_tlx_composite": s.nasa_tlx_composite,
+            })
+
+        return JSONResponse({"surveys": data})
+
+
+# ---------------------------------------------------------------------------
+# Settings routes
+# ---------------------------------------------------------------------------
+
+@app.post("/api/settings/automation-mode")
+async def api_toggle_automation(request: Request):
+    """Toggle Fast Automation mode on/off.
+
+    When enabled, the system appends <mode>automation_only</mode> to the
+    prompt, disabling pedagogical friction while keeping TAL telemetry active.
+    """
+    user = require_auth(request)
+    body = await request.json()
+    enabled = bool(body.get("enabled", False))
+
+    async with async_session_factory() as db:
+        stmt = select(User).where(User.id == user["id"])
+        result = await db.execute(stmt)
+        db_user = result.scalar_one_or_none()
+        if db_user:
+            db_user.automation_mode = enabled
+            await db.commit()
+
+    return JSONResponse({"automation_mode": enabled})
+
+
+@app.get("/api/settings/automation-mode")
+async def api_get_automation_mode(request: Request):
+    """Check whether automation mode is active for the current user."""
+    user = require_auth(request)
+
+    async with async_session_factory() as db:
+        stmt = select(User.automation_mode).where(User.id == user["id"])
+        result = await db.execute(stmt)
+        mode = result.scalar_one_or_none()
+
+    return JSONResponse({"automation_mode": bool(mode)})
 
 
 # ---------------------------------------------------------------------------

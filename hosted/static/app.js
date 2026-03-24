@@ -10,7 +10,7 @@
 let sessionId = null;
 let isSending = false;
 let messageCount = 0;
-const TOTAL_EXPECTED_MESSAGES = 30; // rough estimate for progress bar
+const TOTAL_EXPECTED_MESSAGES = 24; // ~20 assistant turns + user turns
 
 // ── DOM helpers ────────────────────────────────────────────────────────────
 
