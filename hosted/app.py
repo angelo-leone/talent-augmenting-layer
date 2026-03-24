@@ -57,6 +57,11 @@ from hosted.scoring import (
 )
 from hosted.email_service import generate_checkin_questions
 from hosted.scheduler import setup_scheduler
+from hosted.mcp_sse_handler import (
+    handle_sse_get,
+    handle_sse_post,
+    get_sse_config,
+)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -1068,3 +1073,50 @@ async def api_submit_checkin(request: Request, token: str):
         await db.commit()
 
     return JSONResponse({"message": "Check-in submitted. Thank you!"})
+
+
+# ───────────────────────────────────────────────────────────────────────────
+# MCP Server via SSE (Remote Access)
+# ───────────────────────────────────────────────────────────────────────────
+
+@app.get("/mcp/sse")
+async def mcp_sse_get(request: Request):
+    """
+    SSE endpoint for MCP clients to establish persistent connection.
+    
+    Connects to: GET /mcp/sse
+    
+    Returns a Server-Sent Events stream for bidirectional MCP communication.
+    
+    Example Claude Desktop config:
+    {
+      "mcpServers": {
+        "talent-augmenting-layer": {
+          "url": "https://proworker-hosted.onrender.com/mcp/sse"
+        }
+      }
+    }
+    """
+    return await handle_sse_get(request)
+
+
+@app.post("/mcp/sse")
+async def mcp_sse_post(request: Request):
+    """
+    SSE endpoint for MCP clients (POST variant).
+    
+    Handles MCP protocol requests via HTTP POST.
+    """
+    return await handle_sse_post(request)
+
+
+@app.get("/mcp/config")
+async def mcp_config():
+    """
+    Return configuration for connecting to the remote MCP server.
+    
+    Endpoint: GET /mcp/config
+    
+    Returns a JSON object with the SSE URL and client configuration instructions.
+    """
+    return await get_sse_config()

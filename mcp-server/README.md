@@ -7,7 +7,19 @@
 
 ## Quick Start
 
-### 1. Install
+### ⭐ NEW: Remote Access (Hosted)
+
+The MCP server is now available as a **remote service** at `https://proworker-hosted.onrender.com/mcp/sse`.
+
+**For non-technical users**: Just copy a config file. No installation needed.
+
+👉 **See [Remote MCP Setup Guide](../docs/REMOTE_MCP_SETUP.md)** for step-by-step instructions.
+
+**For developers**: Continue with Local Setup below.
+
+---
+
+## Local Setup (CLI / Development)
 
 ```bash
 cd mcp-server
