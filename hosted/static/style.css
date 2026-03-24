@@ -372,6 +372,142 @@ h2 { font-size: 1.4rem; margin-bottom: 0.5rem; color: var(--accent); }
     font-size: 0.75rem;
 }
 
+/* ── Skill Compass ──────────────────────────────────────────────────────── */
+
+.compass-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.compass-chart-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.compass-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+@media (max-width: 700px) {
+    .compass-layout {
+        grid-template-columns: 1fr;
+    }
+    .compass-chart-wrapper {
+        max-width: 280px;
+        margin: 0 auto;
+    }
+}
+
+/* ── Task Triage Grid ───────────────────────────────────────────────────── */
+
+.triage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.triage-card {
+    background: var(--surface-2);
+    border-radius: var(--radius-sm);
+    padding: 1.25rem;
+    border: 1px solid var(--border);
+}
+
+.triage-card h3 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+    color: var(--text);
+}
+
+.triage-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.triage-automate { border-left: 3px solid var(--success); }
+.triage-coach { border-left: 3px solid var(--warning); }
+.triage-info { border-left: 3px solid var(--accent); }
+
+.triage-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 0.5rem;
+}
+
+.triage-list li {
+    font-size: 0.85rem;
+    padding: 0.2rem 0;
+    color: var(--text);
+}
+
+.triage-list li::before {
+    content: "→ ";
+    color: var(--text-muted);
+}
+
+.triage-settings li::before {
+    content: "";
+}
+
+/* ── Toggle / Fast Mode button ──────────────────────────────────────────── */
+
+.btn-toggle {
+    background: var(--surface-2);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+.btn-toggle:hover {
+    border-color: var(--warning);
+    color: var(--text);
+    text-decoration: none;
+}
+
+.btn-toggle-active {
+    background: var(--warning);
+    color: #000;
+    border-color: var(--warning);
+    font-weight: 600;
+}
+
+.btn-toggle-active:hover {
+    background: #d68910;
+    border-color: #d68910;
+}
+
+.toggle-icon {
+    margin-right: 0.25rem;
+}
+
+.dash-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-weight: 600;
+    vertical-align: middle;
+}
+
+.badge-info {
+    background: var(--accent-soft);
+    color: var(--text);
+}
+
 /* ── Version table ──────────────────────────────────────────────────────── */
 
 .version-table {

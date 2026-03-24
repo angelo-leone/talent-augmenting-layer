@@ -17,6 +17,7 @@ keywords = [
 dependencies = [
     "mcp>=1.0.0",
     "pyyaml>=6.0",
+    "pymupdf>=1.27.0",
 ]
 
 [project.optional-dependencies]

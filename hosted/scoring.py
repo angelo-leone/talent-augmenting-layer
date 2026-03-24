@@ -12,6 +12,7 @@ if _mcp_server_path not in sys.path:
 from src.assessment import (  # noqa: E402
     compute_all_scores,
     compute_calibration,
+    compute_esa,
     generate_profile_markdown,
     suggest_domains,
     get_assessment_protocol,
@@ -24,6 +25,7 @@ from src.assessment import (  # noqa: E402
 __all__ = [
     "compute_all_scores",
     "compute_calibration",
+    "compute_esa",
     "generate_profile_markdown",
     "suggest_domains",
     "get_assessment_protocol",

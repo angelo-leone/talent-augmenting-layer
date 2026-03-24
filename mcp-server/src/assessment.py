@@ -327,6 +327,58 @@ def compute_pwri(adr_score: int, gp_score: int, ali_score: int, esa_mean: float)
     return {"score": score, "label": label, "meaning": meaning}
 
 
+def _apply_optimism_adjustment(answers: dict[str, int], domain_ratings: dict[str, int]) -> tuple[dict[str, int], dict[str, int]]:
+    """Apply a soft optimism bias correction when responses are suspiciously uniform.
+
+    Design goals (from stakeholder notes):
+      - Not too strict — genuine experts DO score high across the board
+      - Soft normalization: if ALL self-ratings are at ceiling, nudge toward
+        realistic distribution using a gentle point-budget constraint
+      - Only triggers on extreme patterns (all-max or near-all-max)
+
+    Returns adjusted copies of answers and domain_ratings.
+    """
+    adj_answers = dict(answers)
+    adj_domains = dict(domain_ratings)
+
+    # --- Section answer uniformity check ---
+    # If a user answers the same value for every item in a section, apply
+    # a small variance injection (pull extreme answers 0.5 toward the mean).
+    for prefix, count in [("A", 5), ("B", 5), ("D", 4)]:
+        items = [answers.get(f"{prefix}{i}") for i in range(1, count + 1)]
+        items = [x for x in items if x is not None]
+        if len(items) >= 3:
+            unique = set(items)
+            if len(unique) == 1 and items[0] in (1, 5):
+                # All identical at floor or ceiling — nudge middle items
+                val = items[0]
+                nudge = -1 if val == 5 else 1
+                # Nudge ~40% of items (every other one) by 1 point toward centre
+                for i in range(1, count + 1, 2):
+                    key = f"{prefix}{i}"
+                    if key in adj_answers:
+                        adj_answers[key] = max(1, min(5, adj_answers[key] + nudge))
+
+    # --- Domain rating ceiling check ---
+    if len(adj_domains) >= 3:
+        ratings = list(adj_domains.values())
+        at_ceiling = sum(1 for r in ratings if r == 5)
+        ratio = at_ceiling / len(ratings)
+
+        if ratio >= 0.8:
+            # 80%+ domains at ceiling: apply soft budget constraint
+            # Keep the top 2 at 5, reduce the rest by 1
+            sorted_domains = sorted(adj_domains.items(), key=lambda x: x[1], reverse=True)
+            preserved = 0
+            for domain, rating in sorted_domains:
+                if rating == 5 and preserved < 2:
+                    preserved += 1
+                elif rating == 5:
+                    adj_domains[domain] = 4  # Soft reduction
+
+    return adj_answers, adj_domains
+
+
 def compute_all_scores(answers: dict[str, int], domain_ratings: dict[str, int]) -> dict:
     """Compute all scores from raw assessment answers.
 
@@ -337,19 +389,27 @@ def compute_all_scores(answers: dict[str, int], domain_ratings: dict[str, int]) 
     Returns:
         Complete scoring summary with all sub-scores and composite TALRI.
     """
-    adr = compute_adr(answers)
-    gp = compute_gp(answers)
-    ali = compute_ali(answers)
-    esa = compute_esa(domain_ratings)
+    adj_answers, adj_domains = _apply_optimism_adjustment(answers, domain_ratings)
+
+    adr = compute_adr(adj_answers)
+    gp = compute_gp(adj_answers)
+    ali = compute_ali(adj_answers)
+    esa = compute_esa(adj_domains)
     pwri = compute_pwri(adr["score"], gp["score"], ali["score"], esa["mean"])
 
-    return {
+    result = {
         "adr": adr,
         "gp": gp,
         "ali": ali,
         "esa": esa,
         "pwri": pwri,
     }
+
+    # Flag if adjustment was applied (for transparency in dashboard)
+    if adj_answers != answers or adj_domains != domain_ratings:
+        result["optimism_adjusted"] = True
+
+    return result
 
 
 # ── Calibration Matrix ──────────────────────────────────────────────────────

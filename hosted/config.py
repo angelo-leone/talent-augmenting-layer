@@ -36,3 +36,8 @@ FROM_EMAIL = os.getenv("FROM_EMAIL", "noreply@talent-layer.local")
 SECRET_KEY = os.getenv("SECRET_KEY", "change-me-in-production")
 APP_URL = os.getenv("APP_URL", "http://localhost:8000")
 CHECKIN_INTERVAL_DAYS = int(os.getenv("CHECKIN_INTERVAL_DAYS", "14"))
+
+# Google Drive export (Vanguard Pilot)
+GDRIVE_SERVICE_ACCOUNT_JSON = os.getenv("GDRIVE_SERVICE_ACCOUNT_JSON", "")
+GDRIVE_FOLDER_ID = os.getenv("GDRIVE_FOLDER_ID", "")
+PILOT_EXPORT_ENABLED = os.getenv("PILOT_EXPORT_ENABLED", "false").lower() == "true"

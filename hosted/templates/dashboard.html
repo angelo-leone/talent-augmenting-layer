@@ -2,6 +2,10 @@
 
 {% block title %}Dashboard -- Talent-Augmenting Layer{% endblock %}
 
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+{% endblock %}
+
 {% block content %}
 <div class="dashboard">
     {% if not profile %}
@@ -22,9 +26,17 @@
                 {% endif %}
                 &middot; Version {{ profile.version }}
                 &middot; Updated {{ profile.created_at.strftime('%b %d, %Y') }}
+                {% if scores.get("optimism_adjusted") %}
+                <span class="badge badge-info" title="Scores were softly adjusted for optimism bias">calibrated</span>
+                {% endif %}
             </p>
         </div>
         <div class="dash-actions">
+            <button id="toggle-automation" class="btn btn-toggle {% if automation_mode %}btn-toggle-active{% endif %}"
+                    onclick="toggleAutomation()" title="Disable pedagogical friction for routine tasks">
+                <span class="toggle-icon">⚡</span>
+                <span id="toggle-label">{{ "Fast Mode ON" if automation_mode else "Fast Mode" }}</span>
+            </button>
             <a href="/assess" class="btn btn-secondary">Update Profile</a>
         </div>
     </div>
@@ -67,23 +79,78 @@
     </div>
     {% endif %}
 
-    <!-- Expertise Map -->
+    <!-- Skill Compass (Radar Chart) + Expertise Map -->
     {% if domain_ratings %}
     <div class="card">
-        <h2 class="card-title">Expertise Map</h2>
-        <div class="expertise-list">
-            {% for domain, rating in domain_ratings.items() %}
-            <div class="expertise-row">
-                <span class="expertise-domain">{{ domain }}</span>
-                <div class="expertise-bar-track">
-                    <div class="expertise-bar-fill" style="width: {{ rating * 20 }}%"></div>
-                </div>
-                <span class="expertise-rating">{{ rating }}/5</span>
-                <span class="expertise-label text-muted">
-                    {% if rating == 1 %}Novice{% elif rating == 2 %}Developing{% elif rating == 3 %}Proficient{% elif rating == 4 %}Advanced{% elif rating == 5 %}Expert{% endif %}
-                </span>
+        <h2 class="card-title">Skill Compass</h2>
+        <p class="text-muted text-small" style="margin-bottom: 1rem;">
+            Your expertise footprint across domains. The radar shows your self-assessed proficiency (1-5 scale).
+        </p>
+        <div class="compass-layout">
+            <div class="compass-chart-wrapper">
+                <canvas id="skill-compass" width="320" height="320"></canvas>
             </div>
-            {% endfor %}
+            <div class="compass-legend">
+                {% for domain, rating in domain_ratings.items() %}
+                <div class="expertise-row">
+                    <span class="expertise-domain">{{ domain }}</span>
+                    <div class="expertise-bar-track">
+                        <div class="expertise-bar-fill" style="width: {{ rating * 20 }}%"></div>
+                    </div>
+                    <span class="expertise-rating">{{ rating }}/5</span>
+                    <span class="expertise-label text-muted">
+                        {% if rating == 1 %}Novice{% elif rating == 2 %}Developing{% elif rating == 3 %}Proficient{% elif rating == 4 %}Advanced{% elif rating == 5 %}Expert{% endif %}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Task Triage: How TAL treats your work -->
+    {% if calibration %}
+    <div class="card">
+        <h2 class="card-title">Task Triage</h2>
+        <p class="text-muted text-small" style="margin-bottom: 1rem;">
+            How TAL categorizes your work based on your profile. <strong>Domains</strong> are expertise areas.
+            <strong>Tasks</strong> are mapped to AI interaction modes.
+        </p>
+        <div class="triage-grid">
+            {% if calibration.get("automation_permissions") %}
+            <div class="triage-card triage-automate">
+                <div class="triage-icon">⚡</div>
+                <h3>Automate</h3>
+                <p class="text-muted text-small">Expert domains — fast, low-friction AI execution</p>
+                <ul class="triage-list">
+                    {% for d in calibration.automation_permissions %}
+                    <li>{{ d }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {% if calibration.get("cognitive_forcing_domains") %}
+            <div class="triage-card triage-coach">
+                <div class="triage-icon">🎯</div>
+                <h3>Coach / Protect</h3>
+                <p class="text-muted text-small">Growth areas — pedagogical friction active</p>
+                <ul class="triage-list">
+                    {% for d in calibration.cognitive_forcing_domains %}
+                    <li>{{ d }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            <div class="triage-card triage-info">
+                <div class="triage-icon">📊</div>
+                <h3>Your Settings</h3>
+                <ul class="triage-list triage-settings">
+                    <li><span class="text-muted">Friction:</span> {{ calibration.get("default_friction_level", "medium") }}</li>
+                    <li><span class="text-muted">Coaching:</span> {{ calibration.get("coaching_frequency", "medium") }}</li>
+                    <li><span class="text-muted">Challenge:</span> {{ calibration.get("challenge_level", "medium") }}</li>
+                    <li><span class="text-muted">Explanations:</span> {{ calibration.get("explanation_depth", "frameworks") }}</li>
+                </ul>
+            </div>
         </div>
     </div>
     {% endif %}
@@ -143,4 +210,88 @@
 
     {% endif %}
 </div>
+
+
+<script>
+async function toggleAutomation() {
+    const btn = document.getElementById('toggle-automation');
+    const label = document.getElementById('toggle-label');
+    const isActive = btn.classList.contains('btn-toggle-active');
+    const newMode = !isActive;
+
+    try {
+        const res = await fetch('/api/settings/automation-mode', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ enabled: newMode }),
+        });
+        if (res.ok) {
+            btn.classList.toggle('btn-toggle-active', newMode);
+            label.textContent = newMode ? 'Fast Mode ON' : 'Fast Mode';
+        }
+    } catch (err) {
+        console.error('Failed to toggle automation mode', err);
+    }
+}
+</script>
+
+{% if domain_ratings %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('skill-compass');
+    if (!ctx) return;
+
+    const labels = {{ domain_ratings.keys()|list|tojson }};
+    const data = {{ domain_ratings.values()|list|tojson }};
+
+    new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Proficiency',
+                data: data,
+                backgroundColor: 'rgba(233, 69, 96, 0.15)',
+                borderColor: '#e94560',
+                borderWidth: 2,
+                pointBackgroundColor: '#e94560',
+                pointBorderColor: '#fff',
+                pointRadius: 4,
+                pointHoverRadius: 6,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { display: false },
+            },
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    min: 0,
+                    max: 5,
+                    ticks: {
+                        stepSize: 1,
+                        color: '#999',
+                        backdropColor: 'transparent',
+                        font: { size: 10 },
+                    },
+                    grid: {
+                        color: 'rgba(255,255,255,0.08)',
+                    },
+                    angleLines: {
+                        color: 'rgba(255,255,255,0.08)',
+                    },
+                    pointLabels: {
+                        color: '#eee',
+                        font: { size: 11, weight: '500' },
+                    },
+                }
+            }
+        }
+    });
+});
+</script>
+{% endif %}
 {% endblock %}
