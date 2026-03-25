@@ -242,3 +242,45 @@ Set `SENDGRID_API_KEY` to enable actual email delivery. Without it, emails are l
 stdout (useful for development).
 
 The check-in interval can be configured with `CHECKIN_INTERVAL_DAYS` (default: 14).
+
+## Manual Transcript Collection (Non-Platform Integrations)
+
+If participants use the Talent-Augmenting Layer system prompt on **external platforms**
+(Google Gemini, OpenAI ChatGPT, Claude, etc.), those conversations are not automatically
+exported. Implement manual collection:
+
+### For Your Pilot Study
+
+1. **Create a shared Google Drive folder** for transcript submissions
+   - Share read/write access with all participants
+   - Document submission format (see below)
+
+2. **Include instructions in participant onboarding**:
+   - "Please export your AI conversations weekly to the shared Drive folder"
+   - Provide platform-specific export steps:
+     - **Gemini**: Share chat link or export as PDF/markdown
+     - **ChatGPT**: Use "Export conversation" feature (top-right menu)
+     - **Claude**: Copy full conversation or use "Export" if available
+
+3. **Suggested filename format**:
+   ```
+   participant-[ID]-[platform]-[date].txt
+   # Example:
+   participant-001-gemini-2026-03-25.txt
+   participant-002-chatgpt-2026-03-25.txt
+   ```
+
+4. **Bundle collection with existing touchpoints**:
+   - Include transcript upload reminder in the **2-week check-in email** (`check_in_reminders` job in scheduler)
+   - Consider a lightweight form (Google Form) for structured submission
+
+### Alternative: Browser Extension (Advanced)
+
+For fully automated capture across platforms, build a Chrome/Firefox extension that
+intercepts LLM conversations and POSTs them to an API endpoint on your hosted app.
+This requires:
+- Browser extension development (manifest.json, content script)
+- New API endpoint in [app.py](hosted/app.py) to receive transcripts
+- Privacy/consent workflow (users must explicitly activate)
+
+Not recommended for a pilot unless you have dedicated dev resources.

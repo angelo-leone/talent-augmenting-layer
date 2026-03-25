@@ -143,6 +143,8 @@ async def send_checkin_reminder(
         + "\n".join(question_lines)
         + f"\n\nComplete your check-in here:\n{checkin_url}\n\n"
         f"This helps keep your AI calibration accurate and tracks your skill development over time.\n\n"
+        f"📝 If you're using the Talent-Augmenting Layer with external platforms (Gemini, ChatGPT, Claude),\n"
+        f"please also remember to upload your conversation transcripts to the team Drive folder.\n\n"
         f"-- Talent-Augmenting Layer\n"
         f"Making workers better, not dependent."
     )
@@ -163,7 +165,12 @@ async def send_checkin_reminder(
         f"<a href='{checkin_url}' style='display: inline-block; padding: 0.75rem 1.5rem; "
         f"background: #e94560; color: white; text-decoration: none; border-radius: 8px; "
         f"font-weight: 600;'>Complete Check-in</a></p>"
-        f"<p style='color: #999; font-size: 0.85em; margin-top: 2em;'>"
+        f"<p style='color: #ccc; font-size: 0.9em; margin-top: 2em; padding-top: 1.5em; border-top: 1px solid #333;'>"
+        f"<strong>📝 Transcript Upload Reminder:</strong><br>"
+        f"If you're using the Talent-Augmenting Layer prompt on external platforms (Google Gemini, ChatGPT, Claude),\n"
+        f"please export and upload your conversation transcripts to the team Drive folder this week.\n"
+        f"This helps us capture the full picture of your AI-augmented work.</p>"
+        f"<p style='color: #999; font-size: 0.85em; margin-top: 1.5em;'>"
         f"Talent-Augmenting Layer -- Making workers better, not dependent.</p>"
         f"</div>"
     )
