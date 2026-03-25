@@ -22,6 +22,7 @@ from sqlalchemy import (
     func,
     select,
     case,
+    text,
 )
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
@@ -290,9 +291,19 @@ async_session_factory = async_sessionmaker(engine, class_=AsyncSession, expire_o
 
 
 async def create_tables() -> None:
-    """Create all tables if they don't exist."""
+    """Create all tables if they don't exist, and add any missing columns."""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
+        # Migrate existing tables: add columns that may be missing.
+        # CREATE_ALL only creates new tables; it won't ALTER existing ones.
+        migrations = [
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS pilot_group VARCHAR(50)",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS pilot_participant_id VARCHAR(32)",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS automation_mode BOOLEAN NOT NULL DEFAULT FALSE",
+        ]
+        for stmt in migrations:
+            await conn.execute(text(stmt))
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
