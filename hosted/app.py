@@ -183,7 +183,7 @@ async def landing(request: Request):
     user = get_current_user(request)
     if user:
         return RedirectResponse(url="/dashboard", status_code=302)
-    return templates.TemplateResponse("login.html", request=request)
+    return templates.TemplateResponse(name="login.html", request=request)
 
 
 # ---------------------------------------------------------------------------
@@ -237,7 +237,7 @@ async def assess_page(request: Request):
     user = get_current_user(request)
     if not user:
         return RedirectResponse(url="/login", status_code=302)
-    return templates.TemplateResponse("assessment.html", request=request, context={
+    return templates.TemplateResponse(name="assessment.html", request=request, context={
         "user": user,
     })
 
@@ -483,7 +483,7 @@ async def dashboard(request: Request):
         auto_result = await db.execute(auto_stmt)
         automation_mode = bool(auto_result.scalar_one_or_none())
 
-    return templates.TemplateResponse("dashboard.html", request=request, context={
+    return templates.TemplateResponse(name="dashboard.html", request=request, context={
         "user": user,
         "profile": profile,
         "scores": scores_data.get("scores", {}),
@@ -1012,7 +1012,7 @@ async def checkin_page(request: Request, token: str):
             raise HTTPException(status_code=404, detail="Check-in not found or expired")
 
         if reminder.responded_at:
-            return templates.TemplateResponse("checkin.html", request=request, context={
+            return templates.TemplateResponse(name="checkin.html", request=request, context={
                 "token": token,
                 "questions": [],
                 "already_completed": True,
@@ -1041,7 +1041,7 @@ async def checkin_page(request: Request, token: str):
 
         questions = generate_checkin_questions(profile_data)
 
-    return templates.TemplateResponse("checkin.html", request=request, context={
+    return templates.TemplateResponse(name="checkin.html", request=request, context={
         "token": token,
         "questions": questions,
         "already_completed": False,
