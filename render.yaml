@@ -58,6 +58,6 @@ services:
 
 databases:
   - name: talent-augmenting-layer-db
-    databaseName: talent-augmenting-layer
+    databaseName: talent_augmenting_layer
     plan: free  # 90-day free tier, then paid
     # Note: Free tier expires after 90 days. For long-term, use 'starter' plan ($7/mo)
