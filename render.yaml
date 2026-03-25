@@ -36,6 +36,19 @@ services:
         sync: false  # Optional - set if you want email reminders
       - key: FROM_EMAIL
         value: noreply@yourdomain.com
+
+      # Optional: Vanguard pilot anonymised export to Google Drive (OAuth user credentials)
+      # Run `python -m hosted.gdrive_oauth_setup` locally once to obtain the refresh token.
+      - key: PILOT_EXPORT_ENABLED
+        value: "false"  # Set to "true" only when Drive export is fully configured
+      - key: GDRIVE_FOLDER_ID
+        sync: false  # Google Drive folder ID for daily JSONL export
+      - key: GDRIVE_OAUTH_CLIENT_ID
+        sync: false  # OAuth 2.0 Client ID from Google Cloud Console
+      - key: GDRIVE_OAUTH_CLIENT_SECRET
+        sync: false  # OAuth 2.0 Client Secret
+      - key: GDRIVE_OAUTH_REFRESH_TOKEN
+        sync: false  # Refresh token from gdrive_oauth_setup script
       
       # Database (automatically provided by Render if you add a PostgreSQL database)
       - key: DATABASE_URL

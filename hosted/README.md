@@ -38,6 +38,14 @@ FROM_EMAIL=noreply@yourdomain.com
 
 # Optional: app URL (for OAuth callback and email links)
 APP_URL=http://localhost:8000          # change in production
+
+# Optional: Vanguard pilot export to Google Drive (OAuth user credentials)
+# Run the setup script once to get the refresh token — see below.
+PILOT_EXPORT_ENABLED=false
+GDRIVE_FOLDER_ID=your-google-drive-folder-id
+GDRIVE_OAUTH_CLIENT_ID=your-oauth-client-id.apps.googleusercontent.com
+GDRIVE_OAUTH_CLIENT_SECRET=your-oauth-client-secret
+GDRIVE_OAUTH_REFRESH_TOKEN=your-refresh-token
 ```
 
 ### 3. Run locally
@@ -77,6 +85,58 @@ docker run -p 8000:8000 \
    (update for production)
 7. Copy the Client ID and Client Secret into your environment variables
 
+## Google Drive Export Setup (Vanguard Pilot)
+
+The pilot data export uses **OAuth 2.0 user credentials** so the app uploads
+files to Google Drive as *you* — no service account sharing required.
+
+### 1. Create OAuth credentials for Drive access
+
+1. In [Google Cloud Console](https://console.cloud.google.com/), go to
+   **APIs & Services > Credentials**
+2. Click **Create Credentials > OAuth 2.0 Client ID**
+3. Set application type to **Desktop app** (recommended) or **Web application**
+   (if Web, add `http://localhost:8080/` as an authorised redirect URI)
+4. Note the **Client ID** and **Client Secret**
+
+### 2. Enable the Drive API
+
+1. In the Cloud Console, go to **APIs & Services > Library**
+2. Search for **Google Drive API** and click **Enable**
+
+### 3. Obtain a refresh token
+
+Run the setup helper on a machine with a browser:
+
+```bash
+# Option A — supply client ID and secret directly:
+python -m hosted.gdrive_oauth_setup \
+    --client-id YOUR_CLIENT_ID \
+    --client-secret YOUR_CLIENT_SECRET
+
+# Option B — use the downloaded client_secret JSON file:
+python -m hosted.gdrive_oauth_setup \
+    --client-secrets-file /path/to/client_secret.json
+```
+
+This opens a browser, you log in with **your Google account** (the one that
+owns the Drive folder), and the script prints the refresh token.
+
+### 4. Set environment variables
+
+On Render (or your host), set:
+
+```
+PILOT_EXPORT_ENABLED=true
+GDRIVE_FOLDER_ID=your-google-drive-folder-id
+GDRIVE_OAUTH_CLIENT_ID=your-oauth-client-id
+GDRIVE_OAUTH_CLIENT_SECRET=your-oauth-client-secret
+GDRIVE_OAUTH_REFRESH_TOKEN=your-refresh-token
+```
+
+The refresh token does not expire (unless you revoke it or change your
+password). The app automatically obtains short-lived access tokens at runtime.
+
 ## Deployment to Render
 
 ### Option 1: One-Click Deploy (Recommended)
@@ -95,6 +155,15 @@ docker run -p 8000:8000 \
    GOOGLE_API_KEY=your-google-api-key
    GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
    GOOGLE_CLIENT_SECRET=your-client-secret
+   ```
+
+   Optional for Vanguard pilot export (see Google Drive Setup below):
+   ```
+   PILOT_EXPORT_ENABLED=true
+   GDRIVE_FOLDER_ID=your-google-drive-folder-id
+   GDRIVE_OAUTH_CLIENT_ID=your-oauth-client-id
+   GDRIVE_OAUTH_CLIENT_SECRET=your-oauth-client-secret
+   GDRIVE_OAUTH_REFRESH_TOKEN=your-refresh-token
    ```
 
 4. **Update Google OAuth redirect URL**:

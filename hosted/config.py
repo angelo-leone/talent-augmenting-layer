@@ -37,7 +37,11 @@ SECRET_KEY = os.getenv("SECRET_KEY", "change-me-in-production")
 APP_URL = os.getenv("APP_URL", "http://localhost:8000")
 CHECKIN_INTERVAL_DAYS = int(os.getenv("CHECKIN_INTERVAL_DAYS", "14"))
 
-# Google Drive export (Vanguard Pilot)
-GDRIVE_SERVICE_ACCOUNT_JSON = os.getenv("GDRIVE_SERVICE_ACCOUNT_JSON", "")
+# Google Drive export (Vanguard Pilot) — uses OAuth 2.0 user credentials
+# so the app acts as you (bypasses IT restrictions on service accounts).
+# Run `python -m hosted.gdrive_oauth_setup` once to obtain the refresh token.
+GDRIVE_OAUTH_CLIENT_ID = os.getenv("GDRIVE_OAUTH_CLIENT_ID", "")
+GDRIVE_OAUTH_CLIENT_SECRET = os.getenv("GDRIVE_OAUTH_CLIENT_SECRET", "")
+GDRIVE_OAUTH_REFRESH_TOKEN = os.getenv("GDRIVE_OAUTH_REFRESH_TOKEN", "")
 GDRIVE_FOLDER_ID = os.getenv("GDRIVE_FOLDER_ID", "")
 PILOT_EXPORT_ENABLED = os.getenv("PILOT_EXPORT_ENABLED", "false").lower() == "true"
