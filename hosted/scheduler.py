@@ -113,24 +113,32 @@ async def _check_and_send_reminders() -> None:
 async def _export_pilot_data_to_drive() -> None:
     """Export anonymised pilot telemetry/survey data to a shared Google Drive folder.
 
-    Runs at 02:00 UTC daily.  Uses a service-account credential stored in env
-    var ``GDRIVE_SERVICE_ACCOUNT_JSON`` (the *full JSON key* as a string).
-    Writes a single JSONL file per day named ``pilot-export-YYYY-MM-DD.jsonl``
-    into the Drive folder specified by ``GDRIVE_FOLDER_ID``.
+    Runs at 02:00 UTC daily.  Uses OAuth 2.0 user credentials (refresh token)
+    so the app uploads files as the folder owner — no service account sharing
+    required.  Writes a single JSONL file per day named
+    ``pilot-export-YYYY-MM-DD.jsonl`` into the Drive folder specified by
+    ``GDRIVE_FOLDER_ID``.
 
     Each row is keyed by ``pilot_participant_id`` (a randomised opaque ID set
     during group assignment) — no email/name fields are exported.
     """
-    from hosted.config import GDRIVE_SERVICE_ACCOUNT_JSON, GDRIVE_FOLDER_ID, PILOT_EXPORT_ENABLED
+    from hosted.config import (
+        GDRIVE_OAUTH_CLIENT_ID,
+        GDRIVE_OAUTH_CLIENT_SECRET,
+        GDRIVE_OAUTH_REFRESH_TOKEN,
+        GDRIVE_FOLDER_ID,
+        PILOT_EXPORT_ENABLED,
+    )
 
     if not PILOT_EXPORT_ENABLED:
         return
-    if not GDRIVE_SERVICE_ACCOUNT_JSON or not GDRIVE_FOLDER_ID:
-        logger.warning("Drive export enabled but credentials/folder not configured — skipping")
+    if not all([GDRIVE_OAUTH_CLIENT_ID, GDRIVE_OAUTH_CLIENT_SECRET,
+                GDRIVE_OAUTH_REFRESH_TOKEN, GDRIVE_FOLDER_ID]):
+        logger.warning("Drive export enabled but OAuth credentials/folder not configured — skipping")
         return
 
     try:
-        from google.oauth2 import service_account
+        from google.oauth2.credentials import Credentials
         from googleapiclient.discovery import build
         from googleapiclient.http import MediaIoBaseUpload
     except ImportError:
@@ -227,11 +235,14 @@ async def _export_pilot_data_to_drive() -> None:
         buf.write((json.dumps(row, default=str) + "\n").encode())
     buf.seek(0)
 
-    # Authenticate and upload
+    # Authenticate with OAuth user credentials and upload
     try:
-        creds_info = json.loads(GDRIVE_SERVICE_ACCOUNT_JSON)
-        creds = service_account.Credentials.from_service_account_info(
-            creds_info,
+        creds = Credentials(
+            token=None,
+            refresh_token=GDRIVE_OAUTH_REFRESH_TOKEN,
+            token_uri="https://oauth2.googleapis.com/token",
+            client_id=GDRIVE_OAUTH_CLIENT_ID,
+            client_secret=GDRIVE_OAUTH_CLIENT_SECRET,
             scopes=["https://www.googleapis.com/auth/drive.file"],
         )
         service = build("drive", "v3", credentials=creds, cache_discovery=False)
