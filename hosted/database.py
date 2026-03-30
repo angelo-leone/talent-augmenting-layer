@@ -103,9 +103,6 @@ class User(Base):
     pilot_group = Column(Enum(PilotGroup), nullable=True)
     pilot_participant_id = Column(String(32), unique=True, nullable=True, index=True)
 
-    # ── Toggle Off: automation-only mode ──
-    automation_mode = Column(Boolean, default=False, nullable=False, server_default="0")
-
     profiles = relationship("Profile", back_populates="user", order_by="Profile.version.desc()")
     sessions = relationship("AssessmentSession", back_populates="user", order_by="AssessmentSession.created_at.desc()")
     reminders = relationship("CheckinReminder", back_populates="user", order_by="CheckinReminder.sent_at.desc()")
@@ -239,8 +236,8 @@ class ChatLog(Base):
     # Whether the user accepted AI output without critical editing
     accepted_without_edit = Column(Boolean, nullable=True)
 
-    # The mode the AI used (automation_only when toggle-off is active)
-    ai_mode = Column(String(64), nullable=True)  # "standard" | "automation_only"
+    # The mode the AI used for this turn.
+    ai_mode = Column(String(64), nullable=True)
 
     # Full turn payload for audit trail
     turn_payload_json = Column(Text, nullable=True)
@@ -300,7 +297,6 @@ async def create_tables() -> None:
         migrations = [
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS pilot_group VARCHAR(50)",
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS pilot_participant_id VARCHAR(32)",
-            "ALTER TABLE users ADD COLUMN IF NOT EXISTS automation_mode BOOLEAN NOT NULL DEFAULT FALSE",
         ]
         for stmt in migrations:
             await conn.execute(text(stmt))

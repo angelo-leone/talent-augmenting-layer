@@ -32,11 +32,6 @@
             </p>
         </div>
         <div class="dash-actions">
-            <button id="toggle-automation" class="btn btn-toggle {% if automation_mode %}btn-toggle-active{% endif %}"
-                    onclick="toggleAutomation()" title="Disable pedagogical friction for routine tasks">
-                <span class="toggle-icon">⚡</span>
-                <span id="toggle-label">{{ "Fast Mode ON" if automation_mode else "Fast Mode" }}</span>
-            </button>
             <a href="/assess" class="btn btn-secondary">Update Profile</a>
         </div>
     </div>
@@ -210,30 +205,6 @@
 
     {% endif %}
 </div>
-
-
-<script>
-async function toggleAutomation() {
-    const btn = document.getElementById('toggle-automation');
-    const label = document.getElementById('toggle-label');
-    const isActive = btn.classList.contains('btn-toggle-active');
-    const newMode = !isActive;
-
-    try {
-        const res = await fetch('/api/settings/automation-mode', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ enabled: newMode }),
-        });
-        if (res.ok) {
-            btn.classList.toggle('btn-toggle-active', newMode);
-            label.textContent = newMode ? 'Fast Mode ON' : 'Fast Mode';
-        }
-    } catch (err) {
-        console.error('Failed to toggle automation mode', err);
-    }
-}
-</script>
 
 {% if domain_ratings %}
 <script>
