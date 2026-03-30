@@ -1097,12 +1097,6 @@ def _build_system_prompt(name: str) -> str:
     else:
         system_prompt += f"\n\n> No profile found for '{name}'. Suggest running /talent-assess.\n"
 
-    # Inject automation mode if enabled via env var or already in profile
-    auto_env = os.environ.get("TAL_AUTOMATION_MODE", "").lower() in ("1", "true", "yes")
-    already_tagged = profile_raw and "<mode>automation_only</mode>" in profile_raw
-    if auto_env and not already_tagged:
-        system_prompt += "\n\n<mode>automation_only</mode>\n"
-
     return system_prompt
 
 

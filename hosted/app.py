@@ -478,11 +478,6 @@ async def dashboard(request: Request):
             except (json.JSONDecodeError, TypeError):
                 scores_data = {}
 
-        # Get automation mode
-        auto_stmt = select(User.automation_mode).where(User.id == user["id"])
-        auto_result = await db.execute(auto_stmt)
-        automation_mode = bool(auto_result.scalar_one_or_none())
-
     return templates.TemplateResponse(name="dashboard.html", request=request, context={
         "user": user,
         "profile": profile,
@@ -490,7 +485,6 @@ async def dashboard(request: Request):
         "calibration": scores_data.get("calibration", {}),
         "domain_ratings": scores_data.get("domain_ratings", {}),
         "versions": versions,
-        "automation_mode": automation_mode,
     })
 
 
@@ -543,18 +537,12 @@ async def api_export_profile(request: Request, fmt: str):
         if not profile:
             raise HTTPException(status_code=404, detail="No profile found")
 
-        # Check automation mode
-        user_row = (await db.execute(select(User).where(User.id == user["id"]))).scalar_one_or_none()
-        auto_mode = user_row.automation_mode if user_row else False
-
         try:
             scores_data = json.loads(profile.scores_json)
         except (json.JSONDecodeError, TypeError):
             scores_data = {}
 
     content_md = profile.content_md
-    if auto_mode:
-        content_md += "\n\n<mode>automation_only</mode>\n"
 
     if fmt == "markdown":
         return PlainTextResponse(
@@ -569,7 +557,6 @@ async def api_export_profile(request: Request, fmt: str):
                 "version": profile.version,
                 "scores": scores_data,
                 "content_md": content_md,
-                "automation_mode": auto_mode,
             },
             headers={"Content-Disposition": "attachment; filename=talent-augmenting-layer-profile.json"},
         )
@@ -956,45 +943,6 @@ async def api_get_surveys(request: Request):
             })
 
         return JSONResponse({"surveys": data})
-
-
-# ---------------------------------------------------------------------------
-# Settings routes
-# ---------------------------------------------------------------------------
-
-@app.post("/api/settings/automation-mode")
-async def api_toggle_automation(request: Request):
-    """Toggle Fast Automation mode on/off.
-
-    When enabled, the system appends <mode>automation_only</mode> to the
-    prompt, disabling pedagogical friction while keeping TAL telemetry active.
-    """
-    user = require_auth(request)
-    body = await request.json()
-    enabled = bool(body.get("enabled", False))
-
-    async with async_session_factory() as db:
-        stmt = select(User).where(User.id == user["id"])
-        result = await db.execute(stmt)
-        db_user = result.scalar_one_or_none()
-        if db_user:
-            db_user.automation_mode = enabled
-            await db.commit()
-
-    return JSONResponse({"automation_mode": enabled})
-
-
-@app.get("/api/settings/automation-mode")
-async def api_get_automation_mode(request: Request):
-    """Check whether automation mode is active for the current user."""
-    user = require_auth(request)
-
-    async with async_session_factory() as db:
-        stmt = select(User.automation_mode).where(User.id == user["id"])
-        result = await db.execute(stmt)
-        mode = result.scalar_one_or_none()
-
-    return JSONResponse({"automation_mode": bool(mode)})
 
 
 # ---------------------------------------------------------------------------
