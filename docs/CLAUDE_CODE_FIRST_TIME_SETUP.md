@@ -38,7 +38,9 @@ claude --version
 
 If the command is not found, restart your terminal and run the PATH step again.
 
-## 3. Add Remote MCP Server Config
+## 3. (Optional) Add Remote MCP Server Config
+
+The slash commands work locally without any MCP server. If you also want the remote MCP tools (for use outside this repo), add this config:
 
 Create or edit this file:
 
@@ -56,6 +58,8 @@ Paste this JSON:
 }
 
 Save the file, then fully restart Claude Code.
+
+**Note**: If you get credential errors from the remote server, you can skip this step entirely. The local slash commands are fully self-contained.
 
 ## 4. Enable Slash Commands
 
@@ -112,9 +116,9 @@ Expected behavior:
 
 ### Could not load credentials from any providers
 
-For this setup, use MCP prompts/tools and slash commands in Claude Code.
-That error usually appears when a web-app assessment path is used instead of MCP flow.
-In MCP flow, your Claude Code model runs the conversation and no separate hosted LLM API key is needed.
+This error comes from the remote MCP server's Google/Anthropic/OpenAI dependency chain — not from anything you need locally.
+
+**Fix**: The slash commands (`/talent-assess`, `/talent-coach`, `/talent-update`) now work entirely locally. Open this repository in Claude Code and run the commands. Your Claude Code model drives the conversation, reads/writes profile files directly from `profiles/`, and uses the scoring logic in `mcp-server/src/assessment.py` as a reference. No remote server, no API keys, no MCP connection required.
 
 ## 8. What Lives Where
 
