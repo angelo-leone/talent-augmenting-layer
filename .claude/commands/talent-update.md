@@ -1,24 +1,14 @@
 # /talent-update
 
-Run a Talent-Augmenting Layer profile update. Uses MCP tools when available, falls back to local files.
+Run a Talent-Augmenting Layer profile update. Profile is always read/written locally. MCP tools used for logging when available.
 
 ## Flow
 
-### If the MCP server is connected (preferred)
-
-1. Call `talent_get_profile` to load the current profile.
-2. Call `talent_get_progression` to review recent interaction data and skill trends.
+1. Find the user's profile in `profiles/pro-*.md` or `profiles/tal-*.md`. Read it directly from the local file.
+2. Check `profiles/log-{name}.jsonl` for recent interaction data. If MCP is available, also call `talent_get_progression` for trend analysis.
 3. Ask a short update (3-5 questions max — see below).
-4. Update the profile and save with `talent_save_profile`.
-5. Call `talent_log_interaction` to record this update session.
-
-### If no MCP server is connected (local fallback)
-
-1. Find the user's profile in `profiles/pro-*.md` or `profiles/tal-*.md`.
-2. Read the profile. Also check `profiles/log-{name}.jsonl` for recent interaction data.
-3. Ask the update questions.
-4. Edit the profile file directly and add a change log entry.
-5. Append an interaction log entry to `profiles/log-{name}.jsonl`.
+4. Edit the local profile file directly and add a change log entry.
+5. If MCP tools are available, call `talent_log_interaction` to record this update session.
 
 ## Update questions (3-5 max)
 

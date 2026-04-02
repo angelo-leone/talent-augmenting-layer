@@ -1,24 +1,18 @@
 # /talent-assess
 
-Run a Talent-Augmenting Layer onboarding assessment. Uses MCP tools when available, falls back to local files.
+Run a Talent-Augmenting Layer onboarding assessment. Profile is always saved locally. MCP tools used for scoring when available.
 
 ## Flow
 
-### If the MCP server is connected (preferred)
-
-1. Call `talent_assess_start` to get the full question bank and protocol.
-2. Run the assessment conversationally, one section at a time.
-3. After collecting all answers, call `talent_assess_score` with the raw answers.
-4. Call `talent_assess_create_profile` to generate and save the profile.
-5. Present scores and ask: "Do these feel accurate? Anything you'd adjust?"
-
-### If no MCP server is connected (local fallback)
-
-1. Read the assessment protocol from `mcp-server/src/assessment.py` (question banks, ESA anchors, domain taxonomy).
-2. Run the assessment conversationally (same flow as above).
-3. Compute scores using the formulas in `assessment.py`.
-4. Generate the profile markdown and save to `profiles/pro-{name}.md`.
-5. Also append an initial interaction log entry to `profiles/log-{name}.jsonl`.
+1. Read the assessment protocol from `mcp-server/src/assessment.py` (question banks `SECTION_A_QUESTIONS`, `SECTION_B_QUESTIONS`, `SECTION_D_QUESTIONS`, `ESA_ANCHORS`, domain taxonomy via `suggest_domains()`).
+2. If a profile already exists in `profiles/pro-*.md` or `profiles/tal-*.md` for this user, note it and confirm they want to replace it.
+3. Run the assessment conversationally, one section at a time.
+4. Compute scores:
+   - If MCP tools are available, call `talent_assess_score` with the raw answers.
+   - Otherwise, use the formulas in `assessment.py` directly.
+5. Generate the profile markdown (use `generate_profile_markdown()` template from `assessment.py`).
+6. Save to `profiles/pro-{name}.md` (lowercase, kebab-case).
+7. Present scores and ask: "Do these feel accurate? Anything you'd adjust?"
 
 ## Assessment sections
 
