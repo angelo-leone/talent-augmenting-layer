@@ -50,7 +50,7 @@ Talent-Augmenting Layer is a **layer**, not a product tied to one platform. It w
 │  Browser-based · Google OAuth · LLM assessment · email check-ins│
 ├─────────────────────────────────────────────────────────────────┤
 │  Tier 3: MCP Server                                             │
-│  14 tools · 5 resources · 3 prompts · automatic tracking        │
+│  14 tools · 5 resources · 4 prompts · automatic tracking        │
 │  Claude Code · Cursor · Windsurf · Claude Desktop               │
 ├─────────────────────────────────────────────────────────────────┤
 │  Tier 2: Platform-Native                                        │
@@ -99,6 +99,8 @@ Every task gets classified into one of five AI interaction modes:
 
 ## Quick Start
 
+New to Claude Code and TAL MCP? Start with the first-time guide: `docs/CLAUDE_CODE_FIRST_TIME_SETUP.md`.
+
 Pick the option that matches your setup:
 
 | Option | Time | What You Need |
@@ -142,7 +144,7 @@ Add to your MCP client config (Claude Code, Cursor, Windsurf, Claude Desktop):
   }
 }
 ```
-Run `/talent-assess` to create your profile.
+Run `talent-assess` as an MCP prompt to create your profile. If you want the Claude Code slash command `/talent-assess`, open this repository in Claude Code so it loads `.claude/commands/`, or copy those command files into `~/.claude/commands/`.
 
 ### Hosted Web App
 
@@ -156,6 +158,8 @@ See `hosted/README.md` for full setup (OAuth credentials, LLM API key, SMTP conf
 - `/talent-assess` — Run initial assessment or full re-assessment
 - `/talent-update` — Update profile based on recent interactions
 - `/talent-coach` — Start a targeted coaching session on a specific skill
+
+These slash commands are separate from the MCP server prompts. The MCP server exposes `talent-assess`, `talent-coach`, and `talent-update` as prompts. In MCP usage, the conversation is powered by your selected client model (for example, your Claude Code model), while the server provides tools and profile storage.
 
 See `docs/integration-guide.md` for detailed platform-specific instructions.
 
@@ -289,7 +293,7 @@ This is an open-source personalised AI augmentation layer. Current status:
 - [x] Psychometric scoring instrument with validated Likert scales
 - [x] Tier 1: Universal system prompt for any LLM (4 files)
 - [x] Tier 2: Platform-native configs for ChatGPT, Gemini, Claude (3 files)
-- [x] Tier 3: MCP server with 14 tools, 5 resources, 3 prompts
+- [x] Tier 3: MCP server with 14 tools, 5 resources, 4 prompts
 - [x] Tier 4: Hosted web app with Google OAuth, LLM assessment, email check-ins
 - [x] Embedded chatbot-driven onboarding (any MCP client can run the assessment)
 - [x] Organisation-level dashboard (Streamlit)

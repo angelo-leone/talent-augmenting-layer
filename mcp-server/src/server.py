@@ -1147,6 +1147,17 @@ async def list_prompts() -> list[Prompt]:
                 )
             ]
         ),
+        Prompt(
+            name="talent-update",
+            description="Update an existing Talent-Augmenting Layer profile based on recent work.",
+            arguments=[
+                PromptArgument(
+                    name="name",
+                    description="User's name (must have an existing profile)",
+                    required=True
+                )
+            ]
+        ),
     ]
 
 
@@ -1157,6 +1168,7 @@ async def get_prompt(name: str, arguments: dict | None = None) -> GetPromptResul
         "proworker-system": "talent-system",
         "proworker-assess": "talent-assess",
         "proworker-coach": "talent-coach",
+        "proworker-update": "talent-update",
     }
     name = legacy_prompt_aliases.get(name, name)
 
@@ -1226,6 +1238,31 @@ async def get_prompt(name: str, arguments: dict | None = None) -> GetPromptResul
 
         return GetPromptResult(
             description=f"Coaching session for {user_name}" + (f" on {focus}" if focus else ""),
+            messages=[
+                PromptMessage(
+                    role="user",
+                    content=TextContent(type="text", text=full_prompt)
+                )
+            ]
+        )
+
+    elif name == "talent-update":
+        user_name = args.get("name", "")
+        update_path = repo_root / ".claude" / "commands" / "talent-update.md"
+        update_content = ""
+        if update_path.exists():
+            update_content = update_path.read_text(encoding="utf-8")
+
+        profile_raw = store.read_profile_raw(user_name) or f"No profile for {user_name}."
+
+        full_prompt = (
+            f"{update_content}\n\n---\n\n"
+            f"# User Profile\n\n{profile_raw}\n\n"
+            f"Use MCP tools as needed, especially `talent_get_progression`, then `talent_save_profile`."
+        )
+
+        return GetPromptResult(
+            description=f"Profile update session for {user_name}",
             messages=[
                 PromptMessage(
                     role="user",
