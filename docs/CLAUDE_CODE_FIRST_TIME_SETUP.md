@@ -1,11 +1,11 @@
-# Claude Code First-Time Setup Guide (Remote MCP)
+# Claude Code First-Time Setup Guide
 
 This guide is for a brand new user who wants to:
 - install Claude Code,
-- connect the remote Talent-Augmenting Layer MCP server,
+- connect the Talent-Augmenting Layer MCP server (local or remote),
 - and run /talent-assess, /talent-coach, and /talent-update.
 
-This setup uses your Claude Code model session for the conversation. You do not need to configure Gemini/OpenAI/Anthropic API keys for MCP prompts/tools.
+Your Claude Code model drives the conversation. The MCP server provides tools for scoring, profile management, interaction logging, and progression tracking. No Gemini/OpenAI/Anthropic API keys needed.
 
 ## 1. Prerequisites
 
@@ -38,28 +38,60 @@ claude --version
 
 If the command is not found, restart your terminal and run the PATH step again.
 
-## 3. (Optional) Add Remote MCP Server Config
+## 3. Connect the MCP Server
 
-The slash commands work locally without any MCP server. If you also want the remote MCP tools (for use outside this repo), add this config:
+### Option A: Local MCP server (recommended)
 
-Create or edit this file:
+Runs on your machine via stdio. No network dependency, no credential issues. Data stays in `profiles/`.
 
-~/.claude/settings.json
+1. Clone this repo and install the MCP server dependencies:
 
-Paste this JSON:
+```
+cd talent-augmenting-layer/mcp-server
+pip install -e .
+```
 
+2. Create or edit `~/.claude/settings.json`:
+
+```json
+{
+  "mcpServers": {
+    "talent-augmenting-layer": {
+      "command": "python",
+      "args": ["-m", "src.server"],
+      "cwd": "/path/to/talent-augmenting-layer/mcp-server",
+      "env": {
+        "TALENT_AUGMENTING_LAYER_PROFILES_DIR": "/path/to/talent-augmenting-layer/profiles"
+      }
+    }
+  }
+}
+```
+
+Replace `/path/to/talent-augmenting-layer` with your actual repo path.
+
+3. Restart Claude Code.
+
+### Option B: Remote MCP server
+
+Connects to the hosted server on Render. No local install needed, but requires the server to be running.
+
+Create or edit `~/.claude/settings.json`:
+
+```json
 {
   "mcpServers": {
     "talent-augmenting-layer": {
       "url": "https://proworker-hosted.onrender.com/mcp/sse",
-      "description": "Talent-Augmenting Layer -- Remote MCP Server"
+      "description": "Talent-Augmenting Layer — Remote MCP Server"
     }
   }
 }
+```
 
-Save the file, then fully restart Claude Code.
+Restart Claude Code.
 
-**Note**: If you get credential errors from the remote server, you can skip this step entirely. The local slash commands are fully self-contained.
+**Note**: If you get "Could not load credentials" errors from the remote server, switch to Option A (local). The remote server's hosted app dependency chain can trigger this — it's unrelated to MCP tool functionality.
 
 ## 4. Enable Slash Commands
 
@@ -79,15 +111,16 @@ Option B (global commands):
 
 ## 5. Verify Everything Works
 
-In Claude Code, check that the MCP server is available and then run:
+In Claude Code, check that the MCP server is connected, then run:
 - /talent-assess
 - /talent-coach
 - /talent-update
 
 Expected behavior:
-- The conversation is run by your selected Claude Code model.
-- TAL tools/prompts/resources come from the remote MCP server.
-- No hosted web-app LLM key is required for this MCP path.
+- The conversation is driven by your Claude Code model.
+- TAL tools (scoring, profile CRUD, interaction logging, progression tracking) come from the MCP server.
+- Profiles and interaction logs are stored in `profiles/` (local server) or on the hosted server (remote).
+- If the MCP server isn't connected, the commands fall back to reading/writing local files directly.
 
 ## 6. Recommended First Run
 
@@ -116,16 +149,20 @@ Expected behavior:
 
 ### Could not load credentials from any providers
 
-This error comes from the remote MCP server's Google/Anthropic/OpenAI dependency chain — not from anything you need locally.
+This error comes from the remote hosted server's Google/Anthropic dependency chain — not from the MCP server itself.
 
-**Fix**: The slash commands (`/talent-assess`, `/talent-coach`, `/talent-update`) now work entirely locally. Open this repository in Claude Code and run the commands. Your Claude Code model drives the conversation, reads/writes profile files directly from `profiles/`, and uses the scoring logic in `mcp-server/src/assessment.py` as a reference. No remote server, no API keys, no MCP connection required.
+**Fix**: Switch to the local MCP server (Step 3, Option A). The local server depends only on `mcp`, `pyyaml`, and `pymupdf` — no Google/Anthropic/OpenAI packages. All tools, logging, and progression tracking work identically.
 
 ## 8. What Lives Where
 
-- Conversation model: your Claude Code model selection
-- TAL tools/prompts/resources: remote MCP server
-- Profile data: TAL server storage
-- Slash command definitions: local command markdown files
+| Component | Location |
+|-----------|----------|
+| Conversation model | Your Claude Code model selection |
+| TAL tools/prompts/resources | MCP server (local or remote) |
+| Profile data (`.md`) | `profiles/` directory (local server) or hosted DB (remote) |
+| Interaction logs (`.jsonl`) | `profiles/log-{name}.jsonl` (local server) or hosted DB (remote) |
+| Slash command definitions | `.claude/commands/` in this repo or `~/.claude/commands/` |
+| Scoring & assessment logic | `mcp-server/src/assessment.py` (used by MCP server and as local fallback) |
 
 ## 9. Next Reference Docs
 
