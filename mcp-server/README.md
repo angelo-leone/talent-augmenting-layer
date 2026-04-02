@@ -85,6 +85,8 @@ The server is a standard MCP stdio server. Any client that supports MCP can conn
 - **Working directory**: The `mcp-server/` directory
 - **Environment**: Set `TALENT_AUGMENTING_LAYER_PROFILES_DIR` to your profiles directory
 
+Note: MCP configuration only exposes tools and prompts. Claude Code slash commands such as `/talent-assess`, `/talent-update`, and `/talent-coach` come from `.claude/commands/` in the workspace, or from files installed into `~/.claude/commands/`.
+
 ---
 
 ## What's Exposed
@@ -136,6 +138,9 @@ The server is a standard MCP stdio server. Any client that supports MCP can conn
 | `talent-system` | Full system prompt for any LLM — paste into system instructions |
 | `talent-assess` | Chatbot-driven onboarding assessment |
 | `talent-coach` | Start a coaching session (optional: specify focus domain) |
+| `talent-update` | Update an existing profile from recent interaction patterns |
+
+Important: in MCP usage, the conversation itself is run by the model in your MCP client (for example Claude Code). The TAL MCP server provides prompts, tools, and profile state. It does not require a hosted Gemini/OpenAI/Anthropic API key for this flow.
 
 ---
 

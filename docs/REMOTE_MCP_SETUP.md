@@ -63,6 +63,10 @@ Copy one of these configuration files based on your IDE:
 3. Save and close the file
 4. **Restart your IDE**
 
+Important: this config only connects the client to the MCP server. It does not install Claude Code slash commands.
+
+If you want the slash commands, open this repository in Claude Code so it can load `.claude/commands/`, or copy the files into your own `~/.claude/commands/` folder.
+
 #### Step 3: Verify Connection
 In your IDE, you should now see "talent-augmenting-layer" in your available MCP tools/resources.
 
@@ -133,6 +137,18 @@ Then use the local configuration files:
 - `talent-system` — Full system prompt with profile for any LLM
 - `talent-assess` — Interactive onboarding assessment
 - `talent-coach` — Coaching session prompt
+- `talent-update` — Profile update prompt
+
+Assessment/coaching/update conversations in this flow are run by the model in your MCP client (for example, your selected Claude Code model). The remote MCP server provides tools, prompts, resources, and storage. It does not require you to provide a hosted Gemini/OpenAI/Anthropic key for the MCP prompt workflow.
+
+### Claude Code Slash Commands
+
+These are separate from MCP prompts and come from `.claude/commands/`:
+- `/talent-assess`
+- `/talent-update`
+- `/talent-coach`
+
+They load only when Claude Code is running in this repository, or when the files are copied into your own `~/.claude/commands/` directory.
 
 ---
 
@@ -149,8 +165,23 @@ Then use the local configuration files:
 
 1. Check that your configuration file is valid JSON (copy from the file again)
 2. Ensure the IDE config file is in the correct location
-3. Restart your IDE completely
-4. Check IDE logs for errors
+3. Confirm you used your IDE's MCP settings file, not a generic `config.json`
+4. Restart your IDE completely
+5. Check IDE logs for errors
+
+### "Slash commands are missing"
+
+1. Verify you opened this repository in Claude Code, not just added the MCP server globally
+2. Confirm the `.claude/commands/` directory is present in the workspace
+3. If you want the commands everywhere, copy the `.claude/commands/*.md` files into `~/.claude/commands/`
+4. Remember: the remote MCP server exposes prompts and tools, but it does not install slash commands on its own
+
+### "Could not load credentials from any providers"
+
+1. In remote MCP mode, this usually means the client tried to use a hosted web-app assessment path instead of the MCP prompt/tool flow
+2. Use MCP prompts/tools (`talent-assess`, `talent-coach`, `talent-update`, `talent_assess_start`, etc.) from your Claude Code session
+3. The assessment conversation should be produced by your selected Claude Code model, not a hosted provider API
+4. Hosted provider keys are only needed for the separate web app assessment routes, not for MCP prompt-driven usage
 
 ### "Tool calls fail with 400 Bad Request"
 
