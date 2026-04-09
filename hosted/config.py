@@ -40,6 +40,11 @@ CHECKIN_INTERVAL_DAYS = int(os.getenv("CHECKIN_INTERVAL_DAYS", "14"))
 # Google Drive export (Vanguard Pilot) — uses OAuth 2.0 user credentials
 # so the app acts as you (bypasses IT restrictions on service accounts).
 # Run `python -m hosted.gdrive_oauth_setup` once to obtain the refresh token.
+# MCP OAuth 2.1 token lifetimes
+MCP_ACCESS_TOKEN_EXPIRY = int(os.getenv("MCP_ACCESS_TOKEN_EXPIRY", "3600"))  # 1 hour
+MCP_REFRESH_TOKEN_EXPIRY = int(os.getenv("MCP_REFRESH_TOKEN_EXPIRY", str(30 * 24 * 3600)))  # 30 days
+MCP_AUTH_CODE_EXPIRY = int(os.getenv("MCP_AUTH_CODE_EXPIRY", "600"))  # 10 minutes
+
 GDRIVE_OAUTH_CLIENT_ID = os.getenv("GDRIVE_OAUTH_CLIENT_ID", "")
 GDRIVE_OAUTH_CLIENT_SECRET = os.getenv("GDRIVE_OAUTH_CLIENT_SECRET", "")
 GDRIVE_OAUTH_REFRESH_TOKEN = os.getenv("GDRIVE_OAUTH_REFRESH_TOKEN", "")

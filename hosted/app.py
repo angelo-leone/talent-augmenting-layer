@@ -57,7 +57,7 @@ from hosted.scoring import (
 )
 from hosted.email_service import generate_checkin_questions
 from hosted.scheduler import setup_scheduler
-from hosted.mcp_sse_handler import mcp_app, get_session_manager
+from hosted.mcp_sse_handler import mcp_app, get_session_manager, RESOURCE_URL, ISSUER_URL
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -1055,4 +1055,19 @@ class _RewriteMcpSlash:
 
 # Add the rewrite BEFORE mounting, so it intercepts the bare /mcp path.
 app.add_middleware(_RewriteMcpSlash)
+
+# RFC 9728: Protected Resource Metadata at /.well-known/oauth-protected-resource/mcp
+# This must be on the ROOT app, not the sub-app, because RFC 9728 §3.1 says the
+# well-known URL is relative to the host, not the resource path.
+from mcp.server.auth.routes import create_protected_resource_routes  # noqa: E402
+from pydantic import AnyHttpUrl  # noqa: E402
+
+for _route in create_protected_resource_routes(
+    resource_url=RESOURCE_URL,
+    authorization_servers=[ISSUER_URL],
+    scopes_supported=["mcp:tools"],
+    resource_name="Talent-Augmenting Layer MCP",
+):
+    app.routes.insert(0, _route)
+
 app.mount("/mcp", mcp_app)
