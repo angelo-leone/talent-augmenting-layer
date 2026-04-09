@@ -3,7 +3,7 @@
     "talent-augmenting-layer": {
       "url": "https://proworker-hosted.onrender.com/mcp/sse",
       "description": "Talent-Augmenting Layer — Remote MCP Server (Hosted)",
-      "note": "This configuration connects to the remote-hosted MCP server. All users on this machine will share the same server instance."
+      "note": "Connects to the remote MCP server. All tools are pure Python — no API keys needed on the server. Your Claude Code model (with your own API key / subscription) drives the conversation."
     }
   }
 }
