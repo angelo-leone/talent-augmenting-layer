@@ -87,7 +87,7 @@
 1. Push code to GitHub
 2. Render app auto-deploys (already configured)
 3. Endpoints available at:
-   - `https://proworker-hosted.onrender.com/mcp/sse`
+   - `https://proworker-hosted.onrender.com/mcp`
    - `https://proworker-hosted.onrender.com/mcp/config`
 
 ### Post-Deployment Testing
@@ -134,7 +134,7 @@
 **Q: Can people access the MCP server from wherever they are?**
 
 **Before**: ❌ No — only local subprocess via stdio   
-**After**: ✅ Yes — remote access via HTTP/SSE at `https://proworker-hosted.onrender.com/mcp/sse`
+**After**: ✅ Yes — remote access via Streamable HTTP at `https://proworker-hosted.onrender.com/mcp`
 
 **Non-technical users can now**: Copy one JSON file → Paste into IDE → Restart → Access MCP from anywhere
 

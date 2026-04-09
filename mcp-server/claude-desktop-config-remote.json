@@ -1,9 +1,9 @@
 {
   "mcpServers": {
     "talent-augmenting-layer": {
-      "url": "https://proworker-hosted.onrender.com/mcp/sse",
-      "description": "Talent-Augmenting Layer — Remote MCP Server (Hosted)",
-      "note": "Connects to the remote MCP server. All tools are pure Python — no API keys needed on the server. Your Claude model drives the conversation."
+      "url": "https://proworker-hosted.onrender.com/mcp",
+      "description": "Talent-Augmenting Layer — Remote MCP Server",
+      "note": "All tools are pure Python — no API keys on the server. Your Claude model drives the conversation."
     }
   }
 }

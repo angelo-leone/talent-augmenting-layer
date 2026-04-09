@@ -9,7 +9,7 @@
 
 ### ⭐ NEW: Remote Access (Hosted)
 
-The MCP server is now available as a **remote service** at `https://proworker-hosted.onrender.com/mcp/sse`.
+The MCP server is now available as a **remote service** at `https://proworker-hosted.onrender.com/mcp`.
 
 **For non-technical users**: Just copy a config file. No installation needed.
 

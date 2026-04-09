@@ -1,6 +1,6 @@
 # Remote MCP Access — Setup Guide
 
-> **TL;DR**: Non-technical people can access the MCP server from anywhere by copying a single JSON config file. The MCP server is now available at `https://proworker-hosted.onrender.com/mcp/sse`.
+> **TL;DR**: Non-technical people can access the MCP server from anywhere by copying a single JSON config file. The MCP server is available at `https://proworker-hosted.onrender.com/mcp`.
 
 ## Overview
 
@@ -31,7 +31,7 @@ TAL profiles & tools
 IDE (Claude Code / Desktop / Cursor) anywhere
   ↓ your own LLM model (your API key / subscription)
   ↓ (HTTP/SSE)
-https://proworker-hosted.onrender.com/mcp/sse
+https://proworker-hosted.onrender.com/mcp
   ↓
 Hosted TAL MCP Server (on Render) — pure Python tools only
   ↓
@@ -102,7 +102,7 @@ Then use the local configuration files:
 {
   "mcpServers": {
     "talent-augmenting-layer": {
-      "url": "https://proworker-hosted.onrender.com/mcp/sse",
+      "url": "https://proworker-hosted.onrender.com/mcp",
       "description": "Talent-Augmenting Layer — Remote MCP Server"
     }
   }
@@ -157,7 +157,7 @@ They load only when Claude Code is running in this repository, or when the files
 
 ### "Connection refused" or "Server not responding"
 
-1. **Verify the URL is correct**: `https://proworker-hosted.onrender.com/mcp/sse`
+1. **Verify the URL is correct**: `https://proworker-hosted.onrender.com/mcp`
 2. **Check the hosted app is running**: Visit `https://proworker-hosted.onrender.com` in your browser
 3. **Check your internet connection**
 4. **Restart your IDE**
@@ -210,7 +210,8 @@ This is a legacy issue. The current remote MCP server does not make any LLM API 
 
 The hosted app exposes these endpoints for direct HTTP access:
 
-- `GET https://proworker-hosted.onrender.com/mcp/sse` — SSE connection endpoint
+- `POST/GET https://proworker-hosted.onrender.com/mcp` — Streamable HTTP endpoint (primary)
+- `GET https://proworker-hosted.onrender.com/mcp/sse` — SSE endpoint (legacy)
 - `GET https://proworker-hosted.onrender.com/mcp/config` — Configuration instructions
 
 Example usage (from a terminal or script):
@@ -224,7 +225,7 @@ Output:
 ```json
 {
   "type": "sse",
-  "url": "https://proworker-hosted.onrender.com/mcp/sse",
+  "url": "https://proworker-hosted.onrender.com/mcp",
   "description": "Talent-Augmenting Layer — Remote MCP Server",
   "supported_clients": [
     "Claude Desktop",
