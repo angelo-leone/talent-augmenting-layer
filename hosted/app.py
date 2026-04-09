@@ -94,6 +94,19 @@ app = FastAPI(
 
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 
+# CORS — required for Claude Desktop connectors and other MCP clients that
+# send an Origin header.  Without this, the CORS preflight (OPTIONS) fails
+# and the client reports "Couldn't reach the MCP server".
+from starlette.middleware.cors import CORSMiddleware  # noqa: E402
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Accept", "Authorization", "Mcp-Session-Id"],
+    expose_headers=["Mcp-Session-Id"],
+)
+
 # Static files and templates
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
