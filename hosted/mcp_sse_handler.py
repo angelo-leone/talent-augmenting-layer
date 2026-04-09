@@ -60,11 +60,19 @@ def get_tal_server():
 # Streamable HTTP transport (primary — Claude Desktop 2025+, Claude Code)
 # ---------------------------------------------------------------------------
 
-_session_manager = StreamableHTTPSessionManager(
-    app=get_tal_server(),
-    stateless=True,
-    json_response=True,
-)
+_session_manager = None
+
+
+def get_session_manager() -> StreamableHTTPSessionManager:
+    """Lazy-create the session manager (avoids import-time crashes)."""
+    global _session_manager
+    if _session_manager is None:
+        _session_manager = StreamableHTTPSessionManager(
+            app=get_tal_server(),
+            stateless=True,
+            json_response=True,
+        )
+    return _session_manager
 
 
 # ---------------------------------------------------------------------------
@@ -124,7 +132,18 @@ async def handle_mcp_config(request: Request):
 #   GET             /mcp/sse  → SSE stream (legacy)
 #   POST            /mcp/messages/ → SSE messages (legacy)
 #   GET             /mcp/config    → discovery
+#
+# NOTE: The session manager lifecycle is managed by the parent FastAPI app
+# (in app.py lifespan), NOT by this sub-app. This avoids issues with
+# sub-app lifespans not being invoked by certain FastAPI/Starlette versions.
 # ---------------------------------------------------------------------------
+
+
+async def _streamable_http_asgi(scope, receive, send):
+    """ASGI wrapper that lazily delegates to the session manager."""
+    mgr = get_session_manager()
+    await mgr.handle_request(scope, receive, send)
+
 
 mcp_app = Starlette(
     debug=False,
@@ -135,7 +154,6 @@ mcp_app = Starlette(
         # Discovery
         Route("/config", endpoint=handle_mcp_config),
         # Streamable HTTP — catch-all for GET/POST/DELETE on root
-        Mount("/", app=_session_manager.handle_request),
+        Mount("/", app=_streamable_http_asgi),
     ],
-    lifespan=lambda app: _session_manager.run(),
 )
