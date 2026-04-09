@@ -57,7 +57,7 @@ from hosted.scoring import (
 )
 from hosted.email_service import generate_checkin_questions
 from hosted.scheduler import setup_scheduler
-from hosted.mcp_sse_handler import mcp_app
+from hosted.mcp_sse_handler import mcp_app, get_session_manager
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -72,8 +72,11 @@ async def lifespan(app: FastAPI):
     await create_tables()
     sched = setup_scheduler()
     sched.start()
-    logger.info("Talent-Augmenting Layer hosted app started")
-    yield
+    # Start the MCP Streamable HTTP session manager so it can handle requests
+    session_mgr = get_session_manager()
+    async with session_mgr.run():
+        logger.info("Talent-Augmenting Layer hosted app started")
+        yield
     sched.shutdown(wait=False)
     logger.info("Talent-Augmenting Layer hosted app stopped")
 

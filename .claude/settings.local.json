@@ -30,7 +30,12 @@
       "Bash(cat \"C:\\\\Users\\\\angel\\\\OneDrive\\\\Documenti\\\\CAREER\\\\LEARNING & DEVELOPMENT\\\\talent-augmenting-layer\\\\README.md\")",
       "Bash(cat \"C:\\\\Users\\\\angel\\\\OneDrive\\\\Documenti\\\\CAREER\\\\LEARNING & DEVELOPMENT\\\\talent-augmenting-layer\\\\assessment\\\\literature-foundations.md\")",
       "Bash(cat \"C:\\\\Users\\\\angel\\\\OneDrive\\\\Documenti\\\\CAREER\\\\LEARNING & DEVELOPMENT\\\\talent-augmenting-layer\\\\CLAUDE.md\")",
-      "Bash(git branch -D claude/awesome-mcclintock)"
+      "Bash(git branch -D claude/awesome-mcclintock)",
+      "Bash(python3 -c \"from mcp.server.streamable_http_manager import StreamableHTTPSessionManager; print\\('import ok'\\)\")",
+      "Bash(pip3 list:*)",
+      "Bash(pip list:*)",
+      "WebFetch(domain:proworker-hosted.onrender.com)",
+      "WebFetch(domain:raw.githubusercontent.com)"
     ]
   }
 }
