@@ -35,7 +35,8 @@
       "Bash(pip3 list:*)",
       "Bash(pip list:*)",
       "WebFetch(domain:proworker-hosted.onrender.com)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(python3:*)"
     ]
   }
 }
