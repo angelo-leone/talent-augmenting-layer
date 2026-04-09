@@ -61,7 +61,7 @@ Get system prompt calibration for any LLM
 | Problem | Solution |
 |---------|----------|
 | "No MCP tools" | Restart IDE after pasting config |
-| "Connection error" | Check URL is `https://proworker-hosted.onrender.com/mcp/sse` |
+| "Connection error" | Check URL is `https://proworker-hosted.onrender.com/mcp` |
 | "Server not found" | Visit that URL in browser to verify it's running |
 | "Slow responses" | Remote is ~200-500ms slower than local; that's normal |
 
@@ -83,7 +83,7 @@ Just so you know what you're pasting:
 {
   "mcpServers": {
     "talent-augmenting-layer": {
-      "url": "https://proworker-hosted.onrender.com/mcp/sse",
+      "url": "https://proworker-hosted.onrender.com/mcp",
       "description": "Talent-Augmenting Layer — Remote MCP Server (Hosted)"
     }
   }

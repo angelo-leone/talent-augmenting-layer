@@ -82,7 +82,7 @@ Create or edit `~/.claude/settings.json`:
 {
   "mcpServers": {
     "talent-augmenting-layer": {
-      "url": "https://proworker-hosted.onrender.com/mcp/sse",
+      "url": "https://proworker-hosted.onrender.com/mcp",
       "description": "Talent-Augmenting Layer — Remote MCP Server"
     }
   }
@@ -139,7 +139,7 @@ Expected behavior:
 ### MCP tools do not appear
 
 - Validate JSON in ~/.claude/settings.json
-- Confirm URL is exactly https://proworker-hosted.onrender.com/mcp/sse
+- Confirm URL is exactly https://proworker-hosted.onrender.com/mcp
 - Restart Claude Code completely
 
 ### Slash commands do not appear

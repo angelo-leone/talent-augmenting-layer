@@ -1,19 +1,22 @@
 """
-MCP SSE Transport Handler for Remote Access
+MCP Remote Transport Handler
 
-Integrates the Talent-Augmenting Layer MCP server with FastAPI via SSE,
-allowing remote clients (Claude Code, Claude Desktop, Cursor, etc.) to connect.
+Exposes the Talent-Augmenting Layer MCP server over HTTP so remote clients
+(Claude Code, Claude Desktop, Cursor, etc.) can connect.
 
-Architecture:
-  1. Starlette sub-app mounted at /mcp on the FastAPI host
-  2. GET  /mcp/sse       — client opens persistent SSE stream here
-  3. POST /mcp/messages/  — client sends JSON-RPC messages here
-  4. The SseServerTransport from the MCP SDK bridges these two
+Two transports are provided:
 
-All MCP tools (scoring, classification, profile CRUD, logging) are pure Python —
-no LLM API keys are needed on the server side.  The client's own LLM model
-(Claude Code, Cursor, etc.) drives the conversation; the MCP server only
-provides tools, resources, and prompts.
+  **Streamable HTTP** (primary — what modern MCP clients use):
+    - All methods on a single endpoint: POST/GET/DELETE /mcp
+    - Stateless — no long-lived connections needed
+    - Claude Desktop (2025+), Claude Code, and Cursor use this
+
+  **SSE** (legacy — for older clients):
+    - GET  /mcp/sse        — persistent SSE stream
+    - POST /mcp/messages/   — JSON-RPC message delivery
+
+All MCP tools are pure Python — no LLM API keys on the server.
+The client's own model drives the conversation.
 """
 
 from __future__ import annotations
@@ -24,10 +27,11 @@ import sys
 from pathlib import Path
 
 from mcp.server.sse import SseServerTransport
+from mcp.server.streamable_http_manager import StreamableHTTPSessionManager
 from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import JSONResponse
-from starlette.routing import Route
+from starlette.routing import Mount, Route
 
 logger = logging.getLogger(__name__)
 
@@ -53,26 +57,25 @@ def get_tal_server():
 
 
 # ---------------------------------------------------------------------------
-# SSE transport — single instance shared across connections
-# The endpoint path must match the POST route below (relative to /mcp mount).
+# Streamable HTTP transport (primary — Claude Desktop 2025+, Claude Code)
+# ---------------------------------------------------------------------------
+
+_session_manager = StreamableHTTPSessionManager(
+    app=get_tal_server(),
+    stateless=True,
+    json_response=True,
+)
+
+
+# ---------------------------------------------------------------------------
+# SSE transport (legacy — older MCP clients)
 # ---------------------------------------------------------------------------
 
 _sse_transport = SseServerTransport("/messages/")
 
 
-# ---------------------------------------------------------------------------
-# Route handlers (ASGI-level — Starlette passes scope/receive/send)
-# ---------------------------------------------------------------------------
-
 async def handle_sse_get(request: Request):
-    """
-    GET /mcp/sse — client opens a persistent Server-Sent Events stream.
-
-    The MCP SDK's ``connect_sse`` context manager:
-      • sends an initial SSE event telling the client where to POST messages
-      • yields (read_stream, write_stream) used by the MCP server
-      • keeps the SSE connection open for streaming responses back
-    """
+    """GET /mcp/sse — legacy SSE stream for older MCP clients."""
     tal_server = get_tal_server()
     async with _sse_transport.connect_sse(
         request.scope, request.receive, request._send
@@ -85,53 +88,54 @@ async def handle_sse_get(request: Request):
 
 
 async def handle_messages_post(request: Request):
-    """
-    POST /mcp/messages/ — client sends JSON-RPC messages here.
-
-    The SSE transport correlates each POST to the right SSE stream
-    using a session_id query parameter added automatically by the client.
-    """
+    """POST /mcp/messages/ — legacy SSE message delivery."""
     await _sse_transport.handle_post_message(
         request.scope, request.receive, request._send
     )
 
 
-async def handle_mcp_config(request: Request):
-    """
-    GET /mcp/config — return client configuration JSON.
+# ---------------------------------------------------------------------------
+# Config endpoint
+# ---------------------------------------------------------------------------
 
-    Clients can fetch this to auto-configure their MCP settings.
-    """
+async def handle_mcp_config(request: Request):
+    """GET /mcp/config — return client configuration JSON."""
     app_url = os.environ.get("APP_URL", "https://proworker-hosted.onrender.com")
     return JSONResponse(
         {
-            "type": "sse",
-            "url": f"{app_url}/mcp/sse",
+            "type": "streamable-http",
+            "url": f"{app_url}/mcp",
+            "legacy_sse_url": f"{app_url}/mcp/sse",
             "description": "Talent-Augmenting Layer — Remote MCP Server",
             "note": (
                 "All tools are pure Python — no API keys needed on the server. "
                 "Your Claude Code / Cursor model drives the conversation."
             ),
             "documentation": "https://github.com/angelo-leone/talent-augmenting-layer#remote-mcp-configuration",
-            "supported_clients": [
-                "Claude Code",
-                "Claude Desktop",
-                "Cursor",
-                "Any MCP-compatible IDE",
-            ],
         }
     )
 
 
 # ---------------------------------------------------------------------------
-# Starlette sub-app — mount this on the FastAPI host at /mcp
+# Starlette sub-app — mount on the FastAPI host at /mcp
+#
+# Route priority:
+#   POST/GET/DELETE /mcp      → Streamable HTTP (primary)
+#   GET             /mcp/sse  → SSE stream (legacy)
+#   POST            /mcp/messages/ → SSE messages (legacy)
+#   GET             /mcp/config    → discovery
 # ---------------------------------------------------------------------------
 
 mcp_app = Starlette(
     debug=False,
     routes=[
+        # Legacy SSE (must be before the catch-all mount)
         Route("/sse", endpoint=handle_sse_get),
         Route("/messages/", endpoint=handle_messages_post, methods=["POST"]),
+        # Discovery
         Route("/config", endpoint=handle_mcp_config),
+        # Streamable HTTP — catch-all for GET/POST/DELETE on root
+        Mount("/", app=_session_manager.handle_request),
     ],
+    lifespan=lambda app: _session_manager.run(),
 )

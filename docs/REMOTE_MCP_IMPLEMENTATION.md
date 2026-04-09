@@ -4,7 +4,7 @@
 The MCP server previously only worked with local clients via stdio transport, requiring each user to install and run the server locally. Non-technical people couldn't access it remotely.
 
 ## Solution
-Added HTTP/SSE (Server-Sent Events) transport layer to the hosted FastAPI app, allowing remote access to the MCP server from anywhere via `https://proworker-hosted.onrender.com/mcp/sse`.
+Added Streamable HTTP transport layer to the hosted FastAPI app, allowing remote access to the MCP server from anywhere via `https://proworker-hosted.onrender.com/mcp`. Legacy SSE is also available at `/mcp/sse`.
 
 ## Architecture Changes
 
@@ -15,7 +15,7 @@ IDE → (stdio) → Local MCP Server (subprocess)
 
 ### After (with both options now available)
 ```
-IDE → (http/sse) → https://proworker-hosted.onrender.com/mcp/sse → Hosted MCP Server
+IDE → (streamable-http) → https://proworker-hosted.onrender.com/mcp → Hosted MCP Server
 OR
 IDE → (stdio) → Local MCP Server (subprocess) [still supported]
 ```
@@ -62,7 +62,7 @@ IDE → (stdio) → Local MCP Server (subprocess) [still supported]
 ## Endpoints Exposed
 
 ### SSE Connection (for MCP clients)
-- **GET** `https://proworker-hosted.onrender.com/mcp/sse`
+- **POST/GET** `https://proworker-hosted.onrender.com/mcp`
 - Establishes Server-Sent Events stream for bidirectional MCP communication
 - Used by Claude Desktop, Cursor, VSCode, etc.
 
@@ -76,7 +76,7 @@ IDE → (stdio) → Local MCP Server (subprocess) [still supported]
 {
   "mcpServers": {
     "talent-augmenting-layer": {
-      "url": "https://proworker-hosted.onrender.com/mcp/sse"
+      "url": "https://proworker-hosted.onrender.com/mcp"
     }
   }
 }
