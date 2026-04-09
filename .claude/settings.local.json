@@ -37,7 +37,14 @@
       "WebFetch(domain:proworker-hosted.onrender.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(python3:*)",
-      "Bash(npx @anthropic-ai/mcpb:*)"
+      "Bash(npx @anthropic-ai/mcpb:*)",
+      "Bash(brew install:*)",
+      "Bash(/tmp/mcp-publisher publish:*)",
+      "Bash(/Users/angelo.leone/Documents/talent-augmenting-layer/.venv/bin/python:*)",
+      "Bash(/Users/angelo.leone/Documents/talent-augmenting-layer/.venv/bin/pip show:*)",
+      "Bash(pip3 install:*)",
+      "Bash(pip3 download:*)",
+      "mcp__Word__By_Anthropic___open_document"
     ]
   }
 }

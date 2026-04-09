@@ -280,6 +280,80 @@ async def compute_passive_ratio(db: AsyncSession, user_id: int, days: int | None
 
 
 # ---------------------------------------------------------------------------
+# MCP OAuth 2.1 models
+# ---------------------------------------------------------------------------
+
+class OAuthClient(Base):
+    """Dynamically registered OAuth 2.1 clients (MCP clients like Claude Code)."""
+    __tablename__ = "oauth_clients"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    client_id = Column(String(255), unique=True, nullable=False, index=True)
+    client_secret = Column(String(255), nullable=True)
+    client_id_issued_at = Column(Integer, nullable=True)
+    client_secret_expires_at = Column(Integer, nullable=True)
+    redirect_uris_json = Column(Text, nullable=False, default="[]")
+    token_endpoint_auth_method = Column(String(64), nullable=True)
+    grant_types_json = Column(Text, nullable=False, default='["authorization_code","refresh_token"]')
+    response_types_json = Column(Text, nullable=False, default='["code"]')
+    scope = Column(String(1024), nullable=True)
+    client_name = Column(String(255), nullable=True)
+    client_uri = Column(String(1024), nullable=True)
+    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+
+
+class OAuthPendingAuth(Base):
+    """Temporary state for in-flight OAuth authorization (survives Google redirect)."""
+    __tablename__ = "oauth_pending_auth"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    state_key = Column(String(128), unique=True, nullable=False, index=True)
+    client_id = Column(String(255), nullable=False)
+    code_challenge = Column(String(255), nullable=False)
+    redirect_uri = Column(String(2048), nullable=False)
+    redirect_uri_provided_explicitly = Column(Boolean, nullable=False, default=True)
+    scopes_json = Column(Text, nullable=True)
+    state = Column(String(1024), nullable=True)  # MCP client's original state param
+    resource = Column(String(2048), nullable=True)
+    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+    expires_at = Column(DateTime, nullable=False)
+
+
+class OAuthAuthorizationCode(Base):
+    """Short-lived authorization codes issued after Google login."""
+    __tablename__ = "oauth_authorization_codes"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    code = Column(String(128), unique=True, nullable=False, index=True)
+    client_id = Column(String(255), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    code_challenge = Column(String(255), nullable=False)
+    redirect_uri = Column(String(2048), nullable=False)
+    redirect_uri_provided_explicitly = Column(Boolean, nullable=False, default=True)
+    scopes_json = Column(Text, nullable=True)
+    resource = Column(String(2048), nullable=True)
+    expires_at = Column(Float, nullable=False)  # Unix timestamp
+    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+
+
+class OAuthToken(Base):
+    """Issued access/refresh tokens for MCP OAuth sessions."""
+    __tablename__ = "oauth_tokens"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    access_token_jti = Column(String(128), unique=True, nullable=False, index=True)
+    refresh_token = Column(String(128), unique=True, nullable=True, index=True)
+    client_id = Column(String(255), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    scopes_json = Column(Text, nullable=False, default="[]")
+    resource = Column(String(2048), nullable=True)
+    access_token_expires_at = Column(Integer, nullable=False)
+    refresh_token_expires_at = Column(Integer, nullable=True)
+    revoked = Column(Boolean, nullable=False, default=False)
+    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+
+
+# ---------------------------------------------------------------------------
 # Engine & session factory
 # ---------------------------------------------------------------------------
 

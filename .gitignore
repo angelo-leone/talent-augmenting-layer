@@ -7,3 +7,4 @@ dist/
 build/
 .env
 hosted/secret.json
+.mcpregistry_github_token
