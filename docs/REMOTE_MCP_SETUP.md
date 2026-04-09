@@ -4,13 +4,14 @@
 
 ## Overview
 
-The Talent-Augmenting Layer MCP server is now accessible remotely via Server-Sent Events (SSE) over HTTP. This means:
+The Talent-Augmenting Layer MCP server is accessible remotely via Server-Sent Events (SSE) over HTTP. This means:
 
 ✅ **No local installation needed** — just a configuration update   
 ✅ **Works from anywhere** — home, office, coffee shop, etc.   
-✅ **Works with any IDE** — Claude Desktop, Cursor, VSCode, etc.   
+✅ **Works with any IDE** — Claude Code, Claude Desktop, Cursor, VSCode, etc.   
 ✅ **No coding required** — copy-paste configuration  
-✅ **Instant access** — profiles, assessments, coaching, system prompts all accessible
+✅ **No server-side API keys** — all MCP tools are pure Python  
+✅ **Your own model** — you use your own Claude Code API key / subscription
 
 ---
 
@@ -27,13 +28,14 @@ TAL profiles & tools
 
 ### After (Remote + Local)
 ```
-IDE (Claude Desktop/Cursor) anywhere
+IDE (Claude Code / Desktop / Cursor) anywhere
+  ↓ your own LLM model (your API key / subscription)
   ↓ (HTTP/SSE)
 https://proworker-hosted.onrender.com/mcp/sse
   ↓
-Hosted TAL MCP Server (on Render)
+Hosted TAL MCP Server (on Render) — pure Python tools only
   ↓
-Database + TAL profiles & tools (shared across all users)
+Scoring, classification, logging (no LLM API keys on server)
 ```
 
 ---
@@ -101,14 +103,13 @@ Then use the local configuration files:
   "mcpServers": {
     "talent-augmenting-layer": {
       "url": "https://proworker-hosted.onrender.com/mcp/sse",
-      "description": "Talent-Augmenting Layer — Remote MCP Server (Hosted)",
-      "note": "This configuration connects to the remote-hosted MCP server. All users on this machine will share the same server instance."
+      "description": "Talent-Augmenting Layer — Remote MCP Server"
     }
   }
 }
 ```
 
-**Key difference from local config**: Uses `"url"` instead of `"command"` and `"args"`.
+**Key difference from local config**: Uses `"url"` instead of `"command"` and `"args"`. No API keys are passed to the server — your Claude Code model uses your own key/subscription.
 
 ---
 
@@ -139,7 +140,7 @@ Then use the local configuration files:
 - `talent-coach` — Coaching session prompt
 - `talent-update` — Profile update prompt
 
-Assessment/coaching/update conversations in this flow are run by the model in your MCP client (for example, your selected Claude Code model). The remote MCP server provides tools, prompts, resources, and storage. It does not require you to provide a hosted Gemini/OpenAI/Anthropic key for the MCP prompt workflow.
+Assessment/coaching/update conversations are driven by **your own** Claude Code model (using your API key or subscription). The remote MCP server provides tools, prompts, and resources — all pure Python with zero external LLM API calls. No Gemini/OpenAI/Anthropic keys are needed on the server.
 
 ### Claude Code Slash Commands
 
@@ -176,12 +177,20 @@ They load only when Claude Code is running in this repository, or when the files
 3. If you want the commands everywhere, copy the `.claude/commands/*.md` files into `~/.claude/commands/`
 4. Remember: the remote MCP server exposes prompts and tools, but it does not install slash commands on its own
 
+### 403 "Invalid API Key format" or API key errors
+
+This error comes from your Claude Code client, not the MCP server. It means your Claude Code model can't authenticate with its LLM provider.
+
+1. If using Anthropic API: your key must start with `sk-ant-`
+2. If using Claude Pro/Max subscription: no API key needed, just sign in
+3. The remote MCP server itself requires zero API keys — all tools are pure Python
+
 ### "Could not load credentials from any providers"
 
-1. In remote MCP mode, this usually means the client tried to use a hosted web-app assessment path instead of the MCP prompt/tool flow
-2. Use MCP prompts/tools (`talent-assess`, `talent-coach`, `talent-update`, `talent_assess_start`, etc.) from your Claude Code session
-3. The assessment conversation should be produced by your selected Claude Code model, not a hosted provider API
-4. Hosted provider keys are only needed for the separate web app assessment routes, not for MCP prompt-driven usage
+This is a legacy issue. The current remote MCP server does not make any LLM API calls.
+
+1. Update your MCP config to use the current endpoint (see config above)
+2. Restart your IDE
 
 ### "Tool calls fail with 400 Bad Request"
 

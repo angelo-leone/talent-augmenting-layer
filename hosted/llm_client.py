@@ -28,16 +28,31 @@ class LLMClient:
         self.provider = (provider or LLM_PROVIDER).lower()
 
         if self.provider == "anthropic":
+            if not ANTHROPIC_API_KEY:
+                raise ValueError(
+                    "ANTHROPIC_API_KEY env var is empty. "
+                    "Set it in your environment or switch LLM_PROVIDER."
+                )
             import anthropic
 
             self._anthropic = anthropic.AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
             self._model = LLM_MODEL
         elif self.provider == "openai":
+            if not OPENAI_API_KEY:
+                raise ValueError(
+                    "OPENAI_API_KEY env var is empty. "
+                    "Set it in your environment or switch LLM_PROVIDER."
+                )
             import openai
 
             self._openai = openai.AsyncOpenAI(api_key=OPENAI_API_KEY)
             self._model = LLM_MODEL if LLM_MODEL != "claude-sonnet-4-20250514" else "gpt-4o"
         elif self.provider == "gemini":
+            if not GOOGLE_API_KEY:
+                raise ValueError(
+                    "GOOGLE_API_KEY env var is empty. "
+                    "Set it in your environment or switch LLM_PROVIDER."
+                )
             import google.generativeai as genai
 
             genai.configure(api_key=GOOGLE_API_KEY)
