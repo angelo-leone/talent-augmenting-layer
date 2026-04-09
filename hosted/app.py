@@ -1019,8 +1019,27 @@ async def api_submit_checkin(request: Request, token: str):
 
 
 # ───────────────────────────────────────────────────────────────────────────
-# MCP Server via SSE (Remote Access)
+# MCP Server (Remote Access)
 # ───────────────────────────────────────────────────────────────────────────
-# Mounted as a Starlette sub-app so the SSE transport gets raw ASGI access.
-# Routes:  GET /mcp/sse  |  POST /mcp/messages/  |  GET /mcp/config
+# Starlette's Mount("/mcp") redirects /mcp → /mcp/ with a 307 before the
+# sub-app sees the request.  Many MCP clients refuse to follow POST redirects,
+# causing "Couldn't reach the MCP server" errors.  This middleware rewrites
+# the path so the sub-app handles both /mcp and /mcp/ identically.
+from starlette.types import ASGIApp, Receive, Scope, Send  # noqa: E402
+
+
+class _RewriteMcpSlash:
+    """Rewrite ``/mcp`` → ``/mcp/`` at the ASGI level to avoid 307 redirects."""
+
+    def __init__(self, app: ASGIApp):
+        self.app = app
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send):
+        if scope["type"] == "http" and scope["path"] == "/mcp":
+            scope = dict(scope, path="/mcp/")
+        await self.app(scope, receive, send)
+
+
+# Add the rewrite BEFORE mounting, so it intercepts the bare /mcp path.
+app.add_middleware(_RewriteMcpSlash)
 app.mount("/mcp", mcp_app)

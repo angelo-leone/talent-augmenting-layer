@@ -145,15 +145,27 @@ async def _streamable_http_asgi(scope, receive, send):
     await mgr.handle_request(scope, receive, send)
 
 
+async def handle_streamable_http(request: Request):
+    """GET/POST/DELETE /mcp — Streamable HTTP for modern MCP clients.
+
+    Wraps the session-manager as a plain Starlette endpoint so it can be
+    reached at *both* ``/mcp`` (no trailing slash) and ``/mcp/`` without a
+    307 redirect.  Many MCP clients refuse to follow POST redirects, which
+    causes "Couldn't reach the MCP server" errors.
+    """
+    mgr = get_session_manager()
+    await mgr.handle_request(request.scope, request.receive, request._send)
+
+
 mcp_app = Starlette(
     debug=False,
     routes=[
-        # Legacy SSE (must be before the catch-all mount)
+        # Streamable HTTP — explicit root route (no redirect needed)
+        Route("/", endpoint=handle_streamable_http, methods=["GET", "POST", "DELETE"]),
+        # Legacy SSE
         Route("/sse", endpoint=handle_sse_get),
         Route("/messages/", endpoint=handle_messages_post, methods=["POST"]),
         # Discovery
         Route("/config", endpoint=handle_mcp_config),
-        # Streamable HTTP — catch-all for GET/POST/DELETE on root
-        Mount("/", app=_streamable_http_asgi),
     ],
 )
