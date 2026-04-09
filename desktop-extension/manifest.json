@@ -1,0 +1,90 @@
+{
+  "manifest_version": "0.4",
+  "name": "talent-augmenting-layer",
+  "display_name": "Talent-Augmenting Layer",
+  "version": "0.3.0",
+  "description": "Personalised AI augmentation that makes you better at your work, not dependent on AI. Creates skill profiles, calibrates AI friction levels, tracks skill progression, and prevents de-skilling.",
+  "long_description": "The Talent-Augmenting Layer (TAL) is a research-backed system that personalises how AI interacts with you based on your expertise levels, goals, and growth areas.\n\n**What it does:**\n- Runs a conversational onboarding assessment to build your personalised profile\n- Classifies every task as automate, augment, coach, protect, or hands-off\n- Calibrates AI friction — adds challenge where you're learning, removes it where you're expert\n- Tracks skill progression over time and warns about potential de-skilling\n- Provides coaching sessions tailored to your growth domains\n\n**Based on research by** Buçinca (Harvard), Acemoglu (MIT), and Mollick (Wharton) on AI-human complementarity, cognitive forcing, and contrastive explanations.\n\n**All data stays local** — profiles are stored as markdown files on your machine. No cloud, no API keys needed.",
+  "author": {
+    "name": "Angelo Leone",
+    "url": "https://github.com/angelo-leone"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/angelo-leone/talent-augmenting-layer"
+  },
+  "homepage": "https://github.com/angelo-leone/talent-augmenting-layer",
+  "documentation": "https://github.com/angelo-leone/talent-augmenting-layer#readme",
+  "support": "https://github.com/angelo-leone/talent-augmenting-layer/issues",
+  "license": "CC-BY-NC-SA-4.0",
+  "privacy_policies": [
+    "https://github.com/angelo-leone/talent-augmenting-layer/blob/main/PRIVACY_POLICY.md"
+  ],
+  "server": {
+    "type": "uv",
+    "entry_point": "src/server.py",
+    "mcp_config": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--directory", "${__dirname}",
+        "src/server.py"
+      ],
+      "env": {
+        "TALENT_AUGMENTING_LAYER_PROFILES_DIR": "${user_config.profiles_directory}"
+      }
+    }
+  },
+  "tools": [
+    { "name": "talent_get_profile", "description": "Load a user's full profile with expertise map, calibration, and task classification" },
+    { "name": "talent_get_calibration", "description": "Get compact calibration JSON for injecting into any LLM system prompt" },
+    { "name": "talent_classify_task", "description": "Classify a task as automate, augment, coach, protect, or hands-off" },
+    { "name": "talent_log_interaction", "description": "Log an interaction for skill progression tracking" },
+    { "name": "talent_get_progression", "description": "Get skill progression analysis with growth/atrophy signals" },
+    { "name": "talent_list_profiles", "description": "List all available profiles" },
+    { "name": "talent_status", "description": "Comprehensive status report with calibration, progression, and recommendations" },
+    { "name": "talent_org_summary", "description": "Organisation-level summary across all profiles" },
+    { "name": "talent_delete_profile", "description": "Delete a user's profile and interaction logs" },
+    { "name": "talent_save_profile", "description": "Save or update a user's profile" },
+    { "name": "talent_assess_start", "description": "Start the onboarding assessment (returns protocol for the LLM)" },
+    { "name": "talent_assess_score", "description": "Compute TALRI scores from raw assessment answers" },
+    { "name": "talent_assess_create_profile", "description": "Generate and save a profile from assessment data" },
+    { "name": "talent_suggest_domains", "description": "Suggest expertise domains based on role and industry" },
+    { "name": "talent_parse_telemetry", "description": "Parse telemetry blocks from LLM responses and log them" }
+  ],
+  "tools_generated": false,
+  "prompts": [
+    { "name": "talent-system", "description": "Full TAL system prompt with user profile injected", "text": "Load the Talent-Augmenting Layer system prompt for {name}, including their personalised profile, calibration settings, and interaction guidelines." },
+    { "name": "talent-assess", "description": "Interactive onboarding assessment conversation", "text": "Run the Talent-Augmenting Layer onboarding assessment for {name}. Ask questions conversationally, collect answers, compute scores, and generate a personalised profile." },
+    { "name": "talent-coach", "description": "Targeted coaching session on a specific skill", "text": "Start a coaching session for {name} focused on {domain}. Use contrastive explanations and progressive challenge based on their current skill level." },
+    { "name": "talent-update", "description": "Update profile based on recent interactions", "text": "Review recent interactions for {name} and update their Talent-Augmenting Layer profile with any observed skill changes, new goals, or adjusted calibration." }
+  ],
+  "prompts_generated": false,
+  "keywords": [
+    "AI augmentation",
+    "skill development",
+    "cognitive forcing",
+    "de-skilling prevention",
+    "personalised learning",
+    "talent management",
+    "workforce development",
+    "coaching",
+    "assessment",
+    "MCP"
+  ],
+  "user_config": {
+    "profiles_directory": {
+      "type": "directory",
+      "title": "Profiles Directory",
+      "description": "Where to store your TAL profile and interaction logs. Defaults to ~/.talent-augmenting-layer/profiles",
+      "default": "${HOME}/.talent-augmenting-layer/profiles",
+      "required": false
+    }
+  },
+  "compatibility": {
+    "platforms": ["darwin", "win32", "linux"],
+    "runtimes": {
+      "python": ">=3.10"
+    }
+  }
+}
