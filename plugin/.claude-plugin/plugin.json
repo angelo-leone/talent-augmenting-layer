@@ -1,0 +1,22 @@
+{
+  "name": "talent-augmenting-layer",
+  "version": "1.0.0",
+  "description": "Personalised AI augmentation — makes you better at your work, not dependent on AI. Assess your expertise, get coaching in growth areas, and protect skills from atrophy.",
+  "author": {
+    "name": "Angelo Leone",
+    "url": "https://github.com/angelo-leone"
+  },
+  "homepage": "https://github.com/angelo-leone/talent-augmenting-layer",
+  "repository": "https://github.com/angelo-leone/talent-augmenting-layer",
+  "license": "MIT",
+  "keywords": [
+    "talent",
+    "augmentation",
+    "coaching",
+    "skills",
+    "assessment",
+    "de-skilling",
+    "professional-development",
+    "ai-augmentation"
+  ]
+}

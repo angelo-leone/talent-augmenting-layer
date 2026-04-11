@@ -1,0 +1,28 @@
+{
+  "name": "talent-augmenting-layer",
+  "owner": {
+    "name": "Angelo Leone",
+    "email": "angelo@talent-layer.dev"
+  },
+  "metadata": {
+    "description": "Personalised AI augmentation — makes you better at your work, not dependent on AI",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "talent-augmenting-layer",
+      "source": "./plugin",
+      "description": "Assess your expertise, get personalised coaching, and protect skills from AI-driven atrophy. Connects to the TAL MCP server for scoring, progression tracking, and profile management.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Angelo Leone"
+      },
+      "homepage": "https://github.com/angelo-leone/talent-augmenting-layer",
+      "repository": "https://github.com/angelo-leone/talent-augmenting-layer",
+      "license": "MIT",
+      "keywords": ["talent", "augmentation", "coaching", "skills", "assessment"],
+      "category": "productivity",
+      "tags": ["professional-development", "ai-augmentation", "de-skilling-prevention"]
+    }
+  ]
+}
