@@ -1,0 +1,6 @@
+{
+  "talent-augmenting-layer": {
+    "type": "http",
+    "url": "https://proworker-hosted.onrender.com/mcp"
+  }
+}
