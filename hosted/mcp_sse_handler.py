@@ -41,15 +41,9 @@ from starlette.responses import JSONResponse, RedirectResponse
 from starlette.routing import Route
 
 from mcp.server.auth.middleware.auth_context import AuthContextMiddleware
-from mcp.server.auth.middleware.bearer_auth import (
-    BearerAuthBackend,
-    RequireAuthMiddleware,
-)
+from mcp.server.auth.middleware.bearer_auth import BearerAuthBackend
 from mcp.server.auth.provider import ProviderTokenVerifier
-from mcp.server.auth.routes import (
-    build_resource_metadata_url,
-    create_auth_routes,
-)
+from mcp.server.auth.routes import create_auth_routes
 from mcp.server.auth.settings import ClientRegistrationOptions, RevocationOptions
 from mcp.server.sse import SseServerTransport
 from mcp.server.streamable_http_manager import StreamableHTTPSessionManager
@@ -293,8 +287,6 @@ def _build_mcp_app() -> Starlette:
     provider = get_oauth_provider()
     token_verifier = ProviderTokenVerifier(provider)
 
-    resource_metadata_url = build_resource_metadata_url(RESOURCE_URL)
-
     # SDK-generated auth routes (metadata, authorize, token, register, revoke)
     auth_routes = create_auth_routes(
         provider=provider,
@@ -307,17 +299,14 @@ def _build_mcp_app() -> Starlette:
         revocation_options=RevocationOptions(enabled=True),
     )
 
-    # Protected MCP transport endpoint
-    protected_transport = RequireAuthMiddleware(
-        handle_streamable_http,
-        required_scopes=["mcp:tools"],
-        resource_metadata_url=resource_metadata_url,
-    )
-
+    # Streamable HTTP — open by default, optionally authenticated.
+    # If a Bearer token is present, BearerAuthBackend validates it and sets
+    # the user in auth_context_var (available to MCP tools).  If no token,
+    # the request proceeds anonymously.
     routes = [
         *auth_routes,
-        # Protected Streamable HTTP
-        Route("/", endpoint=protected_transport, methods=["GET", "POST", "DELETE"]),
+        # Streamable HTTP (open, with optional auth via middleware)
+        Route("/", endpoint=handle_streamable_http, methods=["GET", "POST", "DELETE"]),
         # Google OAuth flow for MCP
         Route("/oauth/google/start", endpoint=handle_google_oauth_start),
         Route("/oauth/google/callback", endpoint=handle_google_oauth_callback),
