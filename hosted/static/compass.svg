@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" width="480" height="480" role="img" aria-labelledby="compassTitle compassDesc" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
+  <title id="compassTitle">TAL 5-mode compass</title>
+  <desc id="compassDesc">A radial diagram of the five Talent-Augmenting Layer interaction modes arranged clockwise: Automate (top right, low friction), Augment (right, low-to-medium friction), Coach (bottom, medium-to-high friction), Protect (left, high friction), and Hands-off (top left, AI does not participate).</desc>
+
+  <!--
+    Centre (240, 240). Outer radius 180, inner radius 80.
+    Five 72 degree sectors starting from top (-90 degrees), clockwise.
+    Sector angles (deg):  -90 -> -18 Automate,  -18 -> 54 Augment,  54 -> 126 Coach,  126 -> 198 Protect,  198 -> 270 Hands-off.
+  -->
+
+  <!-- Sector backgrounds -->
+  <g stroke="#ffffff" stroke-width="2">
+    <!-- Automate  (-90 to -18) -->
+    <path d="M 240 60 A 180 180 0 0 1 411.18 184.37 L 316.21 215.23 A 80 80 0 0 0 240 160 Z" fill="#2ecc71"/>
+    <!-- Augment   (-18 to  54) -->
+    <path d="M 411.18 184.37 A 180 180 0 0 1 345.79 385.64 L 285.75 304.62 A 80 80 0 0 0 316.21 215.23 Z" fill="#e94560"/>
+    <!-- Coach     ( 54 to 126) -->
+    <path d="M 345.79 385.64 A 180 180 0 0 1 134.21 385.64 L 194.25 304.62 A 80 80 0 0 0 285.75 304.62 Z" fill="#f39c12"/>
+    <!-- Protect   (126 to 198) -->
+    <path d="M 134.21 385.64 A 180 180 0 0 1 68.82 184.37 L 163.79 215.23 A 80 80 0 0 0 194.25 304.62 Z" fill="#e74c3c"/>
+    <!-- Hands-off (198 to 270) -->
+    <path d="M 68.82 184.37 A 180 180 0 0 1 240 60 L 240 160 A 80 80 0 0 0 163.79 215.23 Z" fill="#533483"/>
+  </g>
+
+  <!-- Centre hub -->
+  <circle cx="240" cy="240" r="80" fill="#1a1a2e" stroke="#ffffff" stroke-width="2"/>
+  <text x="240" y="232" text-anchor="middle" fill="#ffffff" font-size="22" font-weight="700">TAL</text>
+  <text x="240" y="256" text-anchor="middle" fill="#cccccc" font-size="12">5 modes</text>
+
+  <!-- Sector labels (mid-angle of each sector, at radius ~128) -->
+  <!-- Automate mid at -54 deg -> (240 + 128*cos(-54), 240 + 128*sin(-54)) = (315.2, 136.5) -->
+  <g text-anchor="middle" fill="#ffffff" font-weight="700">
+    <text x="315" y="132" font-size="16">Automate</text>
+    <text x="315" y="150" font-size="11" font-weight="400">Execute + annotate</text>
+
+    <!-- Augment mid at 18 deg -> (240 + 128*cos(18), 240 + 128*sin(18)) = (361.7, 279.5) -->
+    <text x="362" y="275" font-size="16">Augment</text>
+    <text x="362" y="293" font-size="11" font-weight="400">Accelerate + challenge</text>
+
+    <!-- Coach mid at 90 deg -> (240, 368) -->
+    <text x="240" y="380" font-size="16">Coach</text>
+    <text x="240" y="398" font-size="11" font-weight="400">Scaffold + question</text>
+
+    <!-- Protect mid at 162 deg -> (240 + 128*cos(162), 240 + 128*sin(162)) = (118.3, 279.5) -->
+    <text x="118" y="275" font-size="16">Protect</text>
+    <text x="118" y="293" font-size="11" font-weight="400">Force cognition</text>
+
+    <!-- Hands-off mid at 234 deg -> (240 + 128*cos(234), 240 + 128*sin(234)) = (164.8, 136.5) -->
+    <text x="165" y="132" font-size="16">Hands-off</text>
+    <text x="165" y="150" font-size="11" font-weight="400">AI does not participate</text>
+  </g>
+
+  <!-- Friction bar (outer ring cue) -->
+  <g fill="#ffffff" font-size="10">
+    <text x="240" y="48" text-anchor="middle">low friction</text>
+    <text x="240" y="444" text-anchor="middle">high friction</text>
+  </g>
+</svg>

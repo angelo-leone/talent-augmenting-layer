@@ -76,11 +76,19 @@ def decode_session_token(token: str) -> Optional[dict]:
 # ---------------------------------------------------------------------------
 
 def get_current_user(request: Request) -> Optional[dict]:
-    """Extract the current user from the session cookie.
+    """Extract the current user from either the session cookie or a Bearer token.
+
+    CLI tools (/talent-sync) present the same JWT via ``Authorization: Bearer <jwt>``
+    so they don't need their own auth path. Browsers send it as a cookie.
 
     Returns a dict with ``id``, ``email``, ``name`` or None if not authenticated.
     """
-    token = request.cookies.get(COOKIE_NAME)
+    token: Optional[str] = None
+    auth_header = request.headers.get("authorization") or request.headers.get("Authorization")
+    if auth_header and auth_header.lower().startswith("bearer "):
+        token = auth_header.split(" ", 1)[1].strip()
+    if not token:
+        token = request.cookies.get(COOKIE_NAME)
     if not token:
         return None
     claims = decode_session_token(token)

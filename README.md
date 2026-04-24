@@ -78,7 +78,23 @@ same profile format, same behavioural rules.
 
 > Full system diagram (Mermaid) in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
+### Core Concepts (Domain, Skill, Task)
+
+Three words get used a lot; they mean different things.
+
+| Term | What it means | Example |
+|---|---|---|
+| **Domain** | An area of expertise. Rated 1–5 in your profile's Expertise Map. | `Negotiation`, `Python`, `Stakeholder writing` |
+| **Skill** | Your rated competency within a domain. Also the noun for anything that can atrophy. | "My Python skill is 4/5 but it's slipping." |
+| **Task** | A unit of work. Each task is triaged into one of five **modes** (see below). | "Draft an ISO policy stub", "Write this email", "Design the auth flow" |
+
+In short: tasks happen in domains, and your profile rates your skill in each domain. The five modes below say *how* the AI should behave for a given task given your skill in that domain.
+
 ### The Five Modes
+
+<p align="center">
+  <img src="docs/compass.svg" alt="TAL 5-mode compass: Automate, Augment, Coach, Protect, Hands-off arranged by friction level" width="360"/>
+</p>
 
 Every task gets classified into one of five AI interaction modes:
 
