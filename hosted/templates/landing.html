@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talent-Augmenting Layer -- AI that makes you better at work, not dependent on it</title>
+    <meta name="description" content="A personalised AI augmentation layer. Assess your expertise, get coached on growth areas, keep at-risk skills sharp. Works with Claude, ChatGPT, Gemini, Cursor, Codex, or any LLM.">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .landing-hero { padding: 4rem 1.5rem 3rem; text-align: center; }
+        .landing-hero h1 { font-size: clamp(2rem, 5vw, 3.25rem); margin: 0 0 1rem; line-height: 1.15; }
+        .landing-hero .tagline { font-size: 1.2rem; color: var(--text-muted); max-width: 720px; margin: 0 auto 2rem; line-height: 1.5; }
+        .landing-cta-row { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+        .landing-cta-row .btn { min-width: 180px; }
+        .landing-section { padding: 3rem 1.5rem; max-width: 1100px; margin: 0 auto; }
+        .landing-section h2 { font-size: 1.75rem; margin: 0 0 0.5rem; }
+        .landing-section .lead { color: var(--text-muted); margin-bottom: 2rem; max-width: 760px; }
+        .pain-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+        .pain-card { background: var(--surface-2); border-radius: var(--radius-sm, 0.5rem); padding: 1.5rem; border-left: 3px solid var(--accent); }
+        .pain-card h3 { margin: 0 0 0.5rem; font-size: 1.1rem; }
+        .compass-row { display: flex; gap: 2rem; align-items: center; flex-wrap: wrap; }
+        .compass-row img { flex: 0 0 auto; width: 360px; max-width: 100%; }
+        .compass-row ul { flex: 1; min-width: 260px; }
+        .research-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+        .research-card { background: var(--surface-2); border-radius: var(--radius-sm, 0.5rem); padding: 1.25rem; }
+        .research-card h4 { margin: 0 0 0.25rem; color: var(--accent); }
+        .research-card p { margin: 0.25rem 0 0; font-size: 0.95rem; color: var(--text-muted); }
+        .install-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+        .install-card { background: var(--surface-2); border-radius: var(--radius-sm, 0.5rem); padding: 1.25rem; display: flex; flex-direction: column; }
+        .install-card h4 { margin: 0 0 0.25rem; }
+        .install-card p { color: var(--text-muted); font-size: 0.9rem; flex: 1; }
+        .install-card a { margin-top: 0.75rem; }
+        .landing-footer-cta { text-align: center; padding: 3rem 1.5rem; background: var(--surface-2); }
+    </style>
+</head>
+<body>
+    <section class="landing-hero">
+        <h1>AI that makes you better at work, not dependent on it.</h1>
+        <p class="tagline">
+            TAL is a personalised layer for any LLM. It assesses your expertise, accelerates you where you are already strong, coaches you where you are growing, and protects the skills you care about from quietly atrophying under AI use.
+        </p>
+        <div class="landing-cta-row">
+            <a href="/demo" class="btn btn-primary">Try the 3-minute demo</a>
+            <a href="/login" class="btn btn-secondary">Sign in with Google</a>
+        </div>
+        <p class="text-muted" style="margin-top: 1rem; font-size: 0.9rem;">
+            Open source. No vendor lock-in. Your profile works across Claude, ChatGPT, Gemini, Cursor, Codex, and any LLM you already pay for.
+        </p>
+    </section>
+
+    <section class="landing-section">
+        <h2>The three failures TAL fixes</h2>
+        <p class="lead">Based on 10 workers in the Vanguard pilot and three research programmes (Harvard, MIT, Wharton). The top frustrations with today's AI tools are not about capability. They are about behaviour.</p>
+        <div class="pain-grid">
+            <div class="pain-card">
+                <h3>Hallucination</h3>
+                <p>Current AI confidently invents facts, citations, and APIs. TAL's epistemic rules force "I don't know" over a fabrication and tag load-bearing claims with a confidence level.</p>
+            </div>
+            <div class="pain-card">
+                <h3>Sycophancy</h3>
+                <p>Default AI agrees with whatever you say. TAL explicitly refuses to reflexively agree. If your premise is wrong, it pushes back once with evidence before conceding.</p>
+            </div>
+            <div class="pain-card">
+                <h3>De-skilling</h3>
+                <p>Workers lose skills they stop practicing. TAL detects when a protected skill is being outsourced to AI and switches to coaching before the skill atrophies.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="landing-section">
+        <h2>The five modes</h2>
+        <p class="lead">Every task is classified into one of five interaction modes. The right mode depends on your expertise in that domain and your growth goals. Your profile tells the AI which mode to use for which kind of work.</p>
+        <div class="compass-row">
+            <img src="/static/compass.svg" alt="TAL 5-mode compass: Automate, Augment, Coach, Protect, Hands-off on a friction axis"/>
+            <ul>
+                <li><strong>Automate</strong> — AI executes and annotates. Low friction, for mechanical work.</li>
+                <li><strong>Augment</strong> — AI accelerates and challenges you in your expert domains.</li>
+                <li><strong>Coach</strong> — AI scaffolds and questions. For skills you are actively developing.</li>
+                <li><strong>Protect</strong> — AI forces cognition to keep at-risk skills sharp.</li>
+                <li><strong>Hands-off</strong> — AI surfaces the decision and lets you make it.</li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="landing-section">
+        <h2>Research-backed</h2>
+        <p class="lead">TAL's behaviour is grounded in peer-reviewed work on AI over-reliance, skill atrophy, and augmentation.</p>
+        <div class="research-grid">
+            <div class="research-card">
+                <h4>Buçinca et al. (Harvard, 2021)</h4>
+                <p>Cognitive forcing reduces AI over-reliance by about 30 per cent. TAL applies it in novice and at-risk domains.</p>
+            </div>
+            <div class="research-card">
+                <h4>Mollick (Wharton, 2023)</h4>
+                <p>AI yields +40 per cent quality and +26 per cent speed, but junior workers who "just hand in" AI output perform worse. TAL protects against autopilot.</p>
+            </div>
+            <div class="research-card">
+                <h4>Acemoglu (MIT)</h4>
+                <p>Pro-worker AI increases human marginal product. TAL is designed so every interaction leaves you more capable, not more replaceable.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="landing-section">
+        <h2>Install anywhere</h2>
+        <p class="lead">TAL is a layer, not a product tied to one platform. Pick whichever install matches what you already use. Same profile works across all of them.</p>
+        <div class="install-grid">
+            <div class="install-card">
+                <h4>Claude Code plugin</h4>
+                <p>One-click install via the Claude Cowork marketplace. Runs ambient coaching on every session.</p>
+                <a href="https://github.com/angelo-leone/talent-augmenting-layer#claude-cowork-plugin-1-click" class="btn btn-secondary">Install</a>
+            </div>
+            <div class="install-card">
+                <h4>Claude Desktop extension</h4>
+                <p>Drop-in <code>.mcpb</code> bundle. No Python, no config editing.</p>
+                <a href="https://github.com/angelo-leone/talent-augmenting-layer/raw/main/desktop-extension/talent-augmenting-layer.mcpb" class="btn btn-secondary">Download .mcpb</a>
+            </div>
+            <div class="install-card">
+                <h4>ChatGPT / Gemini / Claude Project</h4>
+                <p>Paste the portable system prompt into a Custom GPT, a Gem, or a Project. Two minutes.</p>
+                <a href="https://github.com/angelo-leone/talent-augmenting-layer/tree/main/platform-configs" class="btn btn-secondary">Config files</a>
+            </div>
+            <div class="install-card">
+                <h4>Codex / Cursor / Windsurf</h4>
+                <p>Any MCP stdio client. TAL exposes 14 tools for profile, assessment, and tracking.</p>
+                <a href="https://github.com/angelo-leone/talent-augmenting-layer#mcp-server-10-min-local-stdio" class="btn btn-secondary">Setup guide</a>
+            </div>
+            <div class="install-card">
+                <h4>Remote MCP (hosted)</h4>
+                <p>Streamable HTTP + OAuth. Point any compatible client at <code>proworker-hosted.onrender.com/mcp</code>.</p>
+                <a href="https://github.com/angelo-leone/talent-augmenting-layer/blob/main/docs/REMOTE_MCP_SETUP.md" class="btn btn-secondary">Remote MCP docs</a>
+            </div>
+            <div class="install-card">
+                <h4>Hosted web app</h4>
+                <p>Browser-based assessment, persistent profiles, email check-ins. Right here.</p>
+                <a href="/login" class="btn btn-primary">Sign in with Google</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="landing-footer-cta">
+        <h2>See what a TAL profile feels like in three minutes.</h2>
+        <p class="text-muted">No sign-up for the demo. Full assessment takes fifteen minutes and needs a Google login.</p>
+        <div class="landing-cta-row" style="margin-top: 1.5rem;">
+            <a href="/demo" class="btn btn-primary">Start the demo</a>
+            <a href="https://github.com/angelo-leone/talent-augmenting-layer" class="btn btn-secondary">View source on GitHub</a>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <p>Talent-Augmenting Layer v1.0 &mdash; Making workers better, not dependent.</p>
+            <p class="text-muted">CC BY-NC-SA 4.0 Licence &middot; Based on research by Buçinca, Acemoglu, Mollick</p>
+        </div>
+    </footer>
+</body>
+</html>

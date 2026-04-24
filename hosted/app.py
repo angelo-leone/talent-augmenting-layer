@@ -8,6 +8,7 @@ from __future__ import annotations
 import datetime
 import json
 import logging
+import time
 from contextlib import asynccontextmanager
 from typing import Any
 
@@ -195,7 +196,13 @@ async def landing(request: Request):
     user = get_current_user(request)
     if user:
         return RedirectResponse(url="/dashboard", status_code=302)
-    return templates.TemplateResponse(name="login.html", request=request)
+    return templates.TemplateResponse(name="landing.html", request=request)
+
+
+@app.get("/demo", response_class=HTMLResponse)
+async def demo(request: Request):
+    """Public 3-question scripted taster. No DB write, no LLM call."""
+    return templates.TemplateResponse(name="demo.html", request=request)
 
 
 # ---------------------------------------------------------------------------
@@ -356,11 +363,19 @@ async def assess_message(request: Request):
                 "is_complete": True,
             })
 
-        # Call LLM with turn-aware system prompt
+        # Call LLM with turn-aware system prompt, measuring latency so
+        # stalls (like Stan's 20-minute hang) are visible in the DB.
         llm = get_llm()
         system = _assessment_system_prompt(turn_count=assistant_turn_count)
 
+        _t0 = time.monotonic()
         assistant_reply = await llm.chat(system, conversation)
+        latency_ms = int((time.monotonic() - _t0) * 1000)
+        if latency_ms >= 10_000:
+            logger.warning(
+                "Slow assessment turn: user_id=%s session_id=%s turn=%d latency_ms=%d",
+                user["id"], session.id, assistant_turn_count, latency_ms,
+            )
 
         # Check if assessment is complete
         is_complete = "[ASSESSMENT_COMPLETE]" in assistant_reply
@@ -368,7 +383,11 @@ async def assess_message(request: Request):
         # Clean the marker from the display text
         display_reply = assistant_reply.replace("[ASSESSMENT_COMPLETE]", "").strip()
 
-        conversation.append({"role": "assistant", "content": display_reply})
+        conversation.append({
+            "role": "assistant",
+            "content": display_reply,
+            "latency_ms": latency_ms,
+        })
 
         # Save
         session.conversation_json = json.dumps(conversation)

@@ -4,7 +4,7 @@
 [![MCP Tools](https://img.shields.io/badge/MCP%20Tools-14-blue)]()
 [![Research-Backed](https://img.shields.io/badge/Research--Backed-Yes-green)]()
 
-> **Works with**: ChatGPT | Claude | Gemini | Cursor | Windsurf | Any LLM
+> **Works with**: ChatGPT | Claude (Code / Desktop / web) | Gemini | Cursor | Windsurf | Codex CLI | Any LLM
 
 > Make workers better, not dependent. A personalised AI augmentation system that follows you across every platform.
 
@@ -173,11 +173,12 @@ Sign in with Google; your profile persists in the hosted PostgreSQL database. Se
 
 ### MCP Server (10 min, local stdio)
 
-Full tool integration with automatic tracking:
+Full tool integration with automatic tracking. Works with Claude Code, Claude Desktop, Cursor, Windsurf, Codex CLI, Zed, VS Code MCP — any client that follows the MCP stdio spec.
+
 ```bash
 cd mcp-server && pip install -e .
 ```
-Add to your MCP client config (Claude Code, Cursor, Windsurf, Claude Desktop):
+Add to your MCP client config (shape is the same across clients):
 ```json
 {
   "mcpServers": {
@@ -192,6 +193,14 @@ Add to your MCP client config (Claude Code, Cursor, Windsurf, Claude Desktop):
   }
 }
 ```
+
+Config-file locations (common):
+- Claude Code: project-local `.mcp.json` or user `~/.claude/mcp.json`.
+- Claude Desktop: `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS).
+- Cursor: `~/.cursor/mcp.json`.
+- Windsurf: `~/.codeium/windsurf/mcp_config.json`.
+- Codex CLI: `~/.codex/config.json` (merge the `mcpServers` block in; see [`platform-configs/codex-cli.json`](platform-configs/codex-cli.json) for a ready-made file). If your Codex version expects TOML, translate the block into `[mcp_servers.talent-augmenting-layer]` style and verify against the latest Codex docs.
+
 Run `talent-assess` as an MCP prompt to create your profile. If you want the Claude Code slash command `/talent-assess`, open this repository in Claude Code so it loads `.claude/commands/`, or copy those command files into `~/.claude/commands/`.
 
 ### Hosted Web App
