@@ -407,8 +407,12 @@ class ProfileStore:
             for line in red_lines_section.group(1).split("\n"):
                 cleaned = re.sub(r"^\d+\.\s*\*\*", "", line.strip())
                 cleaned = cleaned.replace("**", "").strip()
-                if cleaned and not cleaned.startswith("Things this"):
-                    profile.red_lines.append(cleaned)
+                if not cleaned:
+                    continue
+                # Skip markdown dividers and other non-red-line chrome.
+                if set(cleaned) <= {"-"} or cleaned.startswith("Things this"):
+                    continue
+                profile.red_lines.append(cleaned)
 
         return profile
 
