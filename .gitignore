@@ -2,9 +2,14 @@ __pycache__/
 *.pyc
 *.pyo
 .claude/worktrees/
+.claude/settings.local.json
 *.egg-info/
 dist/
 build/
 .env
 hosted/secret.json
 .mcpregistry_github_token
+.mcpregistry_registry_token
+.DS_Store
+**/.DS_Store
+pilot/

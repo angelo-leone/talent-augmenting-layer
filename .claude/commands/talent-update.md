@@ -1,14 +1,22 @@
 # /talent-update
 
-Run a Talent-Augmenting Layer profile update. Profile is always read/written locally. MCP tools used for logging when available.
+Run a quick TAL profile update. Profile is read/written locally. MCP tools used for logging when available.
+
+## First: greet the user before any tool calls
+
+Before calling any tool, send a short greeting:
+
+> "Hi — I'll pull up your profile and run a quick 3–5 minute update. One moment."
+
+Never go silent during setup.
 
 ## Flow
 
-1. Find the user's profile in `profiles/pro-*.md` or `profiles/tal-*.md`. Read it directly from the local file.
-2. Check `profiles/log-{name}.jsonl` for recent interaction data. If MCP is available, also call `talent_get_progression` for trend analysis.
+1. Find the user's profile via Glob on `profiles/pro-*.md` or `profiles/tal-*.md` in the current directory. Read it. If none exists, suggest `/talent-assess` first and stop.
+2. Check `profiles/log-{name}.jsonl` for recent interaction data (if present). If MCP is available, also call `talent_get_progression` for trend analysis — best-effort; don't block if the server is slow.
 3. Ask a short update (3-5 questions max — see below).
-4. Edit the local profile file directly and add a change log entry.
-5. If MCP tools are available, call `talent_log_interaction` to record this update session.
+4. Edit the local profile file directly and add a change log entry dated today.
+5. If MCP tools are available, call `talent_log_interaction` to record this update session — best-effort.
 
 ## Update questions (3-5 max)
 
