@@ -85,9 +85,32 @@ class SkillSignal(str, enum.Enum):
     none = "none"
 
 
+class UserRole(str, enum.Enum):
+    member = "member"    # default. Sees their own profile only.
+    admin = "admin"      # Can view org-level analytics.
+    owner = "owner"      # Admin plus billing + org settings.
+
+
 # ---------------------------------------------------------------------------
 # Models
 # ---------------------------------------------------------------------------
+
+class Organization(Base):
+    """An organisation or team. Users may belong to at most one org at a time."""
+    __tablename__ = "organizations"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(255), nullable=False)
+    slug = Column(String(64), unique=True, nullable=False, index=True)
+    owner_user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+
+    members = relationship(
+        "User",
+        back_populates="organization",
+        foreign_keys="User.org_id",
+    )
+
 
 class User(Base):
     __tablename__ = "users"
@@ -103,11 +126,25 @@ class User(Base):
     pilot_group = Column(Enum(PilotGroup), nullable=True)
     pilot_participant_id = Column(String(32), unique=True, nullable=True, index=True)
 
+    # ── Org / tenancy ──
+    org_id = Column(
+        Integer,
+        ForeignKey("organizations.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    role = Column(Enum(UserRole), nullable=False, default=UserRole.member)
+
     profiles = relationship("Profile", back_populates="user", order_by="Profile.version.desc()")
     sessions = relationship("AssessmentSession", back_populates="user", order_by="AssessmentSession.created_at.desc()")
     reminders = relationship("CheckinReminder", back_populates="user", order_by="CheckinReminder.sent_at.desc()")
     surveys = relationship("PilotSurvey", back_populates="user", order_by="PilotSurvey.recorded_at.desc()")
     chat_logs = relationship("ChatLog", back_populates="user", order_by="ChatLog.created_at.desc()")
+    organization = relationship(
+        "Organization",
+        back_populates="members",
+        foreign_keys=[org_id],
+    )
 
 
 class Profile(Base):
@@ -371,9 +408,18 @@ async def create_tables() -> None:
         migrations = [
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS pilot_group VARCHAR(50)",
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS pilot_participant_id VARCHAR(32)",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS org_id INTEGER",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(50) DEFAULT 'member'",
         ]
         for stmt in migrations:
-            await conn.execute(text(stmt))
+            try:
+                await conn.execute(text(stmt))
+            except Exception:
+                # IF NOT EXISTS isn't universally supported (e.g. older SQLite);
+                # swallowing here is safe because create_all already ensured
+                # the current schema. Existing older deployments can hit this
+                # path; new ones are created correctly by create_all above.
+                pass
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:

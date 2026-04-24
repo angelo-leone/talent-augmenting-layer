@@ -109,6 +109,32 @@ def require_auth(request: Request) -> dict:
     return user
 
 
+async def require_admin(request: Request) -> dict:
+    """Auth + RBAC: ensures the caller has role admin or owner.
+
+    Returns the user dict augmented with role and org_id fields loaded from
+    the database. Raises 401 if unauthenticated, 403 if not admin/owner,
+    and 403 if the admin has no org_id (nothing to scope to).
+    """
+    basic = require_auth(request)
+    async with async_session_factory() as session:
+        stmt = select(User).where(User.id == basic["id"])
+        result = await session.execute(stmt)
+        db_user = result.scalar_one_or_none()
+    if db_user is None:
+        raise HTTPException(status_code=401, detail="User not found")
+    role = db_user.role.value if db_user.role else "member"
+    if role not in ("admin", "owner"):
+        raise HTTPException(status_code=403, detail="Admin or owner role required")
+    if db_user.org_id is None:
+        raise HTTPException(status_code=403, detail="Admin has no organization to view")
+    return {
+        **basic,
+        "role": role,
+        "org_id": db_user.org_id,
+    }
+
+
 def set_session_cookie(response: Response, token: str) -> None:
     """Set the session JWT as an httponly cookie."""
     response.set_cookie(
