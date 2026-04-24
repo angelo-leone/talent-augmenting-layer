@@ -78,6 +78,9 @@ function addMessage(role, content) {
     scrollToBottom();
 }
 
+let _typingTimer = null;
+let _typingStart = 0;
+
 function showTyping() {
     const area = $('#chat-area');
     if (!area) return;
@@ -87,11 +90,28 @@ function showTyping() {
     div.textContent = 'Thinking...';
     area.appendChild(div);
     scrollToBottom();
+
+    // Tick up an elapsed counter so stalls are visible to the user.
+    _typingStart = Date.now();
+    if (_typingTimer) clearInterval(_typingTimer);
+    _typingTimer = setInterval(() => {
+        const el = $('#typing-indicator');
+        if (!el) return;
+        const secs = Math.floor((Date.now() - _typingStart) / 1000);
+        let suffix = '';
+        if (secs >= 60) suffix = ' (still thinking, please mention this to your pilot contact if it keeps happening)';
+        else if (secs >= 15) suffix = ' (this is taking longer than usual)';
+        el.textContent = `Thinking... (${secs}s)${suffix}`;
+    }, 1000);
 }
 
 function hideTyping() {
     const el = $('#typing-indicator');
     if (el) el.remove();
+    if (_typingTimer) {
+        clearInterval(_typingTimer);
+        _typingTimer = null;
+    }
 }
 
 // ── API calls ──────────────────────────────────────────────────────────────

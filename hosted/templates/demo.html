@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TAL Demo -- 3-minute profile taster</title>
+    <meta name="robots" content="noindex">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .demo-wrap { max-width: 820px; margin: 2rem auto; padding: 0 1rem; }
+        .demo-hero { text-align: center; margin-bottom: 1.5rem; }
+        .demo-hero h1 { margin: 0 0 0.5rem; font-size: 1.75rem; }
+        .demo-hero p { color: var(--text-muted); max-width: 640px; margin: 0 auto; }
+        .chat-box { background: var(--surface-2); border-radius: 0.5rem; padding: 1.25rem; min-height: 320px; display: flex; flex-direction: column; gap: 0.75rem; }
+        .msg { max-width: 80%; padding: 0.7rem 0.9rem; border-radius: 0.75rem; line-height: 1.4; }
+        .msg.ai { background: var(--surface); align-self: flex-start; border-bottom-left-radius: 0.2rem; }
+        .msg.user { background: var(--accent-soft); color: #fff; align-self: flex-end; border-bottom-right-radius: 0.2rem; }
+        .input-row { display: flex; gap: 0.5rem; margin-top: 1rem; }
+        .input-row textarea { flex: 1; padding: 0.7rem; background: var(--surface-2); color: var(--text); border: 1px solid #2a2a4a; border-radius: 0.5rem; font-family: inherit; font-size: 1rem; resize: vertical; min-height: 2.4rem; }
+        .input-row textarea:disabled { opacity: 0.5; }
+        .demo-result { background: var(--surface-2); border-radius: 0.5rem; padding: 1.5rem; margin-top: 1rem; }
+        .result-score-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem; margin: 1rem 0; }
+        .result-score { background: var(--surface); padding: 0.75rem; border-radius: 0.4rem; text-align: center; }
+        .result-score .num { font-size: 1.6rem; font-weight: 700; color: var(--accent); }
+        .result-score .lbl { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; }
+        .demo-nav { text-align: center; margin-top: 1.5rem; display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">Talent-Augmenting Layer</a>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/login" class="nav-link">Sign in</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="demo-wrap">
+        <div class="demo-hero">
+            <h1>TAL demo</h1>
+            <p>
+                A three-question taster. No sign-up, no data stored. The real assessment is fifteen minutes, produces a scored profile across five dimensions, and maps your tasks to one of five AI interaction modes.
+            </p>
+        </div>
+
+        <div id="chat" class="chat-box" role="log" aria-live="polite"></div>
+
+        <div class="input-row">
+            <textarea id="demo-input" rows="1" placeholder="Type your answer..."></textarea>
+            <button id="send" class="btn btn-primary" onclick="sendDemo()">Send</button>
+        </div>
+
+        <div id="result" class="demo-result" style="display:none;">
+            <h2>Sample profile snapshot</h2>
+            <p class="text-muted text-small">These are illustrative scores based on your answers. The real assessment scores you across ADR (AI Dependency Risk), GP (Growth Potential), ALI (AI Literacy), and a per-domain Expertise map, then produces the composite TALRI index.</p>
+            <div class="result-score-row">
+                <div class="result-score"><div class="num" id="r-adr">-</div><div class="lbl">Dependency risk</div></div>
+                <div class="result-score"><div class="num" id="r-gp">-</div><div class="lbl">Growth potential</div></div>
+                <div class="result-score"><div class="num" id="r-mode">-</div><div class="lbl">Suggested mode</div></div>
+            </div>
+            <div style="padding: 1rem; background: var(--surface); border-radius: 0.4rem; font-family: monospace; font-size: 0.9rem;">
+                <p style="margin: 0 0 0.5rem;"><strong>role</strong>: <span id="r-role">-</span></p>
+                <p style="margin: 0 0 0.5rem;"><strong>growth skill</strong>: <span id="r-skill">-</span></p>
+                <p style="margin: 0;"><strong>TAL would coach you on</strong>: <span id="r-coach">-</span>, and accelerate you elsewhere.</p>
+            </div>
+            <div class="demo-nav">
+                <a href="/login" class="btn btn-primary">Sign in to run the full assessment</a>
+                <a href="/" class="btn btn-secondary">Back to home</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <p>Talent-Augmenting Layer v1.0</p>
+        </div>
+    </footer>
+
+<script>
+const script = [
+    {
+        ai: "Hi. I'm the Talent-Augmenting Layer. This is the abridged version: three questions, about three minutes, then I'll show you what your profile would look like. What's your role and industry?",
+        field: "role",
+    },
+    {
+        ai: "Got it. Now a calibration question. On a scale of 1 to 5, how often do you accept AI output without cross-checking it? 1 means never, 5 means almost always. Just the number plus a sentence of context.",
+        field: "adr_raw",
+    },
+    {
+        ai: "Noted. Last one: tell me one skill you are actively trying to grow right now. Something where you want AI to help you learn, not just do the work for you.",
+        field: "skill",
+    },
+];
+
+const answers = {};
+let turn = 0;
+
+function addMsg(role, text) {
+    const div = document.createElement("div");
+    div.className = "msg " + role;
+    div.textContent = text;
+    document.getElementById("chat").appendChild(div);
+    div.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function parseAdr(raw) {
+    const m = String(raw).match(/([1-5])/);
+    return m ? parseInt(m[1], 10) : 3;
+}
+
+function showResult() {
+    const adrRaw = parseAdr(answers.adr_raw || "3");
+    // ADR out of 10, crude mapping: user's self-report x2 (so 1 -> 2, 5 -> 10)
+    const adr = adrRaw * 2;
+    // GP: anyone engaged enough to take the demo and name a growth skill is at least 6
+    const gp = answers.skill ? 7 : 5;
+    const mode = adr >= 7 ? "Protect" : (gp >= 6 ? "Coach" : "Augment");
+
+    document.getElementById("r-adr").textContent = adr + "/10";
+    document.getElementById("r-gp").textContent = gp + "/10";
+    document.getElementById("r-mode").textContent = mode;
+    document.getElementById("r-role").textContent = answers.role || "(not provided)";
+    document.getElementById("r-skill").textContent = answers.skill || "(not provided)";
+    document.getElementById("r-coach").textContent = answers.skill || "your growth skill";
+
+    document.getElementById("result").style.display = "block";
+    document.getElementById("demo-input").disabled = true;
+    document.getElementById("send").disabled = true;
+
+    // Append a closing AI message explaining what happens next
+    setTimeout(() => {
+        addMsg("ai", "That's the demo. In the real assessment I'd ask about ten more questions, produce a proper scored profile, and let you download it as a portable markdown file you can use with Claude, ChatGPT, Gemini, or any other LLM. Your profile then stays consistent across every tool.");
+    }, 300);
+}
+
+function sendDemo() {
+    const input = document.getElementById("demo-input");
+    const text = input.value.trim();
+    if (!text || turn >= script.length) return;
+
+    addMsg("user", text);
+    answers[script[turn].field] = text;
+    input.value = "";
+
+    turn += 1;
+    if (turn < script.length) {
+        setTimeout(() => addMsg("ai", script[turn].ai), 350);
+    } else {
+        setTimeout(showResult, 400);
+    }
+}
+
+document.getElementById("demo-input").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendDemo();
+    }
+});
+
+// Kick off
+window.addEventListener("DOMContentLoaded", () => {
+    addMsg("ai", script[0].ai);
+});
+</script>
+</body>
+</html>

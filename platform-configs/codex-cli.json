@@ -1,0 +1,14 @@
+{
+  "_comment_1": "Talent-Augmenting Layer MCP server config for OpenAI Codex CLI. Save this at ~/.codex/config.json (or merge into your existing file). Codex CLI follows the standard MCP stdio config shape; verify against the latest Codex docs if your version expects TOML instead.",
+  "_comment_2": "Replace /path/to/talent-augmenting-layer with the absolute path to the checked-out repo on your machine.",
+  "mcpServers": {
+    "talent-augmenting-layer": {
+      "command": "python",
+      "args": ["-m", "src.server"],
+      "cwd": "/path/to/talent-augmenting-layer/mcp-server",
+      "env": {
+        "TALENT_AUGMENTING_LAYER_PROFILES_DIR": "/path/to/talent-augmenting-layer/profiles"
+      }
+    }
+  }
+}
