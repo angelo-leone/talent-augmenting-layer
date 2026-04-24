@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block title %}Admin -- {{ summary.org.name if summary.org else "TAL" }}{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+    .admin-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1.5rem; }
+    .score-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .alerts-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .alert-card { background: var(--surface-2); border-radius: 0.5rem; padding: 1rem; border-left: 3px solid var(--warning); }
+    .alert-card.alert-risk { border-left-color: var(--danger); }
+    .alert-card .alert-num { font-size: 1.75rem; font-weight: 700; }
+    .alert-card .alert-lbl { color: var(--text-muted); font-size: 0.85rem; }
+    .admin-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    .admin-table th, .admin-table td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid #2a2a4a; }
+    .admin-table th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; }
+    .trend-declining { color: var(--danger); }
+    .trend-improving { color: var(--success); }
+    .trend-stable { color: var(--text-muted); }
+    .trend-no_data { color: var(--text-muted); opacity: 0.6; }
+    .matrix-cell { display: inline-block; width: 22px; height: 22px; border-radius: 3px; text-align: center; line-height: 22px; font-size: 0.75rem; font-weight: 600; color: #000; }
+    .matrix-cell.r0 { background: #2a2a4a; color: var(--text-muted); }
+    .matrix-cell.r1 { background: #c0392b; }
+    .matrix-cell.r2 { background: #e67e22; }
+    .matrix-cell.r3 { background: #f1c40f; }
+    .matrix-cell.r4 { background: #2ecc71; }
+    .matrix-cell.r5 { background: #16a085; color: #fff; }
+    .matrix-domain { color: var(--text-muted); font-size: 0.8rem; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+    @media (max-width: 800px) { .chart-row { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <div>
+        <h1 style="margin: 0;">{{ summary.org.name if summary.org else "Admin" }}</h1>
+        <p class="text-muted" style="margin: 0.25rem 0 0;">
+            Organisation admin view. {{ summary.member_count or 0 }} member{{ "s" if (summary.member_count or 0) != 1 else "" }} &middot;
+            {{ summary.total_profiles or 0 }} profile{{ "s" if (summary.total_profiles or 0) != 1 else "" }}.
+        </p>
+    </div>
+    <div>
+        <a href="/dashboard" class="btn btn-secondary">My dashboard</a>
+    </div>
+</div>
+
+{% if summary.get("message") %}
+<div class="card">
+    <p>{{ summary.message }}</p>
+</div>
+{% else %}
+
+<!-- Org averages -->
+<div class="score-grid">
+    <div class="score-card"><div class="score-big">{{ summary.org_averages.dependency_risk }}</div><div class="score-label">Avg Dependency Risk</div><div class="score-sublabel text-muted">0-10 scale</div></div>
+    <div class="score-card"><div class="score-big">{{ summary.org_averages.growth_potential }}</div><div class="score-label">Avg Growth Potential</div><div class="score-sublabel text-muted">0-10 scale</div></div>
+    <div class="score-card"><div class="score-big">{{ summary.org_averages.expertise }}</div><div class="score-label">Avg Expertise</div><div class="score-sublabel text-muted">1-5 per domain</div></div>
+</div>
+
+<!-- Alerts -->
+<div class="alerts-row">
+    <div class="alert-card alert-risk">
+        <div class="alert-num">{{ summary.alerts.at_risk_count }}</div>
+        <div class="alert-lbl">At-risk members (ADR &ge; 7)</div>
+    </div>
+    <div class="alert-card">
+        <div class="alert-num">{{ summary.alerts.declining_trend_count }}</div>
+        <div class="alert-lbl">Declining 30-day trend</div>
+    </div>
+    <div class="alert-card">
+        <div class="alert-num">{{ summary.alerts.atrophy_signal_members }}</div>
+        <div class="alert-lbl">Members with &ge;3 atrophy signals in 30d</div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="chart-row">
+    <div class="card">
+        <h2 class="card-title">Mode distribution (members at each risk tier)</h2>
+        <canvas id="distribution-chart" height="200"></canvas>
+    </div>
+    <div class="card">
+        <h2 class="card-title">Domain coverage</h2>
+        <canvas id="domain-chart" height="200"></canvas>
+    </div>
+</div>
+
+<!-- Skill matrix -->
+{% if summary.domain_summary %}
+<div class="card">
+    <h2 class="card-title">Skill matrix</h2>
+    <p class="text-muted text-small">Per-member ratings (1-5) across the {{ summary.domain_summary.items()|list|length }} domains covered in this org. Blank means the member has no rating yet for that domain.</p>
+    <div style="overflow-x: auto;">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Member</th>
+                    {% for domain in summary.domain_summary.keys() %}
+                    <th class="matrix-domain" title="{{ domain }}">{{ domain[:18] }}</th>
+                    {% endfor %}
+                    <th>Avg</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in summary.profiles %}
+                <tr>
+                    <td><strong>{{ p.name }}</strong><br><span class="text-muted text-small">{{ p.email }}</span></td>
+                    {% for domain in summary.domain_summary.keys() %}
+                        {% set r = p.expertise_by_domain.get(domain, 0) %}
+                        <td><span class="matrix-cell r{{ r }}" title="{{ domain }}: {{ r if r else 'not rated' }}">{{ r if r else '' }}</span></td>
+                    {% endfor %}
+                    <td>{{ p.expertise_avg }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Members list -->
+<div class="card" style="margin-top: 1.5rem;">
+    <h2 class="card-title">Members</h2>
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>ADR</th>
+                <th>GP</th>
+                <th>Interactions (30d)</th>
+                <th>Passive ratio</th>
+                <th>Trend</th>
+                <th>Profile</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in summary.profiles %}
+            <tr>
+                <td><strong>{{ p.name }}</strong><br><span class="text-muted text-small">{{ p.email }}</span></td>
+                <td>{{ p.role }}</td>
+                <td>{{ p.dependency_risk }}</td>
+                <td>{{ p.growth_potential }}</td>
+                <td>{{ p.total_interactions }}</td>
+                <td>{{ "%.0f%%"|format(p.passive_ratio * 100) }}</td>
+                <td class="trend-{{ p.trend_direction }}">{{ p.trend_direction|replace("_", " ") }}</td>
+                <td>
+                    {% if p.has_profile %}
+                        v{{ p.profile_version }}
+                    {% else %}
+                        <span class="text-muted">none</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+const SUMMARY = {{ summary_json|safe }};
+
+// Risk distribution
+const profiles = SUMMARY.profiles || [];
+const buckets = { low: 0, medium: 0, high: 0, none: 0 };
+for (const p of profiles) {
+    if (!p.has_profile) { buckets.none += 1; continue; }
+    if (p.dependency_risk >= 7) buckets.high += 1;
+    else if (p.dependency_risk >= 4) buckets.medium += 1;
+    else buckets.low += 1;
+}
+new Chart(document.getElementById("distribution-chart"), {
+    type: "doughnut",
+    data: {
+        labels: ["Low ADR (<4)", "Medium ADR (4-6)", "High ADR (>=7)", "No profile"],
+        datasets: [{
+            data: [buckets.low, buckets.medium, buckets.high, buckets.none],
+            backgroundColor: ["#2ecc71", "#f39c12", "#e74c3c", "#5a5a7a"],
+            borderColor: "#1a1a2e",
+            borderWidth: 2,
+        }],
+    },
+    options: { plugins: { legend: { position: "bottom", labels: { color: "#ccc" } } } },
+});
+
+// Domain coverage: count of members per domain
+const domainCoverage = {};
+for (const [domain, stats] of Object.entries(SUMMARY.domain_summary || {})) {
+    domainCoverage[domain] = stats.count;
+}
+const domains = Object.keys(domainCoverage).sort((a, b) => domainCoverage[b] - domainCoverage[a]).slice(0, 10);
+new Chart(document.getElementById("domain-chart"), {
+    type: "bar",
+    data: {
+        labels: domains,
+        datasets: [{
+            label: "Members rated in domain",
+            data: domains.map((d) => domainCoverage[d]),
+            backgroundColor: "#533483",
+        }],
+    },
+    options: {
+        indexAxis: "y",
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { ticks: { color: "#ccc", stepSize: 1 }, grid: { color: "#2a2a4a" } },
+            y: { ticks: { color: "#ccc" }, grid: { color: "#2a2a4a" } },
+        },
+    },
+});
+</script>
+{% endif %}
+{% endblock %}

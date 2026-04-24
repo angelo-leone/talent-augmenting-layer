@@ -37,11 +37,13 @@ from hosted.database import (
     SkillSignal,
     compute_passive_ratio,
 )
+from hosted.org_service import get_org_summary_scoped
 from hosted.auth import (
     setup_oauth,
     oauth,
     get_current_user,
     require_auth,
+    require_admin,
     get_or_create_user,
     create_session_token,
     set_session_cookie,
@@ -554,6 +556,50 @@ async def dashboard(request: Request):
         "domain_ratings": scores_data.get("domain_ratings", {}),
         "versions": versions,
     })
+
+
+# ---------------------------------------------------------------------------
+# Admin / org routes
+# ---------------------------------------------------------------------------
+
+@app.get("/admin", response_class=HTMLResponse)
+async def admin_dashboard(request: Request):
+    """Org admin dashboard. Requires role admin or owner on the current user."""
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login?next=/admin", status_code=302)
+    try:
+        admin_user = await require_admin(request)
+    except HTTPException as exc:
+        if exc.status_code == 403:
+            return templates.TemplateResponse(
+                name="admin_forbidden.html",
+                request=request,
+                context={"user": user, "reason": exc.detail},
+                status_code=403,
+            )
+        raise
+    async with async_session_factory() as db:
+        summary = await get_org_summary_scoped(admin_user["org_id"], db)
+    return templates.TemplateResponse(
+        name="admin_dashboard.html",
+        request=request,
+        context={
+            "user": user,
+            "admin": admin_user,
+            "summary": summary,
+            "summary_json": json.dumps(summary),
+        },
+    )
+
+
+@app.get("/api/org/summary")
+async def api_org_summary(request: Request):
+    """JSON feed for the admin dashboard (also useful for external tooling)."""
+    admin_user = await require_admin(request)
+    async with async_session_factory() as db:
+        summary = await get_org_summary_scoped(admin_user["org_id"], db)
+    return JSONResponse(summary)
 
 
 @app.get("/api/profile")
