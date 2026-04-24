@@ -146,57 +146,84 @@ class Profile:
         return "low"
 
     def classify_task(self, task_description: str) -> str:
-        """Classify a task using keyword overlap scoring against profile categories.
+        """Classify a task using stem-level keyword overlap against profile categories.
 
-        Strips explanatory text (after —, dashes, parenthetical notes) from task
-        list items before matching. Uses word-level overlap scoring. Priority
-        order: protect > hands_off > coach > automate > augment.
+        - Strips explanatory text (after em-dash, parenthetical) from task items.
+        - Reduces words to a 4-char stem so "writing" matches "write",
+          "arguing" matches "argumentation", etc.
+        - Priority: protect and hands_off outrank equal scores in other
+          categories. Red lines are not used to override classification
+          (many red lines are "do it but coach-mode", not "never do it");
+          the caller is expected to surface the relevant red line as
+          advisory copy alongside the mode.
         """
-        desc_lower = task_description.lower()
-        desc_words = set(re.split(r"\W+", desc_lower)) - {"", "a", "the", "an", "to", "for", "of", "and", "in", "my", "me", "some", "this", "these", "with", "on"}
+        STOPWORDS = {
+            "", "a", "the", "an", "to", "for", "of", "and", "in", "my", "me",
+            "some", "this", "these", "with", "on", "by", "be", "is", "are",
+            "that", "it", "as", "at", "from", "or",
+        }
+
+        def _stem(word: str) -> str:
+            """Reduce to a 4-char prefix after stripping obvious English
+            suffixes. Conflates "write" / "writing" / "writer" to "writ",
+            "format" / "formatting" / "formatted" to "form", etc. Some
+            false positives (e.g. "word"/"work") are tolerable at the 0.3
+            match threshold."""
+            if len(word) < 5:
+                return word
+            for suf in ("ations", "ation", "ings", "ing", "ers", "er",
+                        "ions", "ion", "ly", "es", "ed", "s"):
+                if word.endswith(suf) and len(word) > len(suf) + 3:
+                    word = word[: -len(suf)]
+                    break
+            return word[:4] if len(word) >= 4 else word
+
+        def _tokenise(text: str) -> set[str]:
+            words = (w for w in re.split(r"\W+", text.lower()) if w)
+            return {_stem(w) for w in words if w not in STOPWORDS}
 
         def _clean_task(task: str) -> str:
-            """Strip explanatory text from task items."""
-            # Remove everything after em-dash, regular dash phrase, or parenthetical
             task = re.split(r"\s*[—–]\s*", task)[0]
             task = re.sub(r"\(.*?\)", "", task)
             return task.strip()
+
+        desc_tokens = _tokenise(task_description)
+        desc_lower = task_description.lower()
 
         def _score(task_list: list[str]) -> float:
             best = 0.0
             for task in task_list:
                 cleaned = _clean_task(task)
-                task_words = set(re.split(r"\W+", cleaned.lower())) - {"", "a", "the", "an", "to", "for", "of", "and", "in"}
-                if not task_words:
+                task_tokens = _tokenise(cleaned)
+                if not task_tokens:
                     continue
-                overlap = len(desc_words & task_words)
-                # Score: proportion of task keywords found in description
-                score = overlap / len(task_words) if task_words else 0
-                # Also check if any task keyword appears as substring in description
-                for tw in task_words:
-                    if len(tw) > 3 and tw in desc_lower:
+                overlap = len(desc_tokens & task_tokens)
+                score = overlap / len(task_tokens) if task_tokens else 0.0
+                # Substring boost: any task stem that appears inside the raw
+                # description still counts, to catch cases the tokeniser missed.
+                for tt in task_tokens:
+                    if len(tt) >= 4 and tt in desc_lower:
                         score = max(score, 0.4)
                 best = max(best, score)
             return best
 
-        # Priority order matters — protect and hands_off checked first
-        categories = [
-            ("protect", self.tasks.protect),
-            ("hands_off", self.tasks.hands_off),
-            ("coach", self.tasks.coach),
-            ("automate", self.tasks.automate),
-            ("augment", self.tasks.augment),
+        candidates = [
+            ("protect", _score(self.tasks.protect)),
+            ("hands_off", _score(self.tasks.hands_off)),
+            ("coach", _score(self.tasks.coach)),
+            ("automate", _score(self.tasks.automate)),
+            ("augment", _score(self.tasks.augment)),
         ]
-
-        best_cat = "augment"
-        best_score = 0.0
-        for cat_name, cat_tasks in categories:
-            s = _score(cat_tasks)
-            if s > best_score:
-                best_score = s
-                best_cat = cat_name
-
-        return best_cat if best_score >= 0.3 else "augment"
+        best_cat, best_score = max(candidates, key=lambda pair: pair[1])
+        if best_score < 0.3:
+            return "augment"
+        # Preserve protect/hands_off priority on tie (dict iteration above
+        # already picks the first tied entry thanks to stable max, but make
+        # it explicit).
+        for cat, score in candidates:
+            if cat in ("protect", "hands_off") and score == best_score:
+                return cat
+        return best_cat
 
 
 # ── Profile Storage ──────────────────────────────────────────────────────────
@@ -265,48 +292,94 @@ class ProfileStore:
     def _parse_profile(self, name: str, content: str) -> Profile:
         """Parse markdown profile into structured Profile object.
 
-        This is a best-effort parser — profiles are primarily
-        human-readable markdown and may not parse perfectly.
+        Best-effort parser. Profiles are primarily human-readable markdown
+        so small formatting drifts are expected, but the fields below are
+        required by talent_status / classify_task / the admin dashboard
+        and have to come out correctly for a well-formed profile.
         """
         profile = Profile(name=name)
 
-        # Extract expertise ratings from tables
-        expertise_pattern = r"\|\s*(.+?)\s*\|\s*(\d)\s*.*?\|\s*(.*?)\s*\|\s*(.*?)\s*\|"
-        for match in re.finditer(expertise_pattern, content):
-            domain = match.group(1).strip()
-            if domain and domain != "Domain" and not domain.startswith("--"):
+        # ── Section 1: Identity Card ─────────────────────────────────
+        identity = self._extract_section(content, r"##\s+1\.?\s+Identity Card")
+        if identity:
+            for field_name, attr in [
+                ("Name", "name"),
+                ("Role", "role"),
+                ("Organisation", "organization"),
+                ("Organization", "organization"),
+                ("Industry", "industry"),
+            ]:
+                m = re.search(
+                    rf"\|\s*\*\*{field_name}\*\*\s*\|\s*(.+?)\s*\|",
+                    identity,
+                    re.IGNORECASE,
+                )
+                if m:
+                    val = m.group(1).strip()
+                    if attr == "name" and val:
+                        profile.name = val
+                    elif val:
+                        setattr(profile, attr, val)
+            ctx = re.search(
+                r"\*\*Context summary\*\*:\s*(.+?)(?:\n\n|\Z)",
+                identity,
+                re.DOTALL,
+            )
+            if ctx:
+                profile.context_summary = ctx.group(1).strip()
+
+        # ── Section 2: Expertise Map (scoped, so contrast tables don't leak) ──
+        expertise_section = self._extract_section(content, r"##\s+2\.?\s+Expertise Map")
+        if expertise_section:
+            expertise_pattern = r"\|\s*([^|\n]+?)\s*\|\s*(\d)\s*[^|]*?\|\s*([^|\n]*?)\s*\|\s*([^|\n]*?)\s*\|"
+            for match in re.finditer(expertise_pattern, expertise_section):
+                domain = match.group(1).strip()
+                # Filter out header rows, divider rows, and obvious garbage.
+                if not domain or domain.lower() == "domain":
+                    continue
+                if set(domain) <= {"-"} or "---" in domain:
+                    continue
+                if domain.startswith("**") and domain.endswith("**"):
+                    continue
                 try:
                     rating = int(match.group(2))
-                    profile.expertise.append(ExpertiseRating(
-                        domain=domain,
-                        rating=rating,
-                        evidence=match.group(3).strip(),
-                        growth_direction=match.group(4).strip()
-                    ))
                 except ValueError:
-                    pass
+                    continue
+                profile.expertise.append(ExpertiseRating(
+                    domain=domain,
+                    rating=rating,
+                    evidence=match.group(3).strip(),
+                    growth_direction=match.group(4).strip(),
+                ))
 
-        # Extract calibration from yaml block
+        # ── Section 3: AI Relationship Status (dependency risk) ──────
+        ai_section = self._extract_section(content, r"##\s+3\.?\s+AI Relationship")
+        if ai_section:
+            m = re.search(r"Dependency Risk Score\*?\*?:?\s*(\d+)\s*/\s*10", ai_section)
+            if m:
+                profile.dependency_risk_score = int(m.group(1))
+
+        # ── Section 4: Growth Trajectory ─────────────────────────────
+        growth_section = self._extract_section(content, r"##\s+4\.?\s+Growth Trajectory")
+        if growth_section:
+            gp = re.search(r"Growth Potential Score\*?\*?:?\s*(\d+)\s*/\s*10", growth_section)
+            if gp:
+                profile.growth_potential_score = int(gp.group(1))
+            for list_name, attr in [
+                ("Skills to develop", "skills_to_develop"),
+                ("Skills to protect", "skills_to_protect"),
+                ("Career goals", "career_goals"),
+            ]:
+                items = self._extract_subsection_list(growth_section, list_name)
+                if items:
+                    setattr(profile, attr, items)
+
+        # ── Section 7: Calibration YAML ──────────────────────────────
         yaml_match = re.search(r"```yaml\n(.*?)```", content, re.DOTALL)
         if yaml_match:
-            yaml_text = yaml_match.group(1)
-            for line in yaml_text.strip().split("\n"):
-                if ":" in line:
-                    key, val = line.split(":", 1)
-                    key = key.strip()
-                    val = val.strip()
-                    if key == "default_friction_level":
-                        profile.calibration.default_friction_level = val
-                    elif key == "coaching_frequency":
-                        profile.calibration.coaching_frequency = val
-                    elif key == "challenge_level":
-                        profile.calibration.challenge_level = val
-                    elif key == "feedback_style":
-                        profile.calibration.feedback_style = val
-                    elif key == "explanation_depth":
-                        profile.calibration.explanation_depth = val
+            self._parse_calibration_yaml(yaml_match.group(1), profile.calibration)
 
-        # Extract task classifications
+        # ── Section 6: Task Classifications ──────────────────────────
         task_sections = {
             "### Automate": "automate",
             "### Augment": "augment",
@@ -325,9 +398,9 @@ class ProfileStore:
                         items.append(line[2:].strip())
                 setattr(profile.tasks, attr, items)
 
-        # Extract red lines
+        # ── Section 8: Red Lines ─────────────────────────────────────
         red_lines_section = re.search(
-            r"## 8\. Red Lines.*?\n(.*?)(?=\n## |\Z)",
+            r"## 8\.?\s+Red Lines.*?\n(.*?)(?=\n##\s|\Z)",
             content, re.DOTALL
         )
         if red_lines_section:
@@ -338,6 +411,86 @@ class ProfileStore:
                     profile.red_lines.append(cleaned)
 
         return profile
+
+    @staticmethod
+    def _extract_section(content: str, header_re: str) -> str:
+        """Return the body of a top-level `## N.` section, or empty string."""
+        m = re.search(
+            rf"{header_re}[^\n]*\n(.*?)(?=\n##\s|\Z)",
+            content,
+            re.DOTALL | re.IGNORECASE,
+        )
+        return m.group(1) if m else ""
+
+    @staticmethod
+    def _extract_subsection_list(section: str, label: str) -> list[str]:
+        """Extract a numbered or bulleted list under `**Label**:` within a section."""
+        m = re.search(
+            rf"\*\*{re.escape(label)}\*\*:?\s*\n(.*?)(?=\n\n|\n\*\*|\n##|\Z)",
+            section,
+            re.DOTALL | re.IGNORECASE,
+        )
+        if not m:
+            return []
+        items: list[str] = []
+        for line in m.group(1).split("\n"):
+            line = line.strip()
+            # Strip list marker (-, *, 1., 2., etc.)
+            stripped = re.sub(r"^(?:[-*]|\d+\.)\s+", "", line)
+            if stripped and stripped != line:
+                # Only count lines that had a list marker
+                items.append(stripped)
+        return items
+
+    @staticmethod
+    def _parse_calibration_yaml(yaml_text: str, calibration: CalibrationSettings) -> None:
+        """Tiny YAML-ish parser for the calibration block.
+
+        Handles scalar keys and simple `- item` lists. Does not cover the
+        full YAML spec; the calibration block is written by TAL and stays
+        within this subset.
+        """
+        current_list_key: str | None = None
+        list_keys = {
+            "cognitive_forcing_domains",
+            "contrastive_explanation_domains",
+            "automation_permissions",
+        }
+        for raw_line in yaml_text.splitlines():
+            line = raw_line.rstrip()
+            if not line.strip():
+                continue
+            if line.lstrip().startswith("#"):
+                continue
+            if line.startswith(" ") or line.startswith("\t"):
+                item = line.strip()
+                if item.startswith("- ") and current_list_key:
+                    value = item[2:].strip()
+                    if current_list_key == "cognitive_forcing_domains":
+                        calibration.cognitive_forcing_domains.append(value)
+                    elif current_list_key == "contrastive_explanation_domains":
+                        calibration.contrastive_explanation_domains.append(value)
+                    elif current_list_key == "automation_permissions":
+                        calibration.automation_permissions.append(value)
+                continue
+            if ":" not in line:
+                continue
+            key, val = line.split(":", 1)
+            key = key.strip()
+            val = val.split("#", 1)[0].strip()  # strip inline comments
+            current_list_key = key if key in list_keys and not val else None
+            if current_list_key:
+                continue
+            if key == "default_friction_level":
+                calibration.default_friction_level = val
+            elif key == "coaching_frequency":
+                calibration.coaching_frequency = val
+            elif key == "challenge_level":
+                calibration.challenge_level = val
+            elif key == "feedback_style":
+                calibration.feedback_style = val
+            elif key == "explanation_depth":
+                calibration.explanation_depth = val
 
     def log_interaction(self, name: str, log: InteractionLog) -> None:
         """Append an interaction log entry to the profile."""
