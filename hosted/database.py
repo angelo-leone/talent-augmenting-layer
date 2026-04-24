@@ -119,6 +119,28 @@ class Organization(Base):
     )
 
 
+class OrgInvite(Base):
+    """A pending invitation to join an organisation.
+
+    Signed by a random token; claimable once by a user whose email matches
+    (case-insensitive). Owners cannot be minted via invite — they must be
+    promoted explicitly from within an existing membership.
+    """
+    __tablename__ = "org_invites"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    org_id = Column(Integer, ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True)
+    email = Column(String(320), nullable=False, index=True)
+    role = Column(Enum(UserRole), nullable=False, default=UserRole.member)
+    token = Column(String(128), unique=True, nullable=False, index=True)
+    created_by_user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+    expires_at = Column(DateTime, nullable=False)
+    accepted_at = Column(DateTime, nullable=True)
+    accepted_by_user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    revoked_at = Column(DateTime, nullable=True)
+
+
 class User(Base):
     __tablename__ = "users"
 

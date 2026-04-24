@@ -188,6 +188,51 @@ async def send_checkin_reminder(
     return True
 
 
+async def send_invite_email(
+    to_email: str,
+    org_name: str,
+    inviter_name: str,
+    role: str,
+    invite_url: str,
+) -> bool:
+    """Send an org-membership invite email.
+
+    Returns True if sent via SendGrid (or logged when no API key configured).
+    """
+    subject = f"{inviter_name} invited you to {org_name} on Talent-Augmenting Layer"
+    body_text = (
+        f"Hi,\n\n"
+        f"{inviter_name} has invited you to join {org_name} on Talent-Augmenting Layer "
+        f"as a {role}.\n\n"
+        f"Accept here (sign in with Google):\n{invite_url}\n\n"
+        f"If you weren't expecting this invite, you can ignore this email.\n\n"
+        f"-- Talent-Augmenting Layer"
+    )
+    body_html = (
+        f"<div style='font-family: -apple-system, sans-serif; max-width: 600px; margin: 0 auto; "
+        f"background: #1a1a2e; color: #eee; padding: 2rem; border-radius: 12px;'>"
+        f"<h2 style='color: #e94560; margin-top: 0;'>You've been invited</h2>"
+        f"<p><strong>{inviter_name}</strong> invited you to join "
+        f"<strong>{org_name}</strong> on Talent-Augmenting Layer as a <strong>{role}</strong>.</p>"
+        f"<p style='margin-top: 1.5em;'>"
+        f"<a href='{invite_url}' style='display: inline-block; padding: 0.75rem 1.5rem; "
+        f"background: #e94560; color: white; text-decoration: none; border-radius: 8px; "
+        f"font-weight: 600;'>Accept invite</a></p>"
+        f"<p style='color: #999; font-size: 0.85em; margin-top: 2em; padding-top: 1.5em; "
+        f"border-top: 1px solid #333;'>"
+        f"If you weren't expecting this, ignore this email.<br>"
+        f"Talent-Augmenting Layer &mdash; making workers better, not dependent.</p>"
+        f"</div>"
+    )
+    if SENDGRID_API_KEY:
+        return await _send_via_sendgrid(to_email, subject, body_text, body_html)
+    logger.info(
+        "Invite email (logged, no SendGrid key):\n  To: %s\n  Org: %s\n  URL: %s",
+        to_email, org_name, invite_url,
+    )
+    return True
+
+
 async def _send_via_sendgrid(
     to_email: str,
     subject: str,

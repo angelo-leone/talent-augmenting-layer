@@ -25,6 +25,7 @@ from hosted.database import (
     get_db,
     async_session_factory,
     User,
+    UserRole,
     Profile,
     AssessmentSession,
     AssessmentStatus,
@@ -35,6 +36,8 @@ from hosted.database import (
     TaskCategory,
     EngagementLevel,
     SkillSignal,
+    Organization,
+    OrgInvite,
     compute_passive_ratio,
 )
 from hosted.org_service import get_org_summary_scoped
@@ -59,7 +62,7 @@ from hosted.scoring import (
     generate_profile_markdown,
     get_assessment_protocol,
 )
-from hosted.email_service import generate_checkin_questions
+from hosted.email_service import generate_checkin_questions, send_invite_email
 from hosted.scheduler import setup_scheduler
 from hosted.mcp_sse_handler import mcp_app, get_session_manager, RESOURCE_URL, ISSUER_URL
 
@@ -254,7 +257,13 @@ async def auth_callback(request: Request):
     user = await get_or_create_user(google_id, email, name, picture)
     session_token = create_session_token(user.id, user.email, user.name)
 
-    response = RedirectResponse(url="/dashboard", status_code=302)
+    # If an invite acceptance (or other safe path) was stashed before login,
+    # resume it now. Only internal absolute paths are accepted.
+    next_url = request.session.pop("post_login_next", None)
+    if not (isinstance(next_url, str) and next_url.startswith("/") and not next_url.startswith("//")):
+        next_url = "/dashboard"
+
+    response = RedirectResponse(url=next_url, status_code=302)
     set_session_cookie(response, session_token)
     return response
 
@@ -617,6 +626,208 @@ async def api_org_summary(request: Request):
     async with async_session_factory() as db:
         summary = await get_org_summary_scoped(admin_user["org_id"], db)
     return JSONResponse(summary)
+
+
+# ---------------------------------------------------------------------------
+# Org invites
+# ---------------------------------------------------------------------------
+
+INVITE_TTL_DAYS = 7
+
+
+@app.post("/api/admin/invite")
+async def api_admin_invite(request: Request):
+    """Admin creates an invite. Emails the invitee; returns the URL so the
+    admin can copy it manually if email delivery fails."""
+    import secrets
+    admin_user = await require_admin(request)
+    body = await request.json()
+    email = (body.get("email") or "").strip().lower()
+    role_raw = (body.get("role") or "member").strip().lower()
+    if not email or "@" not in email:
+        raise HTTPException(status_code=400, detail="Valid email is required")
+    if role_raw not in ("member", "admin"):
+        raise HTTPException(status_code=400, detail="Role must be member or admin")
+    role = UserRole.admin if role_raw == "admin" else UserRole.member
+
+    token = secrets.token_urlsafe(32)
+    expires = datetime.datetime.utcnow() + datetime.timedelta(days=INVITE_TTL_DAYS)
+
+    async with async_session_factory() as db:
+        org_result = await db.execute(
+            select(Organization).where(Organization.id == admin_user["org_id"])
+        )
+        org = org_result.scalar_one_or_none()
+        if not org:
+            raise HTTPException(status_code=404, detail="Organization not found")
+
+        # Bounce if the email is already a member of any org — reassignment
+        # should be a deliberate action, not an invite side-effect.
+        existing_user_result = await db.execute(select(User).where(User.email == email))
+        existing_user = existing_user_result.scalar_one_or_none()
+        if existing_user and existing_user.org_id == org.id:
+            raise HTTPException(status_code=409, detail="User already a member of this org")
+        if existing_user and existing_user.org_id is not None:
+            raise HTTPException(
+                status_code=409,
+                detail=f"User already belongs to a different org (id={existing_user.org_id})",
+            )
+
+        invite = OrgInvite(
+            org_id=org.id,
+            email=email,
+            role=role,
+            token=token,
+            created_by_user_id=admin_user["id"],
+            expires_at=expires,
+        )
+        db.add(invite)
+        await db.commit()
+        await db.refresh(invite)
+
+    invite_url = f"{APP_URL}/invite/{token}"
+    email_sent = await send_invite_email(
+        to_email=email,
+        org_name=org.name,
+        inviter_name=admin_user.get("name") or admin_user.get("email", "An admin"),
+        role=role_raw,
+        invite_url=invite_url,
+    )
+    return JSONResponse({
+        "id": invite.id,
+        "email": email,
+        "role": role_raw,
+        "expires_at": expires.isoformat(),
+        "invite_url": invite_url,
+        "email_sent": email_sent,
+    })
+
+
+@app.get("/api/admin/invites")
+async def api_admin_list_invites(request: Request):
+    """List pending (not accepted, not revoked, not expired) invites for the admin's org."""
+    admin_user = await require_admin(request)
+    now = datetime.datetime.utcnow()
+    async with async_session_factory() as db:
+        result = await db.execute(
+            select(OrgInvite).where(
+                OrgInvite.org_id == admin_user["org_id"],
+                OrgInvite.accepted_at.is_(None),
+                OrgInvite.revoked_at.is_(None),
+                OrgInvite.expires_at > now,
+            ).order_by(OrgInvite.created_at.desc())
+        )
+        invites = result.scalars().all()
+    return JSONResponse({
+        "invites": [
+            {
+                "id": inv.id,
+                "email": inv.email,
+                "role": inv.role.value if inv.role else "member",
+                "created_at": inv.created_at.isoformat(),
+                "expires_at": inv.expires_at.isoformat(),
+                "invite_url": f"{APP_URL}/invite/{inv.token}",
+            }
+            for inv in invites
+        ],
+    })
+
+
+@app.post("/api/admin/invite/{invite_id}/revoke")
+async def api_admin_revoke_invite(invite_id: int, request: Request):
+    admin_user = await require_admin(request)
+    async with async_session_factory() as db:
+        result = await db.execute(
+            select(OrgInvite).where(
+                OrgInvite.id == invite_id,
+                OrgInvite.org_id == admin_user["org_id"],
+            )
+        )
+        invite = result.scalar_one_or_none()
+        if invite is None:
+            raise HTTPException(status_code=404, detail="Invite not found")
+        if invite.accepted_at is not None:
+            raise HTTPException(status_code=409, detail="Already accepted")
+        invite.revoked_at = datetime.datetime.utcnow()
+        await db.commit()
+    return JSONResponse({"ok": True})
+
+
+@app.get("/invite/{token}", response_class=HTMLResponse)
+async def accept_invite(token: str, request: Request):
+    """Accept an org invite. If not logged in, bounce through Google OAuth
+    and return here. If the authed user's email matches the invite, join the
+    org; otherwise show a mismatch page."""
+    user = get_current_user(request)
+    if not user:
+        # Stash the invite URL in the session so /auth/callback can replay it.
+        request.session["post_login_next"] = f"/invite/{token}"
+        return RedirectResponse(url="/login", status_code=302)
+
+    now = datetime.datetime.utcnow()
+    async with async_session_factory() as db:
+        invite_result = await db.execute(select(OrgInvite).where(OrgInvite.token == token))
+        invite = invite_result.scalar_one_or_none()
+        if invite is None:
+            return templates.TemplateResponse(
+                name="invite_error.html",
+                request=request,
+                context={"user": user, "reason": "Invite not found or already used."},
+                status_code=404,
+            )
+        if invite.revoked_at is not None:
+            return templates.TemplateResponse(
+                name="invite_error.html", request=request,
+                context={"user": user, "reason": "Invite was revoked."}, status_code=410,
+            )
+        if invite.accepted_at is not None:
+            return templates.TemplateResponse(
+                name="invite_error.html", request=request,
+                context={"user": user, "reason": "Invite already accepted."}, status_code=410,
+            )
+        if invite.expires_at < now:
+            return templates.TemplateResponse(
+                name="invite_error.html", request=request,
+                context={"user": user, "reason": "Invite has expired."}, status_code=410,
+            )
+        if invite.email.lower() != (user.get("email") or "").lower():
+            return templates.TemplateResponse(
+                name="invite_error.html", request=request,
+                context={
+                    "user": user,
+                    "reason": (
+                        f"This invite is for {invite.email}. You are signed in as "
+                        f"{user.get('email')}. Sign out and sign back in with the "
+                        "correct Google account."
+                    ),
+                }, status_code=403,
+            )
+
+        # Apply membership. Refuse to downgrade an existing owner.
+        user_result = await db.execute(select(User).where(User.id == user["id"]))
+        db_user = user_result.scalar_one()
+        if db_user.role == UserRole.owner and db_user.org_id != invite.org_id:
+            return templates.TemplateResponse(
+                name="invite_error.html", request=request,
+                context={
+                    "user": user,
+                    "reason": "You are the owner of a different org. Transfer ownership first.",
+                }, status_code=409,
+            )
+        org_result = await db.execute(select(Organization).where(Organization.id == invite.org_id))
+        org = org_result.scalar_one()
+
+        db_user.org_id = invite.org_id
+        db_user.role = invite.role
+        invite.accepted_at = now
+        invite.accepted_by_user_id = db_user.id
+        await db.commit()
+
+    return templates.TemplateResponse(
+        name="invite_accepted.html",
+        request=request,
+        context={"user": user, "org": {"id": org.id, "name": org.name}, "role": invite.role.value},
+    )
 
 
 @app.get("/api/profile")

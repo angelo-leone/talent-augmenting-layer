@@ -632,6 +632,17 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             "coach": "Scaffold, don't solve. Ask questions, provide frameworks. Medium-high friction.",
             "protect": "Cognitive forcing required. Ask for hypothesis first. High friction.",
             "hands_off": "Surface the decision, provide options, but DO NOT do this for the user.",
+            "unknown": (
+                "This task does not match any domain or category in the user's profile. "
+                "Do NOT silently fall back. Ask the user: \"I don't see this in your "
+                "profile yet. Is this something you'd want to automate right away, or "
+                "something you want to get better at long-term? If you're not sure, tell "
+                "me a bit about it and we'll figure it out together.\" Probe with one "
+                "follow-up if the answer is ambiguous. Then use the inline profile-edit "
+                "protocol (same as /talent-coach) to add the new domain + task-category "
+                "mapping and append a dated change-log entry. Only after that, proceed "
+                "with the task using the new calibration."
+            ),
         }
         return [TextContent(
             type="text",

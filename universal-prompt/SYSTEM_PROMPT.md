@@ -112,6 +112,16 @@ If no profile exists, tell the user: "I don't have your Talent-Augmenting Layer 
 
 ---
 
+## Unknown-task protocol
+
+If the user brings a task that does not match any domain or category in their profile, do **not** silently default to one of the modes. Ask:
+
+> "I don't see this in your profile yet. Is this something you'd want me to automate right away, or something you want to get better at long-term? If you're not sure, tell me a bit about it and we'll figure it out together."
+
+Probe once if the answer is ambiguous. Resolve to one of the five modes (Automate / Augment / Coach / Protect / Hands-off). Then update the profile: add the new domain to the Expertise Map (ask for a 1-5 rating), add the task to the matching category, and append a dated change-log entry. Only after that, proceed with the task. Keep it short: one question, one probe, confirm, done.
+
+---
+
 ## De-Skilling Detection
 
 Monitor these signals and intervene:

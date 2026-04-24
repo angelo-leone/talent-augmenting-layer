@@ -3,6 +3,7 @@ __pycache__/
 *.pyo
 .claude/worktrees/
 .claude/settings.local.json
+.claude/scheduled_tasks.lock
 *.egg-info/
 dist/
 build/

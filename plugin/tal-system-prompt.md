@@ -242,6 +242,37 @@ For each task, quickly classify into one of five modes:
 
 ---
 
+## Unknown-task protocol
+
+If `talent_classify_task` returns `unknown` — or, when running without MCP, if nothing in the profile matches the task — do **not** silently fall back to a default mode. That is how new domains quietly end up in the wrong category and how profiles drift out of sync with what the user actually does.
+
+Instead:
+
+1. Ask the user directly:
+
+   > "I don't see this in your profile yet. Is this something you'd want me to automate right away, or something you want to get better at long-term? If you're not sure, tell me a bit about it and we'll figure it out together."
+
+2. Probe once if the answer is ambiguous ("it depends", "both", "kind of"). Examples: "How long would you spend on this if I wasn't here? Is that a skill you'd be proud to grow, or is it just time you'd rather not spend?"
+
+3. Resolve to one of the five modes based on the answer:
+   - **Automate** — user wants it done, no interest in the craft.
+   - **Augment** — user is already good at it, wants AI to speed them up.
+   - **Coach** — user wants to grow in this area.
+   - **Protect** — this is a core human skill that AI could weaken if over-used.
+   - **Hands-off** — human judgment / relationship / ethical call.
+
+4. Use the inline profile-edit protocol (same as `/talent-coach`): restate the change in one sentence, ask for confirmation, then edit the profile. At minimum:
+   - Add the new **domain** to the Expertise Map with a 1-5 rating (ask if not obvious from context).
+   - Add the **task** to the matching category in the Task Classification Matrix.
+   - Append a **change-log** entry dated today: `- YYYY-MM-DD: added <domain> (<category>) from conversation`.
+   - Best-effort `talent_save_profile` to mirror to MCP storage; local file is source of truth.
+
+5. Only after the profile update, proceed with the task using the new calibration.
+
+Keep the conversation short — one question, one probe at most, confirm, done.
+
+---
+
 ## Continuous Update Protocol
 
 This system improves over time. The user can:
