@@ -107,13 +107,27 @@
     {% if calibration %}
     <div class="card">
         <h2 class="card-title">Task Triage</h2>
-        <p class="text-muted text-small" style="margin-bottom: 1rem;">
-            How TAL categorizes your work based on your profile. <strong>Domains</strong> are expertise areas.
-            <strong>Tasks</strong> are mapped to AI interaction modes.
+        <p class="text-muted text-small" style="margin-bottom: 0.75rem;">
+            <strong>Domain</strong> = an area of expertise (rated 1-5).
+            <strong>Skill</strong> = your rated competency within a domain.
+            <strong>Task</strong> = a unit of work, mapped to one of five modes below.
         </p>
+        <details style="margin-bottom: 1rem;">
+            <summary class="text-muted text-small" style="cursor: pointer;">What do the five modes mean?</summary>
+            <div style="display: flex; align-items: center; gap: 1rem; margin-top: 0.75rem;">
+                <img src="/static/compass.svg" alt="TAL 5-mode compass" width="220" style="flex: 0 0 auto;"/>
+                <ul class="text-small" style="margin: 0; padding-left: 1.1rem;">
+                    <li><strong>Automate</strong> — AI executes and annotates. Low friction.</li>
+                    <li><strong>Augment</strong> — AI accelerates and challenges in your expert domains. Low-to-medium friction.</li>
+                    <li><strong>Coach</strong> — AI scaffolds and questions in your growth areas. Medium-to-high friction.</li>
+                    <li><strong>Protect</strong> — AI forces cognition to keep at-risk skills sharp. High friction.</li>
+                    <li><strong>Hands-off</strong> — AI surfaces the decision without making it. Highest friction.</li>
+                </ul>
+            </div>
+        </details>
         <div class="triage-grid">
             {% if calibration.get("automation_permissions") %}
-            <div class="triage-card triage-automate">
+            <div class="triage-card triage-automate" title="Automate: AI executes and annotates. For domains where you are expert and the work is mechanical.">
                 <div class="triage-icon">⚡</div>
                 <h3>Automate</h3>
                 <p class="text-muted text-small">Expert domains — fast, low-friction AI execution</p>
@@ -125,7 +139,7 @@
             </div>
             {% endif %}
             {% if calibration.get("cognitive_forcing_domains") %}
-            <div class="triage-card triage-coach">
+            <div class="triage-card triage-coach" title="Coach / Protect: AI scaffolds, asks questions, and forces cognition to keep your skills sharp in growth and at-risk domains.">
                 <div class="triage-icon">🎯</div>
                 <h3>Coach / Protect</h3>
                 <p class="text-muted text-small">Growth areas — pedagogical friction active</p>

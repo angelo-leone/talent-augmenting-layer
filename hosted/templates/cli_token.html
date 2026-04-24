@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}CLI Access Token -- Talent-Augmenting Layer{% endblock %}
+
+{% block content %}
+<div class="cli-token-page">
+    <h1>CLI Access Token</h1>
+    <p class="text-muted">
+        Paste this into <code>/talent-sync</code> (or any CLI that syncs your local profile to the hosted app).
+        Expires in {{ expires_hours }} hours. After that, come back to this page to grab a fresh one.
+    </p>
+
+    <div class="token-block">
+        <pre id="token-value">{{ token }}</pre>
+        <button type="button" class="btn btn-secondary" onclick="copyToken()">Copy</button>
+        <span id="copied-flag" class="text-muted" style="display:none; margin-left: 0.75rem;">Copied.</span>
+    </div>
+
+    <h2 style="margin-top: 2rem;">How to use</h2>
+    <ol>
+        <li>Click <strong>Copy</strong> above.</li>
+        <li>In Claude Code (or any MCP client), run <code>/talent-sync</code>.</li>
+        <li>When prompted, paste the token. It's cached at <code>~/.talent-augmenting-layer/auth.json</code>.</li>
+    </ol>
+
+    <p class="text-muted" style="margin-top: 2rem;">
+        <strong>Keep it private.</strong> Anyone with this token can push profile changes to your hosted account for the next {{ expires_hours }} hours.
+        If you suspect a leak, <a href="/logout">log out</a> — that invalidates all active sessions.
+    </p>
+</div>
+
+<script>
+function copyToken() {
+    const el = document.getElementById('token-value');
+    navigator.clipboard.writeText(el.textContent.trim()).then(() => {
+        const flag = document.getElementById('copied-flag');
+        flag.style.display = 'inline';
+        setTimeout(() => { flag.style.display = 'none'; }, 1500);
+    });
+}
+</script>
+{% endblock %}

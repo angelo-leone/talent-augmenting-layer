@@ -241,6 +241,43 @@ async def logout():
 
 
 # ---------------------------------------------------------------------------
+# CLI access token
+# ---------------------------------------------------------------------------
+
+@app.get("/cli-token", response_class=HTMLResponse)
+async def cli_token_page(request: Request):
+    """Show the current session JWT so CLI tools (/talent-sync) can use it."""
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login?next=/cli-token", status_code=302)
+    token = request.cookies.get(COOKIE_NAME, "")
+    return templates.TemplateResponse(
+        name="cli_token.html",
+        request=request,
+        context={"user": user, "token": token, "expires_hours": 72},
+    )
+
+
+@app.get("/api/auth/token")
+async def api_auth_token(request: Request):
+    """Return the currently-authenticated session JWT as JSON for CLI pickup."""
+    user = get_current_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    token = request.cookies.get(COOKIE_NAME)
+    if not token:
+        # Caller is authenticated via a pre-existing Bearer token — re-issue
+        # a fresh JWT for CLI storage.
+        from hosted.auth import create_session_token
+        token = create_session_token(user["id"], user["email"], user["name"])
+    return JSONResponse({
+        "token": token,
+        "expires_in_hours": 72,
+        "user": {"email": user["email"], "name": user["name"]},
+    })
+
+
+# ---------------------------------------------------------------------------
 # Assessment routes
 # ---------------------------------------------------------------------------
 
