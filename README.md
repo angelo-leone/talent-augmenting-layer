@@ -46,12 +46,15 @@ Talent-Augmenting Layer is a **layer**, not a product tied to one platform. It w
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  Tier 4: Hosted Web App                                         │
+│  Tier 4: Hosted Web App + Remote MCP                            │
 │  Browser-based · Google OAuth · LLM assessment · email check-ins│
+│  Streamable HTTP + SSE endpoint at /mcp (OAuth 2.1 + PKCE)      │
 ├─────────────────────────────────────────────────────────────────┤
-│  Tier 3: MCP Server                                             │
+│  Tier 3: MCP Server (local + 1-click installers)                │
 │  14 tools · 5 resources · 4 prompts · automatic tracking        │
-│  Claude Code · Cursor · Windsurf · Claude Desktop               │
+│  • stdio for Claude Code / Cursor / Windsurf                    │
+│  • Desktop Extension (.mcpb) for Claude Desktop                 │
+│  • Claude Cowork plugin marketplace (.claude-plugin)            │
 ├─────────────────────────────────────────────────────────────────┤
 │  Tier 2: Platform-Native                                        │
 │  Custom GPTs · Gemini Gems · Claude Projects                    │
@@ -72,6 +75,8 @@ Talent-Augmenting Layer is a **layer**, not a product tied to one platform. It w
 All tiers share: same TALQ instrument, same scoring,
 same profile format, same behavioural rules.
 ```
+
+> Full system diagram (Mermaid) in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ### The Five Modes
 
@@ -107,7 +112,10 @@ Pick the option that matches your setup:
 |--------|------|---------------|
 | **Any LLM** | 2 min | Access to any LLM with custom instructions |
 | **Custom GPT / Gem / Project** | 5 min | ChatGPT Plus, Gemini, or Claude account |
-| **MCP Server** | 10 min | Python + an MCP client (Claude Code, Cursor, Windsurf) |
+| **Claude Desktop extension** | 1 click | Double-click `desktop-extension/talent-augmenting-layer.mcpb` |
+| **Claude Cowork plugin** | 1 click | Install from the `.claude-plugin` marketplace |
+| **Remote MCP (hosted)** | sign-in | Any MCP client that supports Streamable HTTP + OAuth |
+| **MCP Server (stdio)** | 10 min | Python + an MCP client (Claude Code, Cursor, Windsurf) |
 | **Hosted Web App** | 15 min | Docker or Python + Google Cloud OAuth |
 
 ### Any LLM (2 min)
@@ -123,7 +131,31 @@ Pre-configured instances with persistent context and conversation starters:
 - **Gemini**: Follow `platform-configs/gemini-gem.md` to create a Gem
 - **Claude**: Follow `platform-configs/claude-project.md` to set up a Project
 
-### MCP Server (10 min)
+### Claude Desktop Extension (1 click)
+
+Prebuilt `.mcpb` bundle — no Python setup, no config editing:
+
+1. Download `desktop-extension/talent-augmenting-layer.mcpb`.
+2. Double-click to install in Claude Desktop.
+3. Pick where your profiles should live, then run `talent-assess`.
+
+Profiles are stored locally (default: `~/.talent-augmenting-layer/profiles/`). No cloud, no API keys.
+
+### Claude Cowork Plugin (1 click)
+
+Install from the `.claude-plugin` marketplace — ships three Claude Code skills (`talent-assess`, `talent-coach`, `talent-update`) plus the MCP server config in `plugin/.mcp.json`.
+
+### Remote MCP (hosted, OAuth)
+
+For MCP clients that support Streamable HTTP + OAuth (e.g. Claude Desktop MCP Connector), point them at:
+
+```
+https://proworker-hosted.onrender.com/mcp
+```
+
+Sign in with Google; your profile persists in the hosted PostgreSQL database. See `docs/REMOTE_MCP_SETUP.md` and `server.json`.
+
+### MCP Server (10 min, local stdio)
 
 Full tool integration with automatic tracking:
 ```bash
@@ -173,7 +205,10 @@ Talent-Augmenting Layer is designed as a **layer** -- not tied to any specific t
 |------|-----------|-------|
 | **Tier 1**: Universal prompt | ChatGPT, Claude, Gemini, Copilot, Perplexity, any LLM API | Copy-paste (2 min) |
 | **Tier 2**: Platform-native | ChatGPT Custom GPTs, Gemini Gems, Claude Projects | Pre-configured instance (5 min) |
-| **Tier 3**: MCP Server | Claude Code, Cursor, Windsurf, Claude Desktop | pip install + config (10 min) |
+| **Tier 3**: MCP Server (stdio) | Claude Code, Cursor, Windsurf | pip install + config (10 min) |
+| **Tier 3**: Desktop Extension (.mcpb) | Claude Desktop | 1-click install |
+| **Tier 3**: Claude Cowork plugin | Claude Code plugin marketplace | 1-click install |
+| **Tier 3**: Remote MCP (Streamable HTTP + OAuth) | Any MCP client with remote support | Google sign-in |
 | **Tier 4**: Hosted web app | Any browser | Docker deploy (15 min) |
 
 The profile is **portable markdown** -- it works anywhere you can inject system context. Take your profile from Claude Code to ChatGPT to Cursor and back. Your AI calibration follows you.
@@ -214,6 +249,18 @@ talent-augmenting-layer/
 │   │   ├── talent-update.md         # /talent-update slash command
 │   │   └── talent-coach.md          # /talent-coach slash command
 │   └── settings.local.json            # Claude Code permissions
+├── .claude-plugin/
+│   └── marketplace.json               # Claude Cowork plugin marketplace entry
+├── plugin/                             # Claude Code plugin source (bundled skills + .mcp.json)
+│   ├── .claude-plugin/plugin.json
+│   ├── .mcp.json                       # MCP server config shipped with the plugin
+│   └── skills/                         # talent-assess · talent-coach · talent-update skills
+├── desktop-extension/                  # Claude Desktop 1-click extension
+│   ├── manifest.json                   # .mcpb manifest (MCP + user config schema)
+│   ├── talent-augmenting-layer.mcpb    # Prebuilt bundle — double-click to install
+│   └── src/                            # Bundled server (assessment, profile_manager, server)
+├── server.json                         # MCP registry manifest (Streamable HTTP remote)
+├── render.yaml                         # Render deployment (hosted service + PostgreSQL)
 ├── universal-prompt/                   # Tier 1: Works with any LLM
 │   ├── SYSTEM_PROMPT.md                # Full system prompt (~4k tokens)
 │   ├── SYSTEM_PROMPT_COMPACT.md        # Compact version for token-limited platforms
@@ -255,7 +302,10 @@ talent-augmenting-layer/
 ├── web-ui/
 │   └── index.html                      # Standalone web assessment UI
 ├── docs/
-│   └── integration-guide.md            # 4-tier integration guide
+│   ├── ARCHITECTURE.md                 # System architecture (Mermaid diagram)
+│   ├── integration-guide.md            # 4-tier integration guide
+│   ├── CLAUDE_CODE_FIRST_TIME_SETUP.md # First-run walkthrough for Claude Code
+│   └── REMOTE_MCP_*.md                 # Remote MCP setup, implementation, verification
 ├── profiles/
 │   ├── TEMPLATE.md                     # Blank profile template
 │   └── pro-angelo.md                   # Example: Angelo's profile
@@ -300,7 +350,11 @@ This is an open-source personalised AI augmentation layer. Current status:
 - [x] Skill progression tracking with trend analysis and atrophy detection
 - [x] 4-tier integration guide with cross-platform sync
 - [x] A/B testing framework for outcomes research
-- [ ] HTTP transport for enterprise MCP deployment
+- [x] Streamable HTTP + SSE transport for remote MCP clients (OAuth 2.1 + PKCE)
+- [x] Claude Desktop Extension (`.mcpb`) for 1-click install
+- [x] Claude Cowork plugin marketplace entry (`.claude-plugin`)
+- [x] Published hosted remote MCP endpoint at `proworker-hosted.onrender.com/mcp`
+- [x] Google Drive anonymised export for pilot telemetry
 - [ ] Integration with existing L&D platforms
 - [ ] Multi-user benchmarking and anonymized comparisons
 - [ ] API middleware for any LLM provider
