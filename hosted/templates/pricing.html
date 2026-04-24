@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Pricing -- Talent-Augmenting Layer{% endblock %}
+
+{% block content %}
+<div style="max-width: 960px; margin: 2rem auto; text-align: center;">
+    <h1>Pricing</h1>
+    <p class="text-muted" style="max-width: 640px; margin: 0.5rem auto 2.5rem;">
+        TAL is open-source (CC BY-NC-SA 4.0) and free to self-host. The hosted web app and remote MCP endpoint have three tiers for teams that want us to run the infrastructure.
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem;">
+
+        <div class="card">
+            <h2 style="margin-top: 0;">Free</h2>
+            <p style="font-size: 2rem; font-weight: 700; margin: 0.5rem 0;">&pound;0</p>
+            <p class="text-muted">Individual, research, open-source use.</p>
+            <ul style="text-align: left; padding-left: 1.2rem;">
+                <li>Full assessment</li>
+                <li>Unlimited local profile versions</li>
+                <li>All MCP tools (stdio and remote)</li>
+                <li>Community support via GitHub</li>
+            </ul>
+            <a href="/login" class="btn btn-secondary" style="width: 100%;">Sign in</a>
+        </div>
+
+        <div class="card" style="border: 2px solid var(--accent);">
+            <h2 style="margin-top: 0;">Pro</h2>
+            <p style="font-size: 2rem; font-weight: 700; margin: 0.5rem 0;">&pound;9 <span class="text-muted" style="font-size: 0.9rem;">/ month</span></p>
+            <p class="text-muted">Individual worker, full hosted experience.</p>
+            <ul style="text-align: left; padding-left: 1.2rem;">
+                <li>Everything in Free</li>
+                <li>Hosted profile syncing from any device</li>
+                <li>Email check-in reminders</li>
+                <li>Export to any LLM format</li>
+                <li>Priority support</li>
+            </ul>
+            <button type="button" class="btn btn-primary" style="width: 100%;" onclick="startCheckout('pro')">Subscribe</button>
+        </div>
+
+        <div class="card">
+            <h2 style="margin-top: 0;">Team</h2>
+            <p style="font-size: 2rem; font-weight: 700; margin: 0.5rem 0;">&pound;39 <span class="text-muted" style="font-size: 0.9rem;">/ seat / month</span></p>
+            <p class="text-muted">Organisations that want the admin dashboard.</p>
+            <ul style="text-align: left; padding-left: 1.2rem;">
+                <li>Everything in Pro</li>
+                <li>Org admin dashboard</li>
+                <li>Skill matrix + atrophy alerts</li>
+                <li>Member invitations + role management</li>
+                <li>Prioritised onboarding call</li>
+            </ul>
+            <button type="button" class="btn btn-primary" style="width: 100%;" onclick="startCheckout('team')">Subscribe</button>
+        </div>
+
+        <div class="card">
+            <h2 style="margin-top: 0;">Enterprise</h2>
+            <p style="font-size: 1.25rem; font-weight: 600; margin: 0.5rem 0; padding-top: 1rem;">Talk to us</p>
+            <p class="text-muted">Self-hosted, custom deployment, data residency.</p>
+            <ul style="text-align: left; padding-left: 1.2rem;">
+                <li>On-prem deployment</li>
+                <li>SSO / SAML</li>
+                <li>Dedicated SLA</li>
+                <li>Anonymised pilot-style studies</li>
+            </ul>
+            <a href="mailto:angelo@talent-layer.dev" class="btn btn-secondary" style="width: 100%;">Email us</a>
+        </div>
+
+    </div>
+
+    <p class="text-muted text-small" style="margin-top: 2rem;">
+        Pricing is indicative; billing goes live when <code>ENABLE_BILLING=true</code>.
+        During the Vanguard pilot, everything is free.
+    </p>
+</div>
+
+<script>
+async function startCheckout(tier) {
+    const res = await fetch("/api/billing/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tier }),
+    });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: "Unknown error" }));
+        alert("Checkout failed: " + (err.detail || res.statusText));
+        return;
+    }
+    const data = await res.json();
+    if (data.checkout_url) {
+        window.location.href = data.checkout_url;
+    }
+}
+</script>
+{% endblock %}

@@ -19,7 +19,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import select, func
 from starlette.middleware.sessions import SessionMiddleware
 
-from hosted.config import SECRET_KEY, APP_URL, BASE_DIR
+from hosted.config import SECRET_KEY, APP_URL, BASE_DIR, ENABLE_BILLING
 from hosted.database import (
     create_tables,
     get_db,
@@ -38,6 +38,7 @@ from hosted.database import (
     compute_passive_ratio,
 )
 from hosted.org_service import get_org_summary_scoped
+from hosted.billing import register_billing_routes
 from hosted.auth import (
     setup_oauth,
     oauth,
@@ -118,6 +119,9 @@ templates.env.globals["get_flashed_messages"] = lambda: []
 
 # OAuth
 setup_oauth(app)
+
+# Billing (no-op when ENABLE_BILLING=false)
+register_billing_routes(app)
 
 # LLM client (lazy -- only created when needed)
 _llm: LLMClient | None = None
@@ -205,6 +209,19 @@ async def landing(request: Request):
 async def demo(request: Request):
     """Public 3-question scripted taster. No DB write, no LLM call."""
     return templates.TemplateResponse(name="demo.html", request=request)
+
+
+@app.get("/pricing", response_class=HTMLResponse)
+async def pricing(request: Request):
+    """Pricing page. 404 unless ENABLE_BILLING is on; the pilot stays free."""
+    if not ENABLE_BILLING:
+        raise HTTPException(status_code=404, detail="Billing is disabled in this deployment.")
+    user = get_current_user(request)
+    return templates.TemplateResponse(
+        name="pricing.html",
+        request=request,
+        context={"user": user},
+    )
 
 
 # ---------------------------------------------------------------------------

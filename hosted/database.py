@@ -91,6 +91,13 @@ class UserRole(str, enum.Enum):
     owner = "owner"      # Admin plus billing + org settings.
 
 
+class PlanTier(str, enum.Enum):
+    free = "free"
+    pro = "pro"
+    team = "team"
+    enterprise = "enterprise"
+
+
 # ---------------------------------------------------------------------------
 # Models
 # ---------------------------------------------------------------------------
@@ -134,6 +141,11 @@ class User(Base):
         index=True,
     )
     role = Column(Enum(UserRole), nullable=False, default=UserRole.member)
+
+    # ── Billing (feature-flagged; populated only if ENABLE_BILLING=true) ──
+    stripe_customer_id = Column(String(255), nullable=True, index=True)
+    plan_tier = Column(Enum(PlanTier), nullable=False, default=PlanTier.free)
+    subscription_status = Column(String(32), nullable=True)  # active, trialing, past_due, canceled, ...
 
     profiles = relationship("Profile", back_populates="user", order_by="Profile.version.desc()")
     sessions = relationship("AssessmentSession", back_populates="user", order_by="AssessmentSession.created_at.desc()")
@@ -410,6 +422,9 @@ async def create_tables() -> None:
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS pilot_participant_id VARCHAR(32)",
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS org_id INTEGER",
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(50) DEFAULT 'member'",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_customer_id VARCHAR(255)",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS plan_tier VARCHAR(32) DEFAULT 'free'",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_status VARCHAR(32)",
         ]
         for stmt in migrations:
             try:

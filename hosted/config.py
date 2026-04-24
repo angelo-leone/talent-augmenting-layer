@@ -50,3 +50,14 @@ GDRIVE_OAUTH_CLIENT_SECRET = os.getenv("GDRIVE_OAUTH_CLIENT_SECRET", "")
 GDRIVE_OAUTH_REFRESH_TOKEN = os.getenv("GDRIVE_OAUTH_REFRESH_TOKEN", "")
 GDRIVE_FOLDER_ID = os.getenv("GDRIVE_FOLDER_ID", "")
 PILOT_EXPORT_ENABLED = os.getenv("PILOT_EXPORT_ENABLED", "false").lower() == "true"
+
+# Billing (Stripe) -- feature-flagged, off during the pilot.
+# Set ENABLE_BILLING=true + STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET to
+# activate. When off, /pricing returns 404 and billing columns on User
+# stay at their defaults (plan_tier=free, no Stripe customer).
+ENABLE_BILLING = os.getenv("ENABLE_BILLING", "false").lower() == "true"
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
+STRIPE_PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY", "")
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
+STRIPE_PRICE_PRO = os.getenv("STRIPE_PRICE_PRO", "")
+STRIPE_PRICE_TEAM = os.getenv("STRIPE_PRICE_TEAM", "")
