@@ -300,3 +300,56 @@ The profile (wherever it lives — repo, home directory, or hosted DB) is the li
 > "Workers who used AI had an immediate 40% improvement in quality... but junior employees do worse when they just hand in the AI's work." — Mollick
 
 This system exists because a well-functioning labour market is critical to a well-functioning society. Every interaction should leave the user more capable, not more dependent.
+
+---
+
+<!--
+  PROJECT STATUS — local-repo context only. NOT part of the plugin's
+  injected system prompt. Do not mirror to plugin/tal-system-prompt.md
+  or universal-prompt/SYSTEM_PROMPT.md. Move to STATUS.md if it starts
+  bloating the session context.
+-->
+
+## Project Status (updated 2026-04-24)
+
+**Pilot**: 10 participants, Vanguard cohort. Deployed at `proworker-hosted.onrender.com` (Render free tier, auto-deploys from `main`).
+
+### Recently shipped (10 commits across two sessions)
+
+**Plan phases P0–P4** (commits `994e90c`, `8fd90e1`, `12c667e`, `6e187a4`, `739b404`):
+- Ambient `SessionStart` hook that injects the TAL system prompt + resolved profile on every new session.
+- Epistemic Rules section (anti-hallucination / anti-sycophancy / plain voice) in all three system prompts, driven by the pilot baseline survey's top pain points.
+- `/talent-speed` per-task automation override.
+- `/talent-sync` (local → hosted) and `/talent-pull` (hosted → local) profile sync, with a `/cli-token` helper page on the hosted app.
+- Domain / Skill / Task glossary + a 5-mode compass SVG embedded in the README and the hosted dashboard.
+- Public landing page with install grid + 3-minute scripted demo at `/demo`.
+- Codex CLI config template.
+- Per-turn assessment latency instrumentation (`latency_ms` in the DB, elapsed-seconds indicator in the UI) so future Stan-style 20-minute stalls are visible.
+- `Organization` + `UserRole` multi-tenancy, `require_admin`, `/admin` dashboard with Chart.js skill matrix + domain-coverage + risk-distribution charts.
+- Stripe billing scaffold — `plan_tier` / `subscription_status` columns, `hosted/billing.py`, pricing page. All gated behind `ENABLE_BILLING=false`.
+
+**MCP bugfixes** (commits `84f1a1a`, `c3b0d3e`, `fa97bb6`):
+- `UnboundLocalError: json` across `talent_suggest_domains` / `talent_assess_*` / `talent_parse_telemetry` — removed three redundant inner `import json` statements that were shadowing the module-level import.
+- Profile parser now populates `role`, `organization`, `industry`, `dependency_risk_score`, `growth_potential_score`, `skills_to_develop`, with expertise extraction scoped to Section 2 so contrast-library tables and the change-log divider stop leaking in.
+- Task classifier gained a 4-char prefix stemmer + safety bias toward protect/hands_off on close ties.
+- `/talent-pull` symmetric to `/talent-sync` closes the hook's remote-profile gap for plugin users.
+
+**User-requested follow-ups** (commit `e0bf387`):
+- Org invite flow: `OrgInvite` table + `send_invite_email` + admin UI (invite form, pending-invite table with revoke) + `/invite/{token}` acceptance route that bounces through Google OAuth cleanly.
+- Unknown-task protocol: classifier returns `"unknown"` instead of silently defaulting to `augment`; system prompts tell the agent to ask *"automate now or get better long-term?"*, probe once, then add the new domain + task-category via the inline profile-edit protocol with a dated change-log entry.
+
+### Smoke-test to-do (Angelo)
+
+1. **Rotate `.mcpregistry_registry_token`** at the MCP registry, out of band. The old value is visible in pre-`994e90c` commits on GitHub.
+2. **Promote yourself to org owner** with a direct SQL write (the invite flow itself can't mint owners — deliberately):
+   ```sql
+   INSERT INTO organizations (name, slug) VALUES ('Vanguard', 'vanguard');
+   UPDATE users SET org_id = 1, role = 'owner'
+     WHERE email = 'angelo.leone1204@gmail.com';
+   ```
+3. **Test the invite flow end-to-end.** Sign in to `/admin`, invite a throwaway email you control, open the link in an incognito window, sign in with Google, confirm you land on `invite_accepted.html` and that your throwaway user now has `org_id` + `role = member`.
+4. **Trigger the unknown-task protocol.** Ask the agent something fully outside your profile (e.g. *"help me diagnose a Kubernetes pod failing health checks"*). Confirm it asks the *"automate now or get better long-term?"* question, then updates the profile with the new domain + task-category + dated change-log entry before executing.
+5. **Exercise `/talent-sync` and `/talent-pull`** from `/Users/angelo.leone/Documents/try-tal`. Verify the JWT → `~/.talent-augmenting-layer/auth.json` handshake works, and that a pulled profile lands in `~/.talent-augmenting-layer/profiles/pro-*.md` so the next session's hook picks it up.
+6. **Verify the Codex CLI config shape** (`~/.codex/config.json` vs `config.toml`) against the current Codex docs before pointing pilot users at it.
+7. **Retrieve Stan's `session_id`** (email him, or query the DB) so we can inspect his `conversation_json` against the new `latency_ms` fields and confirm the 20-minute stall pattern is visible in data.
+8. **Warm-wake the Render app** (`curl https://proworker-hosted.onrender.com/` or just open it in a browser) before asking pilot participants to hit the landing page — the free tier sleeps after ~15 min of inactivity.
