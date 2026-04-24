@@ -616,7 +616,6 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
                 for e in profile.expertise
             }
         }
-        import json
         return [TextContent(type="text", text=json.dumps(calibration, indent=2))]
 
     elif name == "talent_classify_task":
@@ -656,7 +655,6 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
 
     elif name == "talent_get_progression":
         user_name = arguments["name"]
-        import json
         progression = store.get_skill_progression(user_name)
         return [TextContent(type="text", text=json.dumps(progression, indent=2))]
 
@@ -732,9 +730,8 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
         return [TextContent(type="text", text=status)]
 
     elif name == "talent_org_summary":
-        import json as json_mod
         summary = store.get_org_summary()
-        return [TextContent(type="text", text=json_mod.dumps(summary, indent=2))]
+        return [TextContent(type="text", text=json.dumps(summary, indent=2))]
 
     elif name == "talent_delete_profile":
         user_name = arguments["name"]
