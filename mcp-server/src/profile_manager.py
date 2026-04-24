@@ -214,15 +214,25 @@ class Profile:
             ("automate", _score(self.tasks.automate)),
             ("augment", _score(self.tasks.augment)),
         ]
-        best_cat, best_score = max(candidates, key=lambda pair: pair[1])
-        if best_score < 0.3:
-            return "augment"
-        # Preserve protect/hands_off priority on tie (dict iteration above
-        # already picks the first tied entry thanks to stable max, but make
-        # it explicit).
-        for cat, score in candidates:
-            if cat in ("protect", "hands_off") and score == best_score:
-                return cat
+
+        # Safety bias: when scoring is close, prefer protect / hands_off.
+        # Under-classifying protect is worse than over-classifying (a user
+        # can say /talent-speed to bypass friction, but skill atrophy from
+        # missed protect classifications is silent and cumulative).
+        PROTECT_BIAS = 0.1
+        adjusted = [
+            (cat, score + (PROTECT_BIAS if cat in ("protect", "hands_off") else 0.0))
+            for cat, score in candidates
+        ]
+        best_cat, _ = max(adjusted, key=lambda pair: pair[1])
+        original_best = dict(candidates)[best_cat]
+
+        if original_best < 0.3:
+            # Nothing in the profile matches. Returning "unknown" lets the
+            # caller ask the user how to handle it (automate now vs. coach
+            # long-term) and add the new domain/task to the profile, rather
+            # than silently falling back to augment.
+            return "unknown"
         return best_cat
 
 

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Invite accepted -- Talent-Augmenting Layer{% endblock %}
+{% block content %}
+<div class="card" style="max-width: 560px; margin: 3rem auto; text-align: center;">
+    <h1 style="margin-top: 0;">You're in.</h1>
+    <p class="text-muted">
+        You've joined <strong>{{ org.name }}</strong> as <strong>{{ role }}</strong>.
+    </p>
+    <p style="margin-top: 1.5rem;">
+        {% if role in ("admin", "owner") %}
+        <a href="/admin" class="btn btn-primary">Open admin dashboard</a>
+        {% endif %}
+        <a href="/dashboard" class="btn btn-secondary">Your dashboard</a>
+    </p>
+</div>
+{% endblock %}

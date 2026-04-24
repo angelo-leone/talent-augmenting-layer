@@ -120,6 +120,39 @@
 </div>
 {% endif %}
 
+<!-- Invite -->
+<div class="card" style="margin-top: 1.5rem;">
+    <h2 class="card-title">Invite members</h2>
+    <p class="text-muted text-small" style="margin-bottom: 1rem;">
+        Send an invite link to someone's email. They sign in with Google, and on first login they join this org with the role you pick. Invites expire after 7 days.
+    </p>
+    <form id="invite-form" onsubmit="sendInvite(event)" style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+        <input type="email" id="invite-email" class="chat-input" required placeholder="name@company.com" style="flex: 1; min-width: 220px; padding: 0.55rem;"/>
+        <select id="invite-role" style="padding: 0.55rem; background: var(--surface-2); color: var(--text); border: 1px solid #2a2a4a; border-radius: 0.4rem;">
+            <option value="member">member</option>
+            <option value="admin">admin</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Send invite</button>
+    </form>
+    <div id="invite-result" style="margin-top: 0.75rem; font-size: 0.9rem;"></div>
+
+    <h3 style="margin-top: 1.5rem;">Pending invites</h3>
+    <table class="admin-table" id="invite-table">
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Expires</th>
+                <th>Link</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="invite-tbody">
+            <tr><td colspan="5" class="text-muted">Loading...</td></tr>
+        </tbody>
+    </table>
+</div>
+
 <!-- Members list -->
 <div class="card" style="margin-top: 1.5rem;">
     <h2 class="card-title">Members</h2>
@@ -210,6 +243,77 @@ new Chart(document.getElementById("domain-chart"), {
         },
     },
 });
+
+// ── Invite flow ──────────────────────────────────────────────────────
+async function loadInvites() {
+    const tbody = document.getElementById("invite-tbody");
+    try {
+        const res = await fetch("/api/admin/invites");
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+        if (!data.invites || data.invites.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-muted">No pending invites.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = data.invites.map((inv) => {
+            const expires = new Date(inv.expires_at).toLocaleDateString();
+            return `<tr>
+                <td>${inv.email}</td>
+                <td>${inv.role}</td>
+                <td class="text-muted">${expires}</td>
+                <td><button class="btn btn-secondary" style="padding: 0.25rem 0.6rem; font-size: 0.8rem;" onclick="copyLink('${inv.invite_url.replace(/'/g, "\\'")}', this)">Copy link</button></td>
+                <td><button class="btn btn-secondary" style="padding: 0.25rem 0.6rem; font-size: 0.8rem;" onclick="revokeInvite(${inv.id})">Revoke</button></td>
+            </tr>`;
+        }).join("");
+    } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-muted">Failed to load invites: ' + err.message + '</td></tr>';
+    }
+}
+
+async function sendInvite(event) {
+    event.preventDefault();
+    const email = document.getElementById("invite-email").value.trim();
+    const role = document.getElementById("invite-role").value;
+    const result = document.getElementById("invite-result");
+    result.textContent = "Sending...";
+    try {
+        const res = await fetch("/api/admin/invite", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, role }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            result.innerHTML = '<span style="color: var(--danger);">' + (data.detail || "Failed") + '</span>';
+            return;
+        }
+        const linkMsg = data.email_sent
+            ? "Email sent. Invite link (copy if email fails)"
+            : "Email not configured on this deployment — copy this link and send it manually";
+        result.innerHTML = linkMsg + ': <code style="word-break: break-all;">' + data.invite_url + '</code>';
+        document.getElementById("invite-email").value = "";
+        loadInvites();
+    } catch (err) {
+        result.innerHTML = '<span style="color: var(--danger);">Network error: ' + err.message + '</span>';
+    }
+}
+
+async function revokeInvite(id) {
+    if (!confirm("Revoke this invite?")) return;
+    const res = await fetch("/api/admin/invite/" + id + "/revoke", { method: "POST" });
+    if (res.ok) loadInvites();
+    else alert("Revoke failed: " + res.status);
+}
+
+function copyLink(url, btn) {
+    navigator.clipboard.writeText(url).then(() => {
+        const original = btn.textContent;
+        btn.textContent = "Copied";
+        setTimeout(() => { btn.textContent = original; }, 1200);
+    });
+}
+
+loadInvites();
 </script>
 {% endif %}
 {% endblock %}
