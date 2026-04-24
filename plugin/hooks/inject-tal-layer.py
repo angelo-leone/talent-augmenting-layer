@@ -61,8 +61,12 @@ def main() -> None:
     else:
         profile_section = (
             "# Active User Profile\n\n"
-            "_No TAL profile found on this machine. Run "
-            "`/talent-augmenting-layer:talent-assess` to build one — takes ~15 minutes._"
+            "_No TAL profile found on this machine. If you already ran the "
+            "assessment on the hosted web app (proworker-hosted.onrender.com) "
+            "or via the remote MCP, run `/talent-augmenting-layer:talent-pull` "
+            "to download it into the local cache. Otherwise run "
+            "`/talent-augmenting-layer:talent-assess` to build one — takes "
+            "~15 minutes._"
         )
 
     context = f"{system_prompt}\n\n---\n\n{profile_section}"
