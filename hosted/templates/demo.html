@@ -171,53 +171,34 @@ function startCoach() {
     document.getElementById("coach-caveat").style.display = "block";
 
     addMsg("ai",
-        "OK, let's actually use it. Forget the assessment for a second: what's a real piece of work you'd want to make progress on in the next half hour? " +
-        "Could be writing you're stuck on, a decision you keep circling, a conversation you're prepping, anything you'd want a thinking partner for. " +
-        "Just tell me what's on your mind."
+        "OK, coaching for real. Bring me a task you can actually work on right now: " +
+        "a paragraph to draft, an email to write, a slide to sharpen, a decision to frame, " +
+        "anything you've got open in another tab. Drop it in here and we'll work on it together."
     );
-    setInputEnabled(true, "What do you want to work on?");
+    setInputEnabled(true, "What's the task?");
 }
 
 function coachReply(userText) {
     coachStep += 1;
-    const skill = skillLabel();
-
     if (coachStep === 1) {
-        // Outcome-clarifying probe. Generic enough to land on anything.
+        // One short, open acknowledgement, then hand off to sign-in. The
+        // demo intentionally does not script a probe-and-reframe loop:
+        // the actual coaching needs the user's profile and a real model
+        // behind the conversation, neither of which the demo has.
         setInputEnabled(false);
         setTimeout(() => {
             addMsg("ai",
-                "Got it. One quick question before I weigh in, and it's the one most people skip: " +
-                "what would 'this went well' actually look like when you're done? " +
-                "Be specific. Not 'figure it out' or 'feel better about it'. " +
-                "A draft you'd send. A decision you'd commit to. A sentence you can say out loud. " +
-                "What's the concrete signal that would tell you you've made real progress?"
-            );
-            setInputEnabled(true, "What does 'done well' look like?");
-        }, 500);
-        return;
-    }
-
-    if (coachStep === 2) {
-        // Reframe + small concrete move + close. No "named moves".
-        setInputEnabled(false);
-        setTimeout(() => {
-            addMsg("ai",
-                "That's a useful target, and most people don't pin it down before they start. " +
-                "The trap in fast-moving work is jumping to a finished output before you've made the success criterion explicit, " +
-                "so the output ends up looking polished but doesn't do the thing you actually wanted it to do. " +
-                "One move that almost always saves you time: write the criterion you just named as a single sentence at the top of the page, " +
-                "and hold every draft (or option, or argument) against it before you move on. Most of the value in a coaching session is making the implicit explicit."
+                "Good, that's the kind of thing the coach is built for. " +
+                "To actually work through it with you I need your profile loaded so I know your level here and the kind of push-back you respond to. " +
+                "Without that I'd be guessing at you."
             );
             setTimeout(() => {
                 addMsg("ai",
-                    "I'll stop here so the demo doesn't run long. " +
-                    "In a real session the coach would stay with you, push back on the criterion if it's too vague, and walk you through the actual draft. " +
-                    "With your full profile loaded it would already know your level in " + skill + ", what scaffolding you usually need, and where you tend to plateau."
+                    "Sign in and we'll do it properly together. Takes a minute, it's free."
                 );
                 document.getElementById("coach-cta").style.display = "block";
                 phase = "done";
-            }, 1400);
+            }, 1100);
         }, 600);
         return;
     }
