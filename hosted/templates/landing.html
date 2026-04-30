@@ -16,11 +16,20 @@
         .landing-section h2 { font-size: 1.75rem; margin: 0 0 0.5rem; }
         .landing-section .lead { color: var(--text-muted); margin-bottom: 2rem; max-width: 760px; }
         .pain-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
-        .pain-card { background: var(--surface-2); border-radius: var(--radius-sm, 0.5rem); padding: 1.5rem; border-left: 3px solid var(--accent); }
-        .pain-card h3 { margin: 0 0 0.5rem; font-size: 1.1rem; }
-        .compass-row { display: flex; gap: 2rem; align-items: center; flex-wrap: wrap; }
-        .compass-row img { flex: 0 0 auto; width: 360px; max-width: 100%; }
-        .compass-row ul { flex: 1; min-width: 260px; }
+        .pain-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius, 0.75rem); padding: 1.5rem; border-left: 3px solid var(--accent); box-shadow: var(--shadow-sm); }
+        .pain-card h3 { margin: 0.5rem 0 0.5rem; font-size: 1.15rem; }
+        .pain-card .pain-icon { width: 36px; height: 36px; padding: 6px; background: var(--accent-soft); color: var(--accent); border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; }
+        .pain-card .pain-icon svg { width: 100%; height: 100%; }
+        .compass-row { display: flex; gap: 2.5rem; align-items: center; flex-wrap: wrap; justify-content: center; }
+        .compass-row .compass-img-wrap { flex: 0 0 auto; max-width: 460px; width: 100%; }
+        .compass-row .compass-img-wrap img { width: 100%; height: auto; display: block; }
+        .compass-row ul { flex: 1; min-width: 280px; max-width: 480px; padding-left: 1.2rem; }
+        .compass-row ul li { margin-bottom: 0.5rem; line-height: 1.55; }
+        .stats-band { background: var(--surface-2); padding: 2.5rem 1.5rem; }
+        .stats-grid { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; text-align: center; }
+        .stat .stat-num { font-size: clamp(2.2rem, 4vw, 3.2rem); font-weight: 700; color: var(--accent); line-height: 1; letter-spacing: -0.02em; }
+        .stat .stat-lbl { color: var(--text); font-weight: 600; margin-top: 0.5rem; font-size: 1rem; }
+        .stat .stat-src { color: var(--text-muted); font-size: 0.82rem; margin-top: 0.25rem; }
         .research-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
         .research-card { background: var(--surface-2); border-radius: var(--radius-sm, 0.5rem); padding: 1.25rem; }
         .research-card h4 { margin: 0 0 0.25rem; color: var(--accent); }
@@ -44,8 +53,28 @@
             <a href="/login" class="btn btn-secondary">Sign in with Google</a>
         </div>
         <p class="text-muted" style="margin-top: 1rem; font-size: 0.9rem;">
-            Open source. No vendor lock-in. Your profile works across Claude, ChatGPT, Gemini, Cursor, Codex, and any LLM you already pay for.
+            Source-available. No vendor lock-in. Your profile works across Claude, ChatGPT, Gemini, Cursor, Codex, and any LLM you already pay for.
         </p>
+    </section>
+
+    <section class="stats-band">
+        <div class="stats-grid">
+            <div class="stat">
+                <div class="stat-num">&minus;30%</div>
+                <div class="stat-lbl">AI over-reliance</div>
+                <div class="stat-src">Cognitive forcing, Buçinca et al., Harvard 2021</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">+8%</div>
+                <div class="stat-lbl">Skill improvement</div>
+                <div class="stat-src">Contrastive explanations, Buçinca et al. 2024 (d = 0.35)</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">+40%</div>
+                <div class="stat-lbl">Output quality</div>
+                <div class="stat-src">AI-augmented work, Mollick, Wharton 2023</div>
+            </div>
+        </div>
     </section>
 
     <section class="landing-section">
@@ -53,14 +82,33 @@
         <p class="lead">Based on 10 workers in the Vanguard pilot and three research programmes (Harvard, MIT, Wharton). The top frustrations with today's AI tools are not about capability. They are about behaviour.</p>
         <div class="pain-grid">
             <div class="pain-card">
+                <span class="pain-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                        <line x1="9" y1="10" x2="15" y2="14"/>
+                        <line x1="15" y1="10" x2="9" y2="14"/>
+                    </svg>
+                </span>
                 <h3>Hallucination</h3>
                 <p>Current AI confidently invents facts, citations, and APIs. TAOS's epistemic rules force "I don't know" over a fabrication and tag load-bearing claims with a confidence level.</p>
             </div>
             <div class="pain-card">
+                <span class="pain-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 6L9 17l-5-5"/>
+                        <path d="M20 12L9 23l-5-5" opacity="0.4"/>
+                    </svg>
+                </span>
                 <h3>Sycophancy</h3>
                 <p>Default AI agrees with whatever you say. TAOS explicitly refuses to reflexively agree. If your premise is wrong, it pushes back once with evidence before conceding.</p>
             </div>
             <div class="pain-card">
+                <span class="pain-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="22 17 13 8 8 13 1 6"/>
+                        <polyline points="16 17 22 17 22 11"/>
+                    </svg>
+                </span>
                 <h3>De-skilling</h3>
                 <p>Workers lose skills they stop practicing. TAOS detects when a protected skill is being outsourced to AI and switches to coaching before the skill atrophies.</p>
             </div>
@@ -71,7 +119,9 @@
         <h2>The five modes</h2>
         <p class="lead">Every task is classified into one of five interaction modes. The right mode depends on your expertise in that domain and your growth goals. Your profile tells the AI which mode to use for which kind of work.</p>
         <div class="compass-row">
-            <img src="/static/compass.svg" alt="TAOS 5-mode compass: Automate, Augment, Coach, Protect, Hands-off on a friction axis"/>
+            <div class="compass-img-wrap">
+                <img src="/static/compass.svg" alt="TAOS 5-mode compass: Automate, Augment, Coach, Protect, Hands-off arranged on a friction axis"/>
+            </div>
             <ul>
                 <li><strong>Automate</strong>: AI executes and annotates. Low friction, for mechanical work.</li>
                 <li><strong>Augment</strong>: AI accelerates and challenges you in your expert domains.</li>
