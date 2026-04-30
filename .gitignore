@@ -28,3 +28,16 @@ docs/TAOS_Architecture_v1.1.docx
 profiles/pro-*.md
 !profiles/TEMPLATE.md
 
+# Stakeholder distribution docs and the script that generates them.
+# Shared by hand, not via GitHub.
+docs/TAL_Architecture.docx
+docs/generate_architecture_docx.py
+
+# Research / thinking material kept locally only.
+context/TAL.docx
+context/Experimental design.docx
+context/Talent-Augmenting Layer.pptx
+
+# Local Claude Code slash commands. The public versions live in plugin/skills/.
+.claude/commands/
+

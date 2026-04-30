@@ -1,58 +1,89 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" width="480" height="480" role="img" aria-labelledby="compassTitle compassDesc" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 520" width="520" height="520" role="img" aria-labelledby="compassTitle compassDesc" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
   <title id="compassTitle">TAOS 5-mode compass</title>
-  <desc id="compassDesc">A radial diagram of the five Talent-Augmenting OS interaction modes arranged clockwise: Automate (top right, low friction), Augment (right, low-to-medium friction), Coach (bottom, medium-to-high friction), Protect (left, high friction), and Hands-off (top left, AI does not participate).</desc>
+  <desc id="compassDesc">A radial diagram of the five Talent-Augmenting OS interaction modes arranged clockwise: Automate (top right, low friction), Augment (right, low-to-medium friction), Coach (bottom, medium-to-high friction), Protect (left, high friction), and Hands-off (top left, AI surfaces the decision).</desc>
 
   <!--
-    Centre (240, 240). Outer radius 180, inner radius 80.
-    Five 72 degree sectors starting from top (-90 degrees), clockwise.
-    Sector angles (deg):  -90 -> -18 Automate,  -18 -> 54 Augment,  54 -> 126 Coach,  126 -> 198 Protect,  198 -> 270 Hands-off.
+    Centre (260, 260). Outer radius 195, inner radius 92.
+    Five 72-degree sectors starting from top (-90 degrees), clockwise.
+    Mid-angles for label placement at radius 142.
+    Soft on-white palette; the sage accent (#2D6A4F) carries the brand,
+    sectors use light tints, hub is white with sage border.
   -->
 
   <!-- Sector backgrounds -->
-  <g stroke="#ffffff" stroke-width="2">
+  <g stroke="#FFFFFF" stroke-width="2.5">
     <!-- Automate  (-90 to -18) -->
-    <path d="M 240 60 A 180 180 0 0 1 411.18 184.37 L 316.21 215.23 A 80 80 0 0 0 240 160 Z" fill="#2ecc71"/>
+    <path d="M 260 65 A 195 195 0 0 1 445.45 199.71 L 348.45 232.32 A 92 92 0 0 0 260 168 Z" fill="#E5F0E9"/>
     <!-- Augment   (-18 to  54) -->
-    <path d="M 411.18 184.37 A 180 180 0 0 1 345.79 385.64 L 285.75 304.62 A 80 80 0 0 0 316.21 215.23 Z" fill="#e94560"/>
+    <path d="M 445.45 199.71 A 195 195 0 0 1 374.61 417.86 L 309.04 339.21 A 92 92 0 0 0 348.45 232.32 Z" fill="#C8DDD0"/>
     <!-- Coach     ( 54 to 126) -->
-    <path d="M 345.79 385.64 A 180 180 0 0 1 134.21 385.64 L 194.25 304.62 A 80 80 0 0 0 285.75 304.62 Z" fill="#f39c12"/>
+    <path d="M 374.61 417.86 A 195 195 0 0 1 145.39 417.86 L 210.96 339.21 A 92 92 0 0 0 309.04 339.21 Z" fill="#F4E5C2"/>
     <!-- Protect   (126 to 198) -->
-    <path d="M 134.21 385.64 A 180 180 0 0 1 68.82 184.37 L 163.79 215.23 A 80 80 0 0 0 194.25 304.62 Z" fill="#e74c3c"/>
+    <path d="M 145.39 417.86 A 195 195 0 0 1 74.55 199.71 L 171.55 232.32 A 92 92 0 0 0 210.96 339.21 Z" fill="#F0CFC4"/>
     <!-- Hands-off (198 to 270) -->
-    <path d="M 68.82 184.37 A 180 180 0 0 1 240 60 L 240 160 A 80 80 0 0 0 163.79 215.23 Z" fill="#533483"/>
+    <path d="M 74.55 199.71 A 195 195 0 0 1 260 65 L 260 168 A 92 92 0 0 0 171.55 232.32 Z" fill="#DCD7E5"/>
   </g>
 
   <!-- Centre hub -->
-  <circle cx="240" cy="240" r="80" fill="#1a1a2e" stroke="#ffffff" stroke-width="2"/>
-  <text x="240" y="232" text-anchor="middle" fill="#ffffff" font-size="22" font-weight="700">TAOS</text>
-  <text x="240" y="256" text-anchor="middle" fill="#cccccc" font-size="12">5 modes</text>
+  <circle cx="260" cy="260" r="92" fill="#FFFFFF" stroke="#2D6A4F" stroke-width="2.5"/>
+  <text x="260" y="252" text-anchor="middle" fill="#2D6A4F" font-size="26" font-weight="700" letter-spacing="0.04em">TAOS</text>
+  <text x="260" y="278" text-anchor="middle" fill="#64748B" font-size="12" font-weight="500">5 modes</text>
 
-  <!-- Sector labels (mid-angle of each sector, at radius ~128) -->
-  <!-- Automate mid at -54 deg -> (240 + 128*cos(-54), 240 + 128*sin(-54)) = (315.2, 136.5) -->
-  <g text-anchor="middle" fill="#ffffff" font-weight="700">
-    <text x="315" y="132" font-size="16">Automate</text>
-    <text x="315" y="150" font-size="11" font-weight="400">Execute + annotate</text>
+  <!--
+    Sector labels at radius 142 from centre (between hub r=92 and outer r=195).
+    Mid-angles: Automate -54, Augment 18, Coach 90, Protect 162, Hands-off 234.
+    Subtitles split into two tspan lines so no label overflows its sector.
+  -->
+  <g text-anchor="middle" fill="#0F172A" font-weight="700">
+    <!-- Automate mid (-54): (260+142*cos(-54), 260+142*sin(-54)) = (343.5, 145.1) -->
+    <text x="344" y="138" font-size="17">Automate</text>
+    <g font-size="11" font-weight="500" fill="#475569">
+      <text x="344" y="158">
+        <tspan x="344" dy="0">Execute</tspan>
+        <tspan x="344" dy="13">+ annotate</tspan>
+      </text>
+    </g>
 
-    <!-- Augment mid at 18 deg -> (240 + 128*cos(18), 240 + 128*sin(18)) = (361.7, 279.5) -->
-    <text x="362" y="275" font-size="16">Augment</text>
-    <text x="362" y="293" font-size="11" font-weight="400">Accelerate + challenge</text>
+    <!-- Augment mid (18): (260+142*cos(18), 260+142*sin(18)) = (395.1, 303.9) -->
+    <text x="395" y="280" font-size="17">Augment</text>
+    <g font-size="11" font-weight="500" fill="#475569">
+      <text x="395" y="300">
+        <tspan x="395" dy="0">Accelerate</tspan>
+        <tspan x="395" dy="13">+ challenge</tspan>
+      </text>
+    </g>
 
-    <!-- Coach mid at 90 deg -> (240, 368) -->
-    <text x="240" y="380" font-size="16">Coach</text>
-    <text x="240" y="398" font-size="11" font-weight="400">Scaffold + question</text>
+    <!-- Coach mid (90): (260, 402) -->
+    <text x="260" y="402" font-size="17">Coach</text>
+    <g font-size="11" font-weight="500" fill="#475569">
+      <text x="260" y="422">
+        <tspan x="260" dy="0">Scaffold</tspan>
+        <tspan x="260" dy="13">+ question</tspan>
+      </text>
+    </g>
 
-    <!-- Protect mid at 162 deg -> (240 + 128*cos(162), 240 + 128*sin(162)) = (118.3, 279.5) -->
-    <text x="118" y="275" font-size="16">Protect</text>
-    <text x="118" y="293" font-size="11" font-weight="400">Force cognition</text>
+    <!-- Protect mid (162): (260+142*cos(162), 260+142*sin(162)) = (124.9, 303.9) -->
+    <text x="125" y="280" font-size="17">Protect</text>
+    <g font-size="11" font-weight="500" fill="#475569">
+      <text x="125" y="300">
+        <tspan x="125" dy="0">Force</tspan>
+        <tspan x="125" dy="13">cognition</tspan>
+      </text>
+    </g>
 
-    <!-- Hands-off mid at 234 deg -> (240 + 128*cos(234), 240 + 128*sin(234)) = (164.8, 136.5) -->
-    <text x="165" y="132" font-size="16">Hands-off</text>
-    <text x="165" y="150" font-size="11" font-weight="400">AI does not participate</text>
+    <!-- Hands-off mid (234): (260+142*cos(234), 260+142*sin(234)) = (176.5, 145.1) -->
+    <text x="176" y="138" font-size="17">Hands-off</text>
+    <g font-size="11" font-weight="500" fill="#475569">
+      <text x="176" y="158">
+        <tspan x="176" dy="0">Surface the</tspan>
+        <tspan x="176" dy="13">decision</tspan>
+      </text>
+    </g>
   </g>
 
-  <!-- Friction bar (outer ring cue) -->
-  <g fill="#ffffff" font-size="10">
-    <text x="240" y="48" text-anchor="middle">low friction</text>
-    <text x="240" y="444" text-anchor="middle">high friction</text>
+  <!-- Friction direction cue -->
+  <g fill="#94A3B8" font-size="10.5" font-weight="500" letter-spacing="0.08em">
+    <text x="260" y="42" text-anchor="middle">LOW FRICTION</text>
+    <text x="260" y="490" text-anchor="middle">HIGH FRICTION</text>
   </g>
 </svg>
