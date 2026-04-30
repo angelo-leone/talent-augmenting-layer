@@ -77,12 +77,12 @@
         </div>
 
         <div id="coach-caveat" class="caveat" style="display:none;">
-            <strong>Heads up.</strong> This is a generic coaching demo: the moves (hypothesis check, contrastive explanation, transferable pattern) are real, but the content is not personalised. The deployed coach loads your profile, knows your rating in this domain, your prior attempts, and a domain-specific contrast library, then calibrates difficulty and scaffolding to that.
+            <strong>Heads up.</strong> This is a generic coaching demo. The shape of the conversation is real, but the content is not personalised. The deployed coach loads your profile, knows your level in the domain, your prior attempts, and the way you respond to scaffolding, and calibrates every question to that.
         </div>
 
         <div id="coach-cta" class="demo-result" style="display:none;">
-            <h2>That's the coach loop</h2>
-            <p class="text-muted text-small">In ~90 seconds you saw the four moves the real coach uses every session: hypothesis check, contrastive delta, transferable pattern, hand back to you. The deployed version personalises every step against your profile and tracks whether the skill is growing, stable, or atrophying.</p>
+            <h2>That was a quick taste of how the coach works</h2>
+            <p class="text-muted text-small">A real coaching session loads your full profile and stays with you longer: it tracks whether the skill is growing, stable, or atrophying, remembers what you tried last time, and calibrates how much it scaffolds versus how much it pushes you to think.</p>
             <div class="demo-nav">
                 <a href="/login" class="btn btn-primary">Sign in for the full assessment + coach</a>
                 <a href="/" class="btn btn-secondary">Back to home</a>
@@ -170,14 +170,12 @@ function startCoach() {
     document.getElementById("phase-pill").textContent = "Phase 2 of 2: Coach";
     document.getElementById("coach-caveat").style.display = "block";
 
-    const skill = skillLabel();
     addMsg("ai",
-        "Switching modes. Earlier you said you want to grow at: " + skill + ". " +
-        "First the coach move that matters most: the hypothesis check. " +
-        "Before I share an approach, what's your current go-to method when you actually practise this? " +
-        "A rough description is fine. The point is to make your assumptions visible to both of us."
+        "OK, let's actually use it. Forget the assessment for a second: what's a real piece of work you'd want to make progress on in the next half hour? " +
+        "Could be writing you're stuck on, a decision you keep circling, a conversation you're prepping, anything you'd want a thinking partner for. " +
+        "Just tell me what's on your mind."
     );
-    setInputEnabled(true, "Type your current approach...");
+    setInputEnabled(true, "What do you want to work on?");
 }
 
 function coachReply(userText) {
@@ -185,25 +183,41 @@ function coachReply(userText) {
     const skill = skillLabel();
 
     if (coachStep === 1) {
-        // Contrastive explanation + transferable pattern.
+        // Outcome-clarifying probe. Generic enough to land on anything.
         setInputEnabled(false);
         setTimeout(() => {
             addMsg("ai",
-                "Useful, that gives me an anchor. Now the contrastive move. " +
-                "A natural assumption with any growth skill is that more reps build it. " +
-                "But repetition without targeted feedback tends to reinforce what you already do, including the bits that are wrong. " +
-                "The pattern that actually works is deliberate practice: pick one specific dimension you want to improve, run a single focused rep where that dimension is your only goal, then get feedback on that one dimension before the next rep. " +
-                "The transferable principle: growth comes from feedback on a chosen dimension, not from volume. You'll see this pattern again in writing, negotiation, code review, anywhere a skill plateaus."
+                "Got it. One quick question before I weigh in, and it's the one most people skip: " +
+                "what would 'this went well' actually look like when you're done? " +
+                "Be specific. Not 'figure it out' or 'feel better about it'. " +
+                "A draft you'd send. A decision you'd commit to. A sentence you can say out loud. " +
+                "What's the concrete signal that would tell you you've made real progress?"
+            );
+            setInputEnabled(true, "What does 'done well' look like?");
+        }, 500);
+        return;
+    }
+
+    if (coachStep === 2) {
+        // Reframe + small concrete move + close. No "named moves".
+        setInputEnabled(false);
+        setTimeout(() => {
+            addMsg("ai",
+                "That's a useful target, and most people don't pin it down before they start. " +
+                "The trap in fast-moving work is jumping to a finished output before you've made the success criterion explicit, " +
+                "so the output ends up looking polished but doesn't do the thing you actually wanted it to do. " +
+                "One move that almost always saves you time: write the criterion you just named as a single sentence at the top of the page, " +
+                "and hold every draft (or option, or argument) against it before you move on. Most of the value in a coaching session is making the implicit explicit."
             );
             setTimeout(() => {
                 addMsg("ai",
-                    "That's four moves in roughly ninety seconds: hypothesis check, contrastive delta, transferable pattern, hand back to you. " +
-                    "The deployed coach would now ask which specific dimension of " + skill + " matters most to you this week and design a concrete rep around it. " +
-                    "I'll stop here so you can see what's next."
+                    "I'll stop here so the demo doesn't run long. " +
+                    "In a real session the coach would stay with you, push back on the criterion if it's too vague, and walk you through the actual draft. " +
+                    "With your full profile loaded it would already know your level in " + skill + ", what scaffolding you usually need, and where you tend to plateau."
                 );
                 document.getElementById("coach-cta").style.display = "block";
                 phase = "done";
-            }, 1200);
+            }, 1400);
         }, 600);
         return;
     }
