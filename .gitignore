@@ -14,3 +14,17 @@ hosted/secret.json
 .DS_Store
 **/.DS_Store
 pilot/
+
+# Internal-only files. Kept on local disk; not pushed to the public repo.
+# Decision criterion: anything that contains personal data, internal
+# operational runbooks, vendor-cost figures, smoke-test instructions, or
+# stakeholder-only stakeholder material lives only on the maintainer's
+# machine. The product code, public docs, licence, and privacy policy
+# remain in git.
+CLAUDE.md
+BACKLOG.md
+docs/RENDER_CONSOLIDATION.md
+docs/TAOS_Architecture_v1.1.docx
+profiles/pro-*.md
+!profiles/TEMPLATE.md
+
