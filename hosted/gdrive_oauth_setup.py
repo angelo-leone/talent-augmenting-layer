@@ -14,12 +14,12 @@ Prerequisites
 
 Usage
 -----
-    # Option A — supply client ID and secret as arguments:
+    # Option A: supply client ID and secret as arguments:
     python -m hosted.gdrive_oauth_setup \
         --client-id YOUR_CLIENT_ID \
         --client-secret YOUR_CLIENT_SECRET
 
-    # Option B — point to a downloaded client_secret JSON file:
+    # Option B: point to a downloaded client_secret JSON file:
     python -m hosted.gdrive_oauth_setup \
         --client-secrets-file /path/to/client_secret.json
 
@@ -95,7 +95,7 @@ def main() -> None:
     )
 
     print("\n" + "=" * 60)
-    print("SUCCESS — OAuth credentials obtained")
+    print("SUCCESS: OAuth credentials obtained")
     print("=" * 60)
     print(f"\nClient ID:     {creds.client_id}")
     print(f"Refresh Token: {creds.refresh_token}")

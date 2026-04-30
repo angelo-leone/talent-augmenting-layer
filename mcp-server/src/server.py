@@ -1,5 +1,5 @@
 """
-Talent-Augmenting Layer — MCP Server
+Talent-Augmenting OS: MCP Server
 
 Exposes personalised AI augmentation as MCP tools, resources, and prompts.
 Works with any MCP-compatible client: Claude Code, Claude Desktop, Cursor, etc.
@@ -103,7 +103,7 @@ async def list_tools() -> list[Tool]:
         Tool(
             name="talent_get_profile",
             description=(
-                "Load a Talent-Augmenting Layer profile by name. Returns the full profile "
+                "Load a Talent-Augmenting OS profile by name. Returns the full profile "
                 "with expertise map, calibration settings, task classification, "
                 "and red lines. Use this at the start of every conversation."
             ),
@@ -127,7 +127,7 @@ async def list_tools() -> list[Tool]:
         Tool(
             name="talent_get_calibration",
             description=(
-                "Get the Talent-Augmenting Layer calibration settings for a user. Returns "
+                "Get the Talent-Augmenting OS calibration settings for a user. Returns "
                 "a compact JSON block suitable for injecting into any LLM system prompt. "
                 "Includes friction levels, coaching domains, red lines, and interaction preferences."
             ),
@@ -151,8 +151,8 @@ async def list_tools() -> list[Tool]:
         Tool(
             name="talent_classify_task",
             description=(
-                "Classify a task according to the user's Talent-Augmenting Layer profile. "
-                "Returns one of: automate, augment, coach, protect, hands_off — "
+                "Classify a task according to the user's Talent-Augmenting OS profile. "
+                "Returns one of: automate, augment, coach, protect, hands_off: "
                 "along with the recommended AI behaviour for that task."
             ),
             inputSchema={
@@ -241,7 +241,7 @@ async def list_tools() -> list[Tool]:
         ),
         Tool(
             name="talent_list_profiles",
-            description="List all available Talent-Augmenting Layer profiles.",
+            description="List all available Talent-Augmenting OS profiles.",
             inputSchema={"type": "object", "properties": {}},
             annotations=ToolAnnotations(
                 title="List Profiles",
@@ -332,7 +332,7 @@ async def list_tools() -> list[Tool]:
         Tool(
             name="talent_assess_start",
             description=(
-                "Start a Talent-Augmenting Layer onboarding assessment. Returns the full assessment "
+                "Start a Talent-Augmenting OS onboarding assessment. Returns the full assessment "
                 "protocol with all questions, behavioural anchors, and instructions for how "
                 "to run the assessment conversationally. The chatbot uses this to ask "
                 "questions one at a time, collect answers, then call talent_assess_score "
@@ -344,7 +344,7 @@ async def list_tools() -> list[Tool]:
                 "properties": {
                     "name": {
                         "type": "string",
-                        "description": "Name of the person being assessed (optional — can be collected during the assessment)"
+                        "description": "Name of the person being assessed (optional: can be collected during the assessment)"
                     }
                 },
                 "required": []
@@ -359,10 +359,10 @@ async def list_tools() -> list[Tool]:
         Tool(
             name="talent_assess_score",
             description=(
-                "Compute all Talent-Augmenting Layer scores from raw assessment answers. "
+                "Compute all Talent-Augmenting OS scores from raw assessment answers. "
                 "Takes the numeric answers collected during the assessment (A1-A5, B1-B5, D1-D4 "
                 "as integers 1-5) and domain expertise ratings. Returns computed ADR, GP, ALI, "
-                "ESA, and composite TALRI scores with interpretations and recommended calibration."
+                "ESA, and composite TAOSRI scores with interpretations and recommended calibration."
             ),
             inputSchema={
                 "type": "object",
@@ -395,7 +395,7 @@ async def list_tools() -> list[Tool]:
         Tool(
             name="talent_assess_create_profile",
             description=(
-                "Generate and save a complete Talent-Augmenting Layer profile from assessment data. "
+                "Generate and save a complete Talent-Augmenting OS profile from assessment data. "
                 "Call this after talent_assess_score to create the profile file. Takes "
                 "the computed scores, demographic info, goals, task classifications, and "
                 "preferences collected during the assessment conversation. Returns the "
@@ -591,7 +591,7 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
         return [TextContent(
             type="text",
             text=f"No profile found for '{user_name}'. "
-                 f"Available profiles: {profiles or 'None — run /talent-assess to create one.'}"
+                 f"Available profiles: {profiles or 'None: run /talent-assess to create one.'}"
         )]
 
     elif name == "talent_get_calibration":
@@ -696,7 +696,7 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             expertise_lines.append(f"  {e.domain}: {e.rating}/5 ({e.label()}){marker}")
 
         # Build status report
-        status = f"""## Talent-Augmenting Layer Status: {profile.name}
+        status = f"""## Talent-Augmenting OS Status: {profile.name}
 
 **Role**: {profile.role} at {profile.organization}
 **Friction level**: {profile.calibration.default_friction_level}
@@ -791,7 +791,7 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
                 f"GP: {scores['gp']['score']}/10 ({scores['gp']['level']}), "
                 f"ALI: {scores['ali']['score']}/10 ({scores['ali']['level']}), "
                 f"ESA mean: {scores['esa']['mean']}/5, "
-                f"TALRI: {scores['pwri']['score']}/10 ({scores['pwri']['label']})"
+                f"TAOSRI: {scores['pwri']['score']}/10 ({scores['pwri']['label']})"
             ),
         }
         return [TextContent(type="text", text=json.dumps(result, indent=2))]
@@ -849,7 +849,7 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
                 "calibration": calibration,
                 "message": (
                     f"Profile for {user_name} created successfully! "
-                    f"TALRI: {scores['pwri']['score']}/10 ({scores['pwri']['label']}). "
+                    f"TAOSRI: {scores['pwri']['score']}/10 ({scores['pwri']['label']}). "
                     f"The profile has been saved and will be used to personalize all future interactions."
                 ),
             }, indent=2)
@@ -942,14 +942,14 @@ async def list_resource_templates() -> list[ResourceTemplate]:
     return [
         ResourceTemplate(
             uriTemplate="talent://profile/{name}",
-            name="Talent-Augmenting Layer Profile",
-            description="A user's full Talent-Augmenting Layer profile",
+            name="Talent-Augmenting OS Profile",
+            description="A user's full Talent-Augmenting OS profile",
             mimeType="text/markdown"
         ),
         ResourceTemplate(
             uriTemplate="talent://system-prompt/{name}",
-            name="Talent-Augmenting Layer System Prompt",
-            description="Complete system prompt with user profile injected — ready to paste into any LLM",
+            name="Talent-Augmenting OS System Prompt",
+            description="Complete system prompt with user profile injected: ready to paste into any LLM",
             mimeType="text/markdown"
         ),
     ]
@@ -975,7 +975,7 @@ async def list_resources() -> list[Resource]:
         resources.append(Resource(
             uri="talent://framework",
             name="Assessment Framework",
-            description="Research-backed assessment framework for Talent-Augmenting Layer",
+            description="Research-backed assessment framework for Talent-Augmenting OS",
             mimeType="text/markdown"
         ))
 
@@ -985,7 +985,7 @@ async def list_resources() -> list[Resource]:
         resources.append(Resource(
             uri="talent://literature",
             name="Literature Foundations",
-            description="Research backing for Talent-Augmenting Layer techniques",
+            description="Research backing for Talent-Augmenting OS techniques",
             mimeType="text/markdown"
         ))
 
@@ -995,7 +995,7 @@ async def list_resources() -> list[Resource]:
         resources.append(Resource(
             uri=f"talent://profile/{safe}",
             name=f"Profile: {name}",
-            description=f"Talent-Augmenting Layer profile for {name}",
+            description=f"Talent-Augmenting OS profile for {name}",
             mimeType="text/markdown"
         ))
 
@@ -1058,9 +1058,9 @@ async def list_prompts() -> list[Prompt]:
         Prompt(
             name="talent-system",
             description=(
-                "Complete Talent-Augmenting Layer system prompt for any LLM. "
+                "Complete Talent-Augmenting OS system prompt for any LLM. "
                 "Includes the base instructions + the user's profile. "
-                "Paste this into any LLM's system prompt to activate Talent-Augmenting Layer."
+                "Paste this into any LLM's system prompt to activate Talent-Augmenting OS."
             ),
             arguments=[
                 PromptArgument(
@@ -1072,7 +1072,7 @@ async def list_prompts() -> list[Prompt]:
         ),
         Prompt(
             name="talent-assess",
-            description="Run the Talent-Augmenting Layer assessment to create a new profile.",
+            description="Run the Talent-Augmenting OS assessment to create a new profile.",
             arguments=[
                 PromptArgument(
                     name="name",
@@ -1083,7 +1083,7 @@ async def list_prompts() -> list[Prompt]:
         ),
         Prompt(
             name="talent-coach",
-            description="Start a Talent-Augmenting Layer coaching session.",
+            description="Start a Talent-Augmenting OS coaching session.",
             arguments=[
                 PromptArgument(
                     name="name",
@@ -1099,7 +1099,7 @@ async def list_prompts() -> list[Prompt]:
         ),
         Prompt(
             name="talent-update",
-            description="Update an existing Talent-Augmenting Layer profile based on recent work.",
+            description="Update an existing Talent-Augmenting OS profile based on recent work.",
             arguments=[
                 PromptArgument(
                     name="name",
@@ -1126,7 +1126,7 @@ async def get_prompt(name: str, arguments: dict | None = None) -> GetPromptResul
         user_name = args.get("name", "")
         system_prompt = _build_system_prompt(user_name)
         return GetPromptResult(
-            description=f"Talent-Augmenting Layer system prompt for {user_name}",
+            description=f"Talent-Augmenting OS system prompt for {user_name}",
             messages=[
                 PromptMessage(
                     role="user",
@@ -1142,8 +1142,8 @@ async def get_prompt(name: str, arguments: dict | None = None) -> GetPromptResul
         user_name = args.get("name", "a new user")
         protocol = get_assessment_protocol()
         assess_content = (
-            f"# Talent-Augmenting Layer — Onboarding Assessment\n\n"
-            f"You are about to run a Talent-Augmenting Layer assessment for {user_name}.\n\n"
+            f"# Talent-Augmenting OS: Onboarding Assessment\n\n"
+            f"You are about to run a Talent-Augmenting OS assessment for {user_name}.\n\n"
             f"## Instructions\n\n{protocol['instructions']}\n\n"
             f"## Tools to use\n\n"
             f"1. Call `talent_assess_start` to get the full question bank\n"
@@ -1154,7 +1154,7 @@ async def get_prompt(name: str, arguments: dict | None = None) -> GetPromptResul
             f"and start the assessment conversation."
         )
         return GetPromptResult(
-            description=f"Talent-Augmenting Layer Assessment for {user_name}",
+            description=f"Talent-Augmenting OS Assessment for {user_name}",
             messages=[
                 PromptMessage(
                     role="user",

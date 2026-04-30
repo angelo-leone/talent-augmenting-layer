@@ -1,6 +1,6 @@
 # Remote MCP Quick Reference
 
-## TL;DR — Get Access in 2 Minutes
+## TL;DR: Get Access in 2 Minutes
 
 ### Step 1: Download Config
 - **Claude Desktop**: `mcp-server/claude-desktop-config-remote.json`
@@ -84,7 +84,7 @@ Just so you know what you're pasting:
   "mcpServers": {
     "talent-augmenting-layer": {
       "url": "https://proworker-hosted.onrender.com/mcp",
-      "description": "Talent-Augmenting Layer — Remote MCP Server (Hosted)"
+      "description": "Talent-Augmenting OS: Remote MCP Server (Hosted)"
     }
   }
 }

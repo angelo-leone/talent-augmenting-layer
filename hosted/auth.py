@@ -1,4 +1,4 @@
-"""Talent-Augmenting Layer -- Google OAuth authentication.
+"""Talent-Augmenting OS: Google OAuth authentication.
 
 Uses authlib for the OAuth flow and python-jose for JWT session tokens
 stored in secure cookies.

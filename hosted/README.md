@@ -1,4 +1,4 @@
-# Talent-Augmenting Layer -- Hosted Web App
+# Talent-Augmenting OS: Hosted Web App
 
 A FastAPI application providing LLM-powered conversational assessment, persistent
 user profiles with Google OAuth, 2-week email reminders for profile check-ins, and
@@ -40,7 +40,7 @@ FROM_EMAIL=noreply@yourdomain.com
 APP_URL=http://localhost:8000          # change in production
 
 # Optional: Vanguard pilot export to Google Drive (OAuth user credentials)
-# Run the setup script once to get the refresh token — see below.
+# Run the setup script once to get the refresh token: see below.
 PILOT_EXPORT_ENABLED=false
 GDRIVE_FOLDER_ID=your-google-drive-folder-id
 GDRIVE_OAUTH_CLIENT_ID=your-oauth-client-id.apps.googleusercontent.com
@@ -88,7 +88,7 @@ docker run -p 8000:8000 \
 ## Google Drive Export Setup (Vanguard Pilot)
 
 The pilot data export uses **OAuth 2.0 user credentials** so the app uploads
-files to Google Drive as *you* — no service account sharing required.
+files to Google Drive as *you*: no service account sharing required.
 
 ### 1. Create OAuth credentials for Drive access
 
@@ -109,12 +109,12 @@ files to Google Drive as *you* — no service account sharing required.
 Run the setup helper on a machine with a browser:
 
 ```bash
-# Option A — supply client ID and secret directly:
+# Option A: supply client ID and secret directly:
 python -m hosted.gdrive_oauth_setup \
     --client-id YOUR_CLIENT_ID \
     --client-secret YOUR_CLIENT_SECRET
 
-# Option B — use the downloaded client_secret JSON file:
+# Option B: use the downloaded client_secret JSON file:
 python -m hosted.gdrive_oauth_setup \
     --client-secrets-file /path/to/client_secret.json
 ```
@@ -245,7 +245,7 @@ The check-in interval can be configured with `CHECKIN_INTERVAL_DAYS` (default: 1
 
 ## Manual Transcript Collection (Non-Platform Integrations)
 
-If participants use the Talent-Augmenting Layer system prompt on **external platforms**
+If participants use the Talent-Augmenting OS system prompt on **external platforms**
 (Google Gemini, OpenAI ChatGPT, Claude, etc.), those conversations are not automatically
 exported. Implement manual collection:
 

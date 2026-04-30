@@ -1,4 +1,4 @@
-"""Talent-Augmenting Layer -- LLM API wrapper.
+"""Talent-Augmenting OS: LLM API wrapper.
 
 Supports Anthropic, OpenAI, and Google Gemini APIs.  The ``chat`` method sends a
 system prompt plus a list of user/assistant messages and returns the
@@ -182,7 +182,7 @@ class LLMClient:
             "You are an expert in professional skills taxonomy. Given a "
             "person's role, industry, and responsibilities, suggest 6-10 "
             "expertise domains that are most relevant to their daily work. "
-            "Return ONLY a JSON array of strings -- no explanation."
+            "Return ONLY a JSON array of strings: no explanation."
         )
         user_msg = (
             f"Role: {role}\n"
@@ -221,7 +221,7 @@ class LLMClient:
         ``generate_profile_markdown`` expect.
         """
         system = (
-            "You are an assessment scoring assistant for Talent-Augmenting Layer. "
+            "You are an assessment scoring assistant for Talent-Augmenting OS. "
             "Given the assessment conversation below, extract ALL the structured data needed. "
             "Return ONLY valid JSON with these exact keys:\n"
             "{\n"

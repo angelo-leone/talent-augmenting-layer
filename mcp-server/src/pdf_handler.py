@@ -1,4 +1,4 @@
-"""PDF handling utilities for the TAL MCP server.
+"""PDF handling utilities for the TAOS MCP server.
 
 Uses PyMuPDF (fitz) for text extraction and metadata reading.
 """

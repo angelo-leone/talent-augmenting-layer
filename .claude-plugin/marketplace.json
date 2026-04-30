@@ -5,14 +5,14 @@
     "email": "angelo@talent-layer.dev"
   },
   "metadata": {
-    "description": "Personalised AI augmentation — makes you better at your work, not dependent on AI",
+    "description": "Personalised AI augmentation: makes you better at your work, not dependent on AI",
     "version": "1.0.0"
   },
   "plugins": [
     {
       "name": "talent-augmenting-layer",
       "source": "./plugin",
-      "description": "Assess your expertise, get personalised coaching, and protect skills from AI-driven atrophy. Connects to the TAL MCP server for scoring, progression tracking, and profile management.",
+      "description": "Assess your expertise, get personalised coaching, and protect skills from AI-driven atrophy. Connects to the TAOS MCP server for scoring, progression tracking, and profile management.",
       "version": "1.0.0",
       "author": {
         "name": "Angelo Leone"

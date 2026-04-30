@@ -1,7 +1,7 @@
-# Talent-Augmenting Layer — MCP Server
+# Talent-Augmenting OS: MCP Server
 
-> Use your Talent-Augmenting Layer profile with ANY MCP-compatible client.
-> Claude Code, Claude Desktop, Cursor, Windsurf, custom agents — anywhere.
+> Use your Talent-Augmenting OS profile with ANY MCP-compatible client.
+> Claude Code, Claude Desktop, Cursor, Windsurf, custom agents: anywhere.
 
 ---
 
@@ -97,8 +97,8 @@ Note: MCP configuration only exposes tools and prompts. Claude Code slash comman
 
 | Tool | Purpose |
 |------|---------|
-| `talent_assess_start` | Start onboarding — returns full assessment protocol for chatbot-driven assessment |
-| `talent_assess_score` | Compute all scores (ADR, GP, ALI, ESA, TALRI) from raw answers |
+| `talent_assess_start` | Start onboarding: returns full assessment protocol for chatbot-driven assessment |
+| `talent_assess_score` | Compute all scores (ADR, GP, ALI, ESA, TAOSRI) from raw answers |
 | `talent_assess_create_profile` | Generate and save a complete profile from assessment data |
 
 **Profile Management:**
@@ -135,12 +135,12 @@ Note: MCP configuration only exposes tools and prompts. Claude Code slash comman
 
 | Prompt | Purpose |
 |--------|---------|
-| `talent-system` | Full system prompt for any LLM — paste into system instructions |
+| `talent-system` | Full system prompt for any LLM: paste into system instructions |
 | `talent-assess` | Chatbot-driven onboarding assessment |
 | `talent-coach` | Start a coaching session (optional: specify focus domain) |
 | `talent-update` | Update an existing profile from recent interaction patterns |
 
-Important: in MCP usage, the conversation itself is run by the model in your MCP client (for example Claude Code). The TAL MCP server provides prompts, tools, and profile state. It does not require a hosted Gemini/OpenAI/Anthropic API key for this flow.
+Important: in MCP usage, the conversation itself is run by the model in your MCP client (for example Claude Code). The TAOS MCP server provides prompts, tools, and profile state. It does not require a hosted Gemini/OpenAI/Anthropic API key for this flow.
 
 ---
 
@@ -162,7 +162,7 @@ Use the `talent-system` prompt or `talent_get_calibration` tool.
 User: "Help me write an evaluation framework"
 Claude: [calls talent_get_calibration(name="Angelo")]
 Claude: [sees evaluation_design is a coaching domain]
-Claude: "Before I draft anything — what's your initial approach to this evaluation?"
+Claude: "Before I draft anything: what's your initial approach to this evaluation?"
 ```
 
 ### Pattern 3: Any LLM via System Prompt
@@ -172,7 +172,7 @@ Use the `talent://system-prompt/{name}` resource to get a complete system prompt
 Build agents that call `talent_classify_task` before acting:
 
 ```python
-# Pseudocode for an agent that respects Talent-Augmenting Layer
+# Pseudocode for an agent that respects Talent-Augmenting OS
 task = user_input()
 classification = mcp.call("talent_classify_task", name="Angelo", task_description=task)
 
@@ -223,11 +223,11 @@ The assessment is embedded directly in the MCP server. Any chatbot connected via
    → Gets full question bank + conversational instructions
 
 2. Chatbot asks questions one at a time, naturally
-   → Collects scores (1-5) for each TALQ item
+   → Collects scores (1-5) for each TAOSQ item
    → Collects domain expertise ratings
 
 3. Chatbot calls talent_assess_score(answers, domain_ratings)
-   → Gets computed ADR, GP, ALI, ESA, TALRI scores
+   → Gets computed ADR, GP, ALI, ESA, TAOSRI scores
 
 4. Chatbot calls talent_assess_create_profile(name, scores, demographics, goals, ...)
    → Profile is generated and saved to disk
@@ -246,7 +246,7 @@ mcp-server/
 ├── README.md               # This file
 └── src/
     ├── __init__.py
-    ├── server.py           # MCP server — tools, resources, prompts
+    ├── server.py           # MCP server: tools, resources, prompts
     ├── profile_manager.py  # Profile CRUD, parsing, interaction logging
     └── assessment.py       # Embedded assessment engine (questions, scoring, profile generation)
 ```

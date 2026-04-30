@@ -1,17 +1,17 @@
-# Remote MCP Access — Setup Guide
+# Remote MCP Access: Setup Guide
 
 > **TL;DR**: Non-technical people can access the MCP server from anywhere by copying a single JSON config file. The MCP server is available at `https://proworker-hosted.onrender.com/mcp`.
 
 ## Overview
 
-The Talent-Augmenting Layer MCP server is accessible remotely via Server-Sent Events (SSE) over HTTP. This means:
+The Talent-Augmenting OS MCP server is accessible remotely via Server-Sent Events (SSE) over HTTP. This means:
 
-✅ **No local installation needed** — just a configuration update   
-✅ **Works from anywhere** — home, office, coffee shop, etc.   
-✅ **Works with any IDE** — Claude Code, Claude Desktop, Cursor, VSCode, etc.   
-✅ **No coding required** — copy-paste configuration  
-✅ **No server-side API keys** — all MCP tools are pure Python  
-✅ **Your own model** — you use your own Claude Code API key / subscription
+✅ **No local installation needed**: just a configuration update   
+✅ **Works from anywhere**: home, office, coffee shop, etc.   
+✅ **Works with any IDE**: Claude Code, Claude Desktop, Cursor, VSCode, etc.   
+✅ **No coding required**: copy-paste configuration  
+✅ **No server-side API keys**: all MCP tools are pure Python  
+✅ **Your own model**: you use your own Claude Code API key / subscription
 
 ---
 
@@ -23,7 +23,7 @@ IDE (Claude Desktop/Cursor)
   ↓ (stdio)
 MCP Server (local subprocess on your machine)
   ↓
-TAL profiles & tools
+TAOS profiles & tools
 ```
 
 ### After (Remote + Local)
@@ -33,7 +33,7 @@ IDE (Claude Code / Desktop / Cursor) anywhere
   ↓ (HTTP/SSE)
 https://proworker-hosted.onrender.com/mcp
   ↓
-Hosted TAL MCP Server (on Render) — pure Python tools only
+Hosted TAOS MCP Server (on Render): pure Python tools only
   ↓
 Scoring, classification, logging (no LLM API keys on server)
 ```
@@ -73,9 +73,9 @@ If you want the slash commands, open this repository in Claude Code so it can lo
 In your IDE, you should now see "talent-augmenting-layer" in your available MCP tools/resources.
 
 Try running one of these commands:
-- `@talent.profile <your-name>` — Load your profile
-- `@talent.status <your-name>` — Get your status report
-- `@talent.list-profiles` — See all available profiles
+- `@talent.profile <your-name>`: Load your profile
+- `@talent.status <your-name>`: Get your status report
+- `@talent.list-profiles`: See all available profiles
 
 ---
 
@@ -103,44 +103,44 @@ Then use the local configuration files:
   "mcpServers": {
     "talent-augmenting-layer": {
       "url": "https://proworker-hosted.onrender.com/mcp",
-      "description": "Talent-Augmenting Layer — Remote MCP Server"
+      "description": "Talent-Augmenting OS: Remote MCP Server"
     }
   }
 }
 ```
 
-**Key difference from local config**: Uses `"url"` instead of `"command"` and `"args"`. No API keys are passed to the server — your Claude Code model uses your own key/subscription.
+**Key difference from local config**: Uses `"url"` instead of `"command"` and `"args"`. No API keys are passed to the server: your Claude Code model uses your own key/subscription.
 
 ---
 
 ## What You Get with Remote Access
 
 ### Tools
-- `talent_get_profile(name)` — Load a user's AI augmentation profile
-- `talent_get_calibration(name)` — Get calibration instructions for injecting into system prompts
-- `talent_classify_task(description)` — Classify tasks into automate/augment/coach/protect
-- `talent_log_interaction(user, task, engagement_level, outcome)` — Log interactions for skill tracking
-- `talent_get_progression(name)` — Track skill progression over time
-- `talent_list_profiles()` — List all available profiles
-- `talent_status(name)` — Comprehensive status report for a user
-- `talent_org_summary()` — Organization-level aggregation across all users
-- `talent_save_profile(name, data)` — Create or update a profile
-- `talent_delete_profile(name)` — Delete a profile
-- `talent_assess_start()` — Start an onboarding assessment
-- `talent_suggest_domains(role, industry)` — Suggest expertise domains
+- `talent_get_profile(name)`: Load a user's AI augmentation profile
+- `talent_get_calibration(name)`: Get calibration instructions for injecting into system prompts
+- `talent_classify_task(description)`: Classify tasks into automate/augment/coach/protect
+- `talent_log_interaction(user, task, engagement_level, outcome)`: Log interactions for skill tracking
+- `talent_get_progression(name)`: Track skill progression over time
+- `talent_list_profiles()`: List all available profiles
+- `talent_status(name)`: Comprehensive status report for a user
+- `talent_org_summary()`: Organization-level aggregation across all users
+- `talent_save_profile(name, data)`: Create or update a profile
+- `talent_delete_profile(name)`: Delete a profile
+- `talent_assess_start()`: Start an onboarding assessment
+- `talent_suggest_domains(role, industry)`: Suggest expertise domains
 
 ### Resources
-- `talent://profile/{name}` — The full profile as markdown
-- `talent://system-prompt/{name}` — Complete system prompt with profile injected
-- `talent://coaching-modules` — Available coaching session modules
+- `talent://profile/{name}`: The full profile as markdown
+- `talent://system-prompt/{name}`: Complete system prompt with profile injected
+- `talent://coaching-modules`: Available coaching session modules
 
 ### Prompts
-- `talent-system` — Full system prompt with profile for any LLM
-- `talent-assess` — Interactive onboarding assessment
-- `talent-coach` — Coaching session prompt
-- `talent-update` — Profile update prompt
+- `talent-system`: Full system prompt with profile for any LLM
+- `talent-assess`: Interactive onboarding assessment
+- `talent-coach`: Coaching session prompt
+- `talent-update`: Profile update prompt
 
-Assessment/coaching/update conversations are driven by **your own** Claude Code model (using your API key or subscription). The remote MCP server provides tools, prompts, and resources — all pure Python with zero external LLM API calls. No Gemini/OpenAI/Anthropic keys are needed on the server.
+Assessment/coaching/update conversations are driven by **your own** Claude Code model (using your API key or subscription). The remote MCP server provides tools, prompts, and resources: all pure Python with zero external LLM API calls. No Gemini/OpenAI/Anthropic keys are needed on the server.
 
 ### Claude Code Slash Commands
 
@@ -183,7 +183,7 @@ This error comes from your Claude Code client, not the MCP server. It means your
 
 1. If using Anthropic API: your key must start with `sk-ant-`
 2. If using Claude Pro/Max subscription: no API key needed, just sign in
-3. The remote MCP server itself requires zero API keys — all tools are pure Python
+3. The remote MCP server itself requires zero API keys: all tools are pure Python
 
 ### "Could not load credentials from any providers"
 
@@ -194,7 +194,7 @@ This is a legacy issue. The current remote MCP server does not make any LLM API 
 
 ### "Tool calls fail with 400 Bad Request"
 
-1. The MCP server may be under heavy load — wait a moment and try again
+1. The MCP server may be under heavy load: wait a moment and try again
 2. Verify you're using the correct tool names (see list above)
 3. Check your tool arguments match the documented format
 
@@ -210,9 +210,9 @@ This is a legacy issue. The current remote MCP server does not make any LLM API 
 
 The hosted app exposes these endpoints for direct HTTP access:
 
-- `POST/GET https://proworker-hosted.onrender.com/mcp` — Streamable HTTP endpoint (primary)
-- `GET https://proworker-hosted.onrender.com/mcp/sse` — SSE endpoint (legacy)
-- `GET https://proworker-hosted.onrender.com/mcp/config` — Configuration instructions
+- `POST/GET https://proworker-hosted.onrender.com/mcp`: Streamable HTTP endpoint (primary)
+- `GET https://proworker-hosted.onrender.com/mcp/sse`: SSE endpoint (legacy)
+- `GET https://proworker-hosted.onrender.com/mcp/config`: Configuration instructions
 
 Example usage (from a terminal or script):
 
@@ -226,7 +226,7 @@ Output:
 {
   "type": "sse",
   "url": "https://proworker-hosted.onrender.com/mcp",
-  "description": "Talent-Augmenting Layer — Remote MCP Server",
+  "description": "Talent-Augmenting OS: Remote MCP Server",
   "supported_clients": [
     "Claude Desktop",
     "Cursor",

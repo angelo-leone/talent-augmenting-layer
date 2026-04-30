@@ -1,8 +1,8 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.angelo-leone/talent-augmenting-layer",
-  "title": "Talent-Augmenting Layer",
-  "description": "Personalised AI augmentation system — makes you better at your work, not dependent on AI",
+  "title": "Talent-Augmenting OS",
+  "description": "Personalised AI augmentation system: makes you better at your work, not dependent on AI",
   "version": "1.0.0",
   "repository": {
     "url": "https://github.com/angelo-leone/talent-augmenting-layer",

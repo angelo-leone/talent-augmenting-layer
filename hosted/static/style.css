@@ -1,20 +1,27 @@
-/* Talent-Augmenting Layer -- Hosted App Styles
-   Dark theme using the same design tokens as the web-ui assessment. */
+/* Talent-Augmenting OS: Hosted App Styles
+   Light theme: clean baseline with a single sage accent.
+   Sage signals growth and trust without the urgency/alarm read of red.
+   Cards sit on a near-white background and rely on borders for separation
+   rather than heavy shadows. */
 
 :root {
-    --bg: #0f0f0f;
-    --surface: #1a1a2e;
-    --surface-2: #16213e;
-    --accent: #e94560;
-    --accent-soft: #533483;
-    --text: #eee;
-    --text-muted: #999;
-    --success: #2ecc71;
-    --warning: #f39c12;
-    --danger: #e74c3c;
-    --border: #2a2a4a;
+    --bg: #FFFFFF;
+    --surface: #FFFFFF;
+    --surface-2: #F7F5EE;
+    --accent: #2D6A4F;
+    --accent-hover: #235A40;
+    --accent-soft: #E5F0E9;
+    --text: #0F172A;
+    --text-muted: #64748B;
+    --success: #1B7A5A;
+    --warning: #B45309;
+    --danger: #B42318;
+    --border: #E2E8F0;
+    --border-strong: #CBD5E1;
     --radius: 12px;
     --radius-sm: 8px;
+    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+    --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.06);
 }
 
 /* ── Reset ──────────────────────────────────────────────────────────────── */
@@ -146,11 +153,11 @@ h2 { font-size: 1.4rem; margin-bottom: 0.5rem; color: var(--accent); }
 }
 
 .btn-primary { background: var(--accent); color: white; }
-.btn-primary:hover { background: #d6304a; text-decoration: none; }
+.btn-primary:hover { background: var(--accent-hover); text-decoration: none; }
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .btn-secondary { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
-.btn-secondary:hover { background: #1a2a4e; text-decoration: none; }
+.btn-secondary:hover { background: var(--surface-2); border-color: var(--border-strong); text-decoration: none; }
 
 .btn-google {
     background: white;

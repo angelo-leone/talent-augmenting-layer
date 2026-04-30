@@ -1,4 +1,4 @@
-# Remote MCP Access — Implementation Summary
+# Remote MCP Access: Implementation Summary
 
 ## Problem Statement
 The MCP server previously only worked with local clients via stdio transport, requiring each user to install and run the server locally. Non-technical people couldn't access it remotely.
@@ -24,18 +24,18 @@ IDE → (stdio) → Local MCP Server (subprocess) [still supported]
 
 ### 1. Created: `/hosted/mcp_sse_handler.py`
 - New module integrating MCP server with FastAPI SSE endpoints
-- Lazy-loads the TAL MCP server from `mcp-server/src/server.py`
+- Lazy-loads the TAOS MCP server from `mcp-server/src/server.py`
 - Provides two handlers:
-  - `handle_sse_get()` — Persistent SSE connection
-  - `handle_sse_post()` — Alternative POST-based endpoint
-  - `get_sse_config()` — Returns configuration instructions
+  - `handle_sse_get()`: Persistent SSE connection
+  - `handle_sse_post()`: Alternative POST-based endpoint
+  - `get_sse_config()`: Returns configuration instructions
 
 ### 2. Modified: `/hosted/app.py`
 - Imported SSE handlers from `mcp_sse_handler`
 - Added three new endpoints:
-  - `GET /mcp/sse` — Main SSE connection endpoint
-  - `POST /mcp/sse` — Alternative MCP endpoint
-  - `GET /mcp/config` — Configuration information endpoint
+  - `GET /mcp/sse`: Main SSE connection endpoint
+  - `POST /mcp/sse`: Alternative MCP endpoint
+  - `GET /mcp/config`: Configuration information endpoint
 
 ### 3. Modified: `/hosted/requirements.txt`
 - Added `mcp>=1.0.0` dependency for SSE support

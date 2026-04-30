@@ -1,5 +1,5 @@
 """
-Profile Manager — CRUD operations for Talent-Augmenting Layer profiles.
+Profile Manager: CRUD operations for Talent-Augmenting OS profiles.
 
 Handles reading, writing, searching, and updating user profiles.
 Profiles are stored as markdown files in a configurable directory.
@@ -183,7 +183,7 @@ class Profile:
             return {_stem(w) for w in words if w not in STOPWORDS}
 
         def _clean_task(task: str) -> str:
-            task = re.split(r"\s*[—–]\s*", task)[0]
+            task = re.split(r"\s*[, –]\s*", task)[0]
             task = re.sub(r"\(.*?\)", "", task)
             return task.strip()
 
@@ -461,7 +461,7 @@ class ProfileStore:
         """Tiny YAML-ish parser for the calibration block.
 
         Handles scalar keys and simple `- item` lists. Does not cover the
-        full YAML spec; the calibration block is written by TAL and stays
+        full YAML spec; the calibration block is written by TAOS and stays
         within this subset.
         """
         current_list_key: str | None = None

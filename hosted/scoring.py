@@ -1,4 +1,4 @@
-"""Scoring module -- imports from mcp-server/src/assessment.py for single source of truth."""
+"""Scoring module: imports from mcp-server/src/assessment.py for single source of truth."""
 from __future__ import annotations
 
 import sys

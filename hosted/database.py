@@ -1,4 +1,4 @@
-"""Talent-Augmenting Layer -- Database models and session management.
+"""Talent-Augmenting OS: Database models and session management.
 
 SQLAlchemy 2.0 async style with aiosqlite for local dev.
 """
@@ -123,7 +123,7 @@ class OrgInvite(Base):
     """A pending invitation to join an organisation.
 
     Signed by a random token; claimable once by a user whose email matches
-    (case-insensitive). Owners cannot be minted via invite — they must be
+    (case-insensitive). Owners cannot be minted via invite: they must be
     promoted explicitly from within an existing membership.
     """
     __tablename__ = "org_invites"
@@ -245,7 +245,7 @@ class PilotSurvey(Base):
     timepoint = Column(Enum(SurveyTimepoint), nullable=False)
     recorded_at = Column(DateTime, server_default=func.now(), nullable=False)
 
-    # TAAQ composite (0-10 scale, same as TALRI)
+    # TAAQ composite (0-10 scale, same as TAOSRI)
     taaq_score = Column(Float, nullable=True)
     taaq_subscores_json = Column(Text, nullable=True)  # {"adr": 4, "gp": 7, "ali": 6, "esa_mean": 3.5}
 
@@ -314,6 +314,44 @@ class ChatLog(Base):
     turn_payload_json = Column(Text, nullable=True)
 
     user = relationship("User", back_populates="chat_logs")
+
+
+class AuditLog(Base):
+    """Append-only log of administrative and security-relevant actions.
+
+    Distinct from ChatLog (which records LLM interaction telemetry):
+    AuditLog records who did what, from which IP, when. It exists to
+    satisfy enterprise compliance requirements (SOC 2 CC7, GDPR Art 32)
+    that ChatLog cannot satisfy on its own.
+
+    Rows are append-only by convention; there is no UPDATE or DELETE
+    helper in ``audit_log.py``. Retention policy is enforced by a
+    scheduled job that purges rows older than the configured window
+    (see ``hosted/scheduler.py``).
+    """
+    __tablename__ = "audit_logs"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    actor_user_id = Column(
+        Integer,
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    actor_email = Column(String(320), nullable=True)  # denormalised for post-deletion auditability
+    org_id = Column(
+        Integer,
+        ForeignKey("organizations.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    action = Column(String(64), nullable=False, index=True)
+    target_type = Column(String(64), nullable=True)
+    target_id = Column(String(128), nullable=True)
+    ip = Column(String(45), nullable=True)  # IPv4 or IPv6
+    user_agent = Column(String(512), nullable=True)
+    details_json = Column(Text, nullable=True)  # arbitrary structured payload
+    created_at = Column(DateTime, server_default=func.now(), nullable=False, index=True)
 
 
 async def compute_passive_ratio(db: AsyncSession, user_id: int, days: int | None = None) -> float:

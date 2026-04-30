@@ -1,4 +1,4 @@
-"""Talent-Augmenting Layer -- Hosted App Configuration"""
+"""Talent-Augmenting OS: Hosted App Configuration"""
 import os
 from pathlib import Path
 
@@ -37,7 +37,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", "change-me-in-production")
 APP_URL = os.getenv("APP_URL", "http://localhost:8000")
 CHECKIN_INTERVAL_DAYS = int(os.getenv("CHECKIN_INTERVAL_DAYS", "14"))
 
-# Google Drive export (Vanguard Pilot) — uses OAuth 2.0 user credentials
+# Google Drive export (Vanguard Pilot): uses OAuth 2.0 user credentials
 # so the app acts as you (bypasses IT restrictions on service accounts).
 # Run `python -m hosted.gdrive_oauth_setup` once to obtain the refresh token.
 # MCP OAuth 2.1 token lifetimes
@@ -51,7 +51,7 @@ GDRIVE_OAUTH_REFRESH_TOKEN = os.getenv("GDRIVE_OAUTH_REFRESH_TOKEN", "")
 GDRIVE_FOLDER_ID = os.getenv("GDRIVE_FOLDER_ID", "")
 PILOT_EXPORT_ENABLED = os.getenv("PILOT_EXPORT_ENABLED", "false").lower() == "true"
 
-# Billing (Stripe) -- feature-flagged, off during the pilot.
+# Billing (Stripe): feature-flagged, off during the pilot.
 # Set ENABLE_BILLING=true + STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET to
 # activate. When off, /pricing returns 404 and billing columns on User
 # stay at their defaults (plan_tier=free, no Stripe customer).

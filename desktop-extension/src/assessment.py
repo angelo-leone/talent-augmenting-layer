@@ -1,12 +1,12 @@
 """
-Talent-Augmenting Layer — Embedded Assessment Engine
+Talent-Augmenting OS: Embedded Assessment Engine
 
-The full TALQ (Talent-Augmenting Layer Questionnaire) embedded in the MCP server.
+The full TAOSQ (Talent-Augmenting OS Questionnaire) embedded in the MCP server.
 Any chatbot connected via MCP can drive the onboarding assessment conversationally,
 compute scores, and auto-create/update the user's profile.
 
 Architecture:
-  - Question bank: All TALQ items with behavioural anchors (stateless)
+  - Question bank: All TAOSQ items with behavioural anchors (stateless)
   - Score computation: Server-side math from raw answers (stateless)
   - Profile generation: Creates a full profile markdown from scores + demographics
   - The LLM drives the conversation; the MCP does the math and storage
@@ -28,9 +28,9 @@ SECTION_A_QUESTIONS = [
         "title": "Output Acceptance Pattern",
         "question": "When AI generates a response for a work task, what do you typically do?",
         "anchors": {
-            1: "I use AI output purely as a thinking prompt — I always write my own version",
+            1: "I use AI output purely as a thinking prompt: I always write my own version",
             2: "I substantially rewrite AI output, keeping maybe 20-30% of the original",
-            3: "I edit AI output moderately — restructuring sections and rewriting key parts",
+            3: "I edit AI output moderately: restructuring sections and rewriting key parts",
             4: "I lightly edit AI output for tone and accuracy, keeping most of the structure",
             5: "I use AI output as-is or with minimal changes most of the time",
         },
@@ -41,11 +41,11 @@ SECTION_A_QUESTIONS = [
         "question": "Thinking about skills you use AI for regularly, how would you rate your independent ability compared to before you started using AI?",
         "reverse_coded": True,
         "anchors": {
-            1: "My independent skills have improved — AI helps me learn and practice",
-            2: "My skills are about the same — AI supplements but hasn't changed my ability",
-            3: "I'm not sure — I haven't tested my independent ability recently",
-            4: "Some skills feel weaker — I'd struggle more without AI than I used to",
-            5: "I've lost significant ability — I depend on AI for things I could do alone before",
+            1: "My independent skills have improved: AI helps me learn and practice",
+            2: "My skills are about the same: AI supplements but hasn't changed my ability",
+            3: "I'm not sure: I haven't tested my independent ability recently",
+            4: "Some skills feel weaker: I'd struggle more without AI than I used to",
+            5: "I've lost significant ability: I depend on AI for things I could do alone before",
         },
     },
     {
@@ -57,7 +57,7 @@ SECTION_A_QUESTIONS = [
             2: "I check key facts and challenge the main argument before accepting",
             3: "I scan for obvious errors but generally trust the reasoning if it looks right",
             4: "I occasionally spot-check but usually move on if the output seems decent",
-            5: "I rarely question AI output — if it looks professional, I accept it",
+            5: "I rarely question AI output: if it looks professional, I accept it",
         },
     },
     {
@@ -65,11 +65,11 @@ SECTION_A_QUESTIONS = [
         "title": "Task Delegation Breadth",
         "question": "What proportion of your complex cognitive work (strategy, analysis, writing, decision-making) do you delegate to AI?",
         "anchors": {
-            1: "Less than 10% — I use AI mainly for mechanical tasks",
-            2: "About 20-30% — AI assists on specific subtasks within complex work",
-            3: "About 40-50% — AI does first drafts and I refine",
-            4: "About 60-70% — AI handles most of the heavy lifting, I direct and review",
-            5: "Over 80% — AI generates most of my complex work products",
+            1: "Less than 10%: I use AI mainly for mechanical tasks",
+            2: "About 20-30%: AI assists on specific subtasks within complex work",
+            3: "About 40-50%: AI does first drafts and I refine",
+            4: "About 60-70%: AI handles most of the heavy lifting, I direct and review",
+            5: "Over 80%: AI generates most of my complex work products",
         },
     },
     {
@@ -78,11 +78,11 @@ SECTION_A_QUESTIONS = [
         "question": "If AI tools were unavailable for a week, how would your work quality and output be affected?",
         "reverse_coded": True,
         "anchors": {
-            1: "Minimal impact — I'd be slower but the quality would be the same",
+            1: "Minimal impact: I'd be slower but the quality would be the same",
             2: "Moderate slowdown but I could maintain quality on important tasks",
-            3: "Significant impact — several tasks would suffer noticeably",
-            4: "Severe impact — I'd struggle to deliver key work products at current quality",
-            5: "I couldn't function effectively — AI is essential to my core work",
+            3: "Significant impact: several tasks would suffer noticeably",
+            4: "Severe impact: I'd struggle to deliver key work products at current quality",
+            5: "I couldn't function effectively: AI is essential to my core work",
         },
     },
 ]
@@ -93,7 +93,7 @@ SECTION_B_QUESTIONS = [
         "title": "Goal Clarity",
         "question": "How clearly can you describe what professional growth looks like for you in the next 1-2 years?",
         "anchors": {
-            1: "I haven't thought about it — I'm focused on day-to-day tasks",
+            1: "I haven't thought about it: I'm focused on day-to-day tasks",
             2: "I have a vague sense of direction but no specific goals",
             3: "I have broad goals but not specific plans",
             4: "I have clear goals with some specific skills and milestones identified",
@@ -117,11 +117,11 @@ SECTION_B_QUESTIONS = [
         "title": "Deliberate Practice",
         "question": "In the past month, how often have you deliberately practiced a skill you're developing (not just doing your job, but intentionally working on getting better)?",
         "anchors": {
-            1: "Never — I learn on the job but don't practice deliberately",
-            2: "Once — I did one specific learning activity",
-            3: "A few times — I've sought out opportunities to practice",
-            4: "Weekly — I regularly carve out time for skill development",
-            5: "Multiple times per week — I have a structured practice routine",
+            1: "Never: I learn on the job but don't practice deliberately",
+            2: "Once: I did one specific learning activity",
+            3: "A few times: I've sought out opportunities to practice",
+            4: "Weekly: I regularly carve out time for skill development",
+            5: "Multiple times per week: I have a structured practice routine",
         },
     },
     {
@@ -129,7 +129,7 @@ SECTION_B_QUESTIONS = [
         "title": "Learning Transfer",
         "question": "When you learn something new (from AI, a course, a colleague), how do you apply it?",
         "anchors": {
-            1: "I rarely apply new learning — it stays theoretical",
+            1: "I rarely apply new learning: it stays theoretical",
             2: "I occasionally apply things when the situation is obvious",
             3: "I try to apply new concepts but don't always succeed",
             4: "I actively look for opportunities to apply new learning in my work",
@@ -141,7 +141,7 @@ SECTION_B_QUESTIONS = [
         "title": "Metacognitive Awareness",
         "question": "How well can you identify what you're good at, what you're bad at, and what you need to learn?",
         "anchors": {
-            1: "I find it hard to self-assess accurately — I'm often surprised by feedback",
+            1: "I find it hard to self-assess accurately: I'm often surprised by feedback",
             2: "I have a general sense but am often wrong about specific skills",
             3: "I can identify broad strengths and weaknesses but not always the details",
             4: "I have a clear picture of my skill levels and can articulate gaps",
@@ -156,8 +156,8 @@ SECTION_D_QUESTIONS = [
         "title": "Capability Calibration",
         "question": "How well do you predict what AI can and cannot do before trying?",
         "anchors": {
-            1: "I'm often surprised — both positively and negatively — by AI output",
-            2: "I sometimes misjudge — I over- or under-estimate AI ability",
+            1: "I'm often surprised: both positively and negatively: by AI output",
+            2: "I sometimes misjudge: I over- or under-estimate AI ability",
             3: "I'm usually right about whether AI will handle a task well",
             4: "I have a nuanced sense of AI strengths and weaknesses by task type",
             5: "I can predict AI output quality with high accuracy and know exactly how to work around limitations",
@@ -180,11 +180,11 @@ SECTION_D_QUESTIONS = [
         "title": "Error Detection",
         "question": "How often do you catch errors, hallucinations, or subtle mistakes in AI output?",
         "anchors": {
-            1: "Rarely — I usually trust what the AI says",
-            2: "Occasionally — I catch obvious errors but miss subtle ones",
-            3: "Often — I check key facts and catch most substantive errors",
-            4: "Almost always — I have a systematic approach to verifying AI output",
-            5: "Always — I treat every AI output as draft and verify independently",
+            1: "Rarely: I usually trust what the AI says",
+            2: "Occasionally: I catch obvious errors but miss subtle ones",
+            3: "Often: I check key facts and catch most substantive errors",
+            4: "Almost always: I have a systematic approach to verifying AI output",
+            5: "Always: I treat every AI output as draft and verify independently",
         },
     },
     {
@@ -192,11 +192,11 @@ SECTION_D_QUESTIONS = [
         "title": "Appropriate Delegation",
         "question": "How well do you match tasks to the right level of AI involvement?",
         "anchors": {
-            1: "I use AI for everything or nothing — no differentiation by task type",
+            1: "I use AI for everything or nothing: no differentiation by task type",
             2: "I use AI for obvious tasks (search, formatting) but not strategically",
             3: "I think about which tasks benefit from AI and which don't",
             4: "I systematically categorize tasks and use AI differently for each type",
-            5: "I have a clear framework for what to automate, augment, and keep human — and adjust it over time",
+            5: "I have a clear framework for what to automate, augment, and keep human: and adjust it over time",
         },
     },
 ]
@@ -331,7 +331,7 @@ def _apply_optimism_adjustment(answers: dict[str, int], domain_ratings: dict[str
     """Apply a soft optimism bias correction when responses are suspiciously uniform.
 
     Design goals (from stakeholder notes):
-      - Not too strict — genuine experts DO score high across the board
+      - Not too strict: genuine experts DO score high across the board
       - Soft normalization: if ALL self-ratings are at ceiling, nudge toward
         realistic distribution using a gentle point-budget constraint
       - Only triggers on extreme patterns (all-max or near-all-max)
@@ -350,7 +350,7 @@ def _apply_optimism_adjustment(answers: dict[str, int], domain_ratings: dict[str
         if len(items) >= 3:
             unique = set(items)
             if len(unique) == 1 and items[0] in (1, 5):
-                # All identical at floor or ceiling — nudge middle items
+                # All identical at floor or ceiling: nudge middle items
                 val = items[0]
                 nudge = -1 if val == 5 else 1
                 # Nudge ~40% of items (every other one) by 1 point toward centre
@@ -387,7 +387,7 @@ def compute_all_scores(answers: dict[str, int], domain_ratings: dict[str, int]) 
         domain_ratings: Dict of domain -> rating, e.g. {"Writing": 4, "Strategy": 3, ...}
 
     Returns:
-        Complete scoring summary with all sub-scores and composite TALRI.
+        Complete scoring summary with all sub-scores and composite TAOSRI.
     """
     adj_answers, adj_domains = _apply_optimism_adjustment(answers, domain_ratings)
 
@@ -415,7 +415,7 @@ def compute_all_scores(answers: dict[str, int], domain_ratings: dict[str, int]) 
 # ── Calibration Matrix ──────────────────────────────────────────────────────
 
 def compute_calibration(scores: dict, domain_ratings: dict[str, int]) -> dict:
-    """Derive Talent-Augmenting Layer calibration settings from assessment scores.
+    """Derive Talent-Augmenting OS calibration settings from assessment scores.
 
     Implements the calibration matrix from the psychometric instrument.
     """
@@ -495,7 +495,7 @@ def generate_profile_markdown(
     feedback_style: str = "balanced",
     communication_style: str = "conversational",
 ) -> str:
-    """Generate a complete Talent-Augmenting Layer profile as markdown.
+    """Generate a complete Talent-Augmenting OS profile as markdown.
 
     This is the full profile format matching profiles/TEMPLATE.md,
     generated from scored assessment data.
@@ -508,11 +508,11 @@ def generate_profile_markdown(
         label = ESA_ANCHORS.get(rating, {}).get("label", "Unknown")
         growth = "Maintain"
         if domain in skills_to_develop:
-            growth = f"**GROW to {min(rating + 1, 5)}** — targeted goal"
+            growth = f"**GROW to {min(rating + 1, 5)}**: targeted goal"
         elif domain in skills_to_protect:
-            growth = "**PROTECT** — at risk from AI over-reliance"
+            growth = "**PROTECT**: at risk from AI over-reliance"
         elif rating >= 4:
-            growth = "Maintain — this is a core strength"
+            growth = "Maintain: this is a core strength"
         expertise_rows.append(f"| {domain} | {rating} ({label}) | Self-assessed | {growth} |")
 
     expertise_table = "\n".join(expertise_rows)
@@ -537,11 +537,11 @@ def generate_profile_markdown(
     for i, rl in enumerate(red_lines, 1):
         red_lines_text += f"\n{i}. **{rl}**"
 
-    profile = f"""# Talent-Augmenting Layer Profile — {name}
+    profile = f"""# Talent-Augmenting OS Profile: {name}
 
 > Generated: {today}
 > Last updated: {today}
-> Assessment version: 2.0 (TALQ)
+> Assessment version: 2.0 (TAOSQ)
 
 ---
 
@@ -568,19 +568,19 @@ def generate_profile_markdown(
 
 ## 3. AI Relationship Status
 
-**Dependency Risk Score**: {adr['score']}/10 — **{adr['level']}**
+**Dependency Risk Score**: {adr['score']}/10: **{adr['level']}**
 {adr['pwa_response']}
 
-**AI Literacy Index**: {ali['score']}/10 — **{ali['level']}**
+**AI Literacy Index**: {ali['score']}/10: **{ali['level']}**
 
 ---
 
 ## 4. Growth Trajectory
 
-**Growth Potential Score**: {gp['score']}/10 — **{gp['level']}**
+**Growth Potential Score**: {gp['score']}/10: **{gp['level']}**
 {gp['pwa_response']}
 
-**Talent Readiness Index (TALRI)**: {pwri['score']}/10 — **{pwri['label']}**
+**Talent Readiness Index (TAOSRI)**: {pwri['score']}/10: **{pwri['label']}**
 {pwri['meaning']}
 
 **Career goals (1-2 years)**:
@@ -650,15 +650,15 @@ Things this AI should NEVER do for {name}:
 
 ---
 
-## Assessment Scores (TALQ v2.0)
+## Assessment Scores (TAOSQ v2.0)
 
 | Metric | Score | Level |
 |--------|-------|-------|
 | AI Dependency Risk (ADR) | {adr['score']}/10 | {adr['level']} |
 | Growth Potential (GP) | {gp['score']}/10 | {gp['level']} |
 | AI Literacy Index (ALI) | {ali['score']}/10 | {ali['level']} |
-| Expertise Mean (ESA) | {scores['esa']['mean']}/5 | — |
-| **Talent Readiness (TALRI)** | **{pwri['score']}/10** | **{pwri['label']}** |
+| Expertise Mean (ESA) | {scores['esa']['mean']}/5 |: |
+| **Talent Readiness (TAOSRI)** | **{pwri['score']}/10** | **{pwri['label']}** |
 
 ---
 
@@ -682,19 +682,19 @@ def get_assessment_protocol() -> dict:
     return {
         "protocol_version": "2.0",
         "instructions": (
-            "You are running a Talent-Augmenting Layer assessment. Your job is to have a natural, "
+            "You are running a Talent-Augmenting OS assessment. Your job is to have a natural, "
             "conversational assessment with the user. Do NOT present this as a rigid survey. "
             "Instead, weave the questions into a genuine conversation about their work and "
             "how they use AI.\n\n"
             "FLOW:\n"
             "1. IDENTITY: Ask about their name, role, organisation, industry. Get a sense of "
             "   their work context. (2-3 minutes)\n"
-            "2. SECTION A — AI Dependency Risk: Ask the 5 questions naturally, one at a time. "
+            "2. SECTION A: AI Dependency Risk: Ask the 5 questions naturally, one at a time. "
             "   For each, read the behavioural anchors and ask which best describes them. "
             "   They can pick a number 1-5 or describe their behaviour and you infer the score. "
             "   (3-4 minutes)\n"
-            "3. SECTION B — Growth Potential: Same approach, 5 questions. (3-4 minutes)\n"
-            "4. SECTION D — AI Literacy: 4 questions. (2-3 minutes)\n"
+            "3. SECTION B: Growth Potential: Same approach, 5 questions. (3-4 minutes)\n"
+            "4. SECTION D: AI Literacy: 4 questions. (2-3 minutes)\n"
             "5. EXPERTISE DOMAINS: Ask what domains/skills are most relevant to their work. "
             "   For each domain they name, ask them to rate themselves 1-5 using the ESA scale. "
             "   Validate with a behavioural example. Aim for 5-10 domains. (3-5 minutes)\n"
@@ -842,7 +842,7 @@ def suggest_domains(
     """Suggest expertise domains based on role, industry, and responsibilities.
 
     Returns a list of suggested domains with descriptions.
-    The LLM has override authority — this is a heuristic helper.
+    The LLM has override authority: this is a heuristic helper.
 
     Args:
         role: Job title or role description

@@ -1,4 +1,4 @@
-# Talent-Augmenting Layer — Assessment Framework
+# Talent-Augmenting OS: Assessment Framework
 
 > Research-backed assessment for personalizing AI augmentation.
 > Sources: Buçinca (2021, 2024), Acemoglu, Mollick, Drago/Laine, workforce learning literature.
@@ -7,10 +7,10 @@
 
 ## Why This Assessment Exists
 
-Standard AI treats everyone the same. Talent-Augmenting Layer adapts to YOU:
-- **Novices** need scaffolding, not answers — to build skills, not dependency
-- **Experts** need acceleration, not tutorials — to leverage expertise, not waste time
-- **Everyone** needs protection against de-skilling — the silent cost of AI convenience
+Standard AI treats everyone the same. Talent-Augmenting OS adapts to YOU:
+- **Novices** need scaffolding, not answers: to build skills, not dependency
+- **Experts** need acceleration, not tutorials: to leverage expertise, not waste time
+- **Everyone** needs protection against de-skilling: the silent cost of AI convenience
 
 This assessment maps your unique profile so every AI interaction makes you MORE capable.
 
@@ -26,9 +26,9 @@ Questions:
 - What is your name and current role/title?
 - What organisation do you work for and what industry/sector?
 - How long have you been in this role? What was your path here?
-- Describe a typical workday — what tasks fill your hours?
-- Team structure — solo, small team, large org? Who do you report to?
-- What's the pace of your work — steady, cyclical, crisis-driven?
+- Describe a typical workday: what tasks fill your hours?
+- Team structure: solo, small team, large org? Who do you report to?
+- What's the pace of your work: steady, cyclical, crisis-driven?
 
 **Why it matters**: A product manager at a startup needs different AI support than a data scientist at a bank. Context determines what "augmentation" means.
 
@@ -115,7 +115,7 @@ Questions:
 - What skills do you most want to develop?
 - What skills are you most afraid of losing?
 - If you could be 10x better at one thing, what would it be?
-- What tasks do you find deeply meaningful — even if they're hard?
+- What tasks do you find deeply meaningful: even if they're hard?
 - What tasks would you happily never do again?
 - When you imagine your ideal work life, what does AI do and what do YOU do?
 
@@ -137,7 +137,7 @@ Questions:
 
 **Purpose**: Create the personalised triage matrix.
 
-**Research context**: Not all tasks benefit from the same AI approach. Drago/Laine's "Diffuse" strategy emphasizes putting humans in the CEO seat — directing AI, not being directed by it.
+**Research context**: Not all tasks benefit from the same AI approach. Drago/Laine's "Diffuse" strategy emphasizes putting humans in the CEO seat: directing AI, not being directed by it.
 
 For each of the user's regular tasks, classify together:
 
@@ -147,7 +147,7 @@ For each of the user's regular tasks, classify together:
 | **Augment** | Complex but in expert domain | Accelerate + challenge | Research, drafting in expert areas |
 | **Coach** | In growth areas, building skills | Scaffold + question | Tasks in developing domains |
 | **Protect** | Risk of de-skilling or over-reliance | Force cognition + teach | Core professional skills |
-| **Hands-off** | Human core — meaning, judgment, relationships | Don't touch | Stakeholder decisions, creative vision, mentoring |
+| **Hands-off** | Human core: meaning, judgment, relationships | Don't touch | Stakeholder decisions, creative vision, mentoring |
 
 ---
 

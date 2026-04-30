@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TAL Demo -- 3-minute profile taster</title>
+    <title>TAOS Demo · 3-minute profile taster</title>
     <meta name="robots" content="noindex">
     <link rel="stylesheet" href="/static/style.css">
     <style>
@@ -14,9 +14,9 @@
         .chat-box { background: var(--surface-2); border-radius: 0.5rem; padding: 1.25rem; min-height: 320px; display: flex; flex-direction: column; gap: 0.75rem; }
         .msg { max-width: 80%; padding: 0.7rem 0.9rem; border-radius: 0.75rem; line-height: 1.4; }
         .msg.ai { background: var(--surface); align-self: flex-start; border-bottom-left-radius: 0.2rem; }
-        .msg.user { background: var(--accent-soft); color: #fff; align-self: flex-end; border-bottom-right-radius: 0.2rem; }
+        .msg.user { background: var(--accent); color: #fff; align-self: flex-end; border-bottom-right-radius: 0.2rem; }
         .input-row { display: flex; gap: 0.5rem; margin-top: 1rem; }
-        .input-row textarea { flex: 1; padding: 0.7rem; background: var(--surface-2); color: var(--text); border: 1px solid #2a2a4a; border-radius: 0.5rem; font-family: inherit; font-size: 1rem; resize: vertical; min-height: 2.4rem; }
+        .input-row textarea { flex: 1; padding: 0.7rem; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 0.5rem; font-family: inherit; font-size: 1rem; resize: vertical; min-height: 2.4rem; }
         .input-row textarea:disabled { opacity: 0.5; }
         .demo-result { background: var(--surface-2); border-radius: 0.5rem; padding: 1.5rem; margin-top: 1rem; }
         .result-score-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem; margin: 1rem 0; }
@@ -24,12 +24,15 @@
         .result-score .num { font-size: 1.6rem; font-weight: 700; color: var(--accent); }
         .result-score .lbl { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; }
         .demo-nav { text-align: center; margin-top: 1.5rem; display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+        .phase-pill { display: inline-block; font-size: 0.78rem; padding: 0.25rem 0.6rem; border-radius: 999px; background: var(--surface-2); color: var(--text-muted); margin-bottom: 0.75rem; letter-spacing: 0.02em; }
+        .caveat { background: rgba(243, 156, 18, 0.08); border-left: 3px solid var(--warning); padding: 0.85rem 1rem; border-radius: 0.4rem; margin-top: 1rem; font-size: 0.9rem; line-height: 1.5; color: var(--text); }
+        .caveat strong { color: var(--warning); }
     </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <a href="/" class="nav-brand">Talent-Augmenting Layer</a>
+            <a href="/" class="nav-brand">Talent-Augmenting OS</a>
             <div class="nav-links">
                 <a href="/" class="nav-link">Home</a>
                 <a href="/login" class="nav-link">Sign in</a>
@@ -39,11 +42,13 @@
 
     <main class="demo-wrap">
         <div class="demo-hero">
-            <h1>TAL demo</h1>
-            <p>
-                A three-question taster. No sign-up, no data stored. The real assessment is fifteen minutes, produces a scored profile across five dimensions, and maps your tasks to one of five AI interaction modes.
+            <h1>TAOS demo</h1>
+            <p id="demo-subtitle">
+                Two short demos. First, a three-question assessment taster. After that, you can try a coaching loop. No sign-up, no data stored.
             </p>
         </div>
+
+        <div id="phase-pill" class="phase-pill">Phase 1 of 2: Assessment</div>
 
         <div id="chat" class="chat-box" role="log" aria-live="polite"></div>
 
@@ -54,7 +59,7 @@
 
         <div id="result" class="demo-result" style="display:none;">
             <h2>Sample profile snapshot</h2>
-            <p class="text-muted text-small">These are illustrative scores based on your answers. The real assessment scores you across ADR (AI Dependency Risk), GP (Growth Potential), ALI (AI Literacy), and a per-domain Expertise map, then produces the composite TALRI index.</p>
+            <p class="text-muted text-small">Illustrative scores from your three answers. The real assessment scores you across ADR (AI Dependency Risk), GP (Growth Potential), ALI (AI Literacy), and a per-domain Expertise map, then produces the composite TAOSRI index.</p>
             <div class="result-score-row">
                 <div class="result-score"><div class="num" id="r-adr">-</div><div class="lbl">Dependency risk</div></div>
                 <div class="result-score"><div class="num" id="r-gp">-</div><div class="lbl">Growth potential</div></div>
@@ -63,10 +68,23 @@
             <div style="padding: 1rem; background: var(--surface); border-radius: 0.4rem; font-family: monospace; font-size: 0.9rem;">
                 <p style="margin: 0 0 0.5rem;"><strong>role</strong>: <span id="r-role">-</span></p>
                 <p style="margin: 0 0 0.5rem;"><strong>growth skill</strong>: <span id="r-skill">-</span></p>
-                <p style="margin: 0;"><strong>TAL would coach you on</strong>: <span id="r-coach">-</span>, and accelerate you elsewhere.</p>
+                <p style="margin: 0;"><strong>TAOS would coach you on</strong>: <span id="r-coach">-</span>, and accelerate you elsewhere.</p>
             </div>
             <div class="demo-nav">
-                <a href="/login" class="btn btn-primary">Sign in to run the full assessment</a>
+                <button class="btn btn-primary" onclick="startCoach()">Try the coach next &rarr;</button>
+                <a href="/login" class="btn btn-secondary">Sign in for the full assessment</a>
+            </div>
+        </div>
+
+        <div id="coach-caveat" class="caveat" style="display:none;">
+            <strong>Heads up.</strong> This is a generic coaching demo: the moves (hypothesis check, contrastive explanation, transferable pattern) are real, but the content is not personalised. The deployed coach loads your profile, knows your rating in this domain, your prior attempts, and a domain-specific contrast library, then calibrates difficulty and scaffolding to that.
+        </div>
+
+        <div id="coach-cta" class="demo-result" style="display:none;">
+            <h2>That's the coach loop</h2>
+            <p class="text-muted text-small">In ~90 seconds you saw the four moves the real coach uses every session: hypothesis check, contrastive delta, transferable pattern, hand back to you. The deployed version personalises every step against your profile and tracks whether the skill is growing, stable, or atrophying.</p>
+            <div class="demo-nav">
+                <a href="/login" class="btn btn-primary">Sign in for the full assessment + coach</a>
                 <a href="/" class="btn btn-secondary">Back to home</a>
             </div>
         </div>
@@ -74,14 +92,15 @@
 
     <footer class="footer">
         <div class="footer-container">
-            <p>Talent-Augmenting Layer v1.0</p>
+            <p>Talent-Augmenting OS v1.0</p>
         </div>
     </footer>
 
 <script>
-const script = [
+// ── Phase 1: Assessment ──────────────────────────────────────────────
+const assessScript = [
     {
-        ai: "Hi. I'm the Talent-Augmenting Layer. This is the abridged version: three questions, about three minutes, then I'll show you what your profile would look like. What's your role and industry?",
+        ai: "Hi. I'm the Talent-Augmenting OS. This is the abridged version: three questions, about three minutes, then I'll show you what your profile would look like. What's your role and industry?",
         field: "role",
     },
     {
@@ -95,7 +114,9 @@ const script = [
 ];
 
 const answers = {};
+let phase = "assess"; // "assess" | "coach" | "done"
 let turn = 0;
+let coachStep = 0;
 
 function addMsg(role, text) {
     const div = document.createElement("div");
@@ -110,11 +131,18 @@ function parseAdr(raw) {
     return m ? parseInt(m[1], 10) : 3;
 }
 
+function setInputEnabled(enabled, placeholder) {
+    const input = document.getElementById("demo-input");
+    const send = document.getElementById("send");
+    input.disabled = !enabled;
+    send.disabled = !enabled;
+    if (placeholder) input.placeholder = placeholder;
+    if (enabled) input.focus();
+}
+
 function showResult() {
     const adrRaw = parseAdr(answers.adr_raw || "3");
-    // ADR out of 10, crude mapping: user's self-report x2 (so 1 -> 2, 5 -> 10)
     const adr = adrRaw * 2;
-    // GP: anyone engaged enough to take the demo and name a growth skill is at least 6
     const gp = answers.skill ? 7 : 5;
     const mode = adr >= 7 ? "Protect" : (gp >= 6 ? "Coach" : "Augment");
 
@@ -126,29 +154,80 @@ function showResult() {
     document.getElementById("r-coach").textContent = answers.skill || "your growth skill";
 
     document.getElementById("result").style.display = "block";
-    document.getElementById("demo-input").disabled = true;
-    document.getElementById("send").disabled = true;
+    setInputEnabled(false);
+}
 
-    // Append a closing AI message explaining what happens next
-    setTimeout(() => {
-        addMsg("ai", "That's the demo. In the real assessment I'd ask about ten more questions, produce a proper scored profile, and let you download it as a portable markdown file you can use with Claude, ChatGPT, Gemini, or any other LLM. Your profile then stays consistent across every tool.");
-    }, 300);
+// ── Phase 2: Coach ───────────────────────────────────────────────────
+function skillLabel() {
+    const raw = (answers.skill || "your growth skill").trim();
+    return raw.length > 80 ? "your growth skill" : raw;
+}
+
+function startCoach() {
+    phase = "coach";
+    coachStep = 0;
+    document.getElementById("result").style.display = "none";
+    document.getElementById("phase-pill").textContent = "Phase 2 of 2: Coach";
+    document.getElementById("coach-caveat").style.display = "block";
+
+    const skill = skillLabel();
+    addMsg("ai",
+        "Switching modes. Earlier you said you want to grow at: " + skill + ". " +
+        "First the coach move that matters most: the hypothesis check. " +
+        "Before I share an approach, what's your current go-to method when you actually practise this? " +
+        "A rough description is fine. The point is to make your assumptions visible to both of us."
+    );
+    setInputEnabled(true, "Type your current approach...");
+}
+
+function coachReply(userText) {
+    coachStep += 1;
+    const skill = skillLabel();
+
+    if (coachStep === 1) {
+        // Contrastive explanation + transferable pattern.
+        setInputEnabled(false);
+        setTimeout(() => {
+            addMsg("ai",
+                "Useful, that gives me an anchor. Now the contrastive move. " +
+                "A natural assumption with any growth skill is that more reps build it. " +
+                "But repetition without targeted feedback tends to reinforce what you already do, including the bits that are wrong. " +
+                "The pattern that actually works is deliberate practice: pick one specific dimension you want to improve, run a single focused rep where that dimension is your only goal, then get feedback on that one dimension before the next rep. " +
+                "The transferable principle: growth comes from feedback on a chosen dimension, not from volume. You'll see this pattern again in writing, negotiation, code review, anywhere a skill plateaus."
+            );
+            setTimeout(() => {
+                addMsg("ai",
+                    "That's four moves in roughly ninety seconds: hypothesis check, contrastive delta, transferable pattern, hand back to you. " +
+                    "The deployed coach would now ask which specific dimension of " + skill + " matters most to you this week and design a concrete rep around it. " +
+                    "I'll stop here so you can see what's next."
+                );
+                document.getElementById("coach-cta").style.display = "block";
+                phase = "done";
+            }, 1200);
+        }, 600);
+        return;
+    }
 }
 
 function sendDemo() {
     const input = document.getElementById("demo-input");
     const text = input.value.trim();
-    if (!text || turn >= script.length) return;
+    if (!text) return;
 
     addMsg("user", text);
-    answers[script[turn].field] = text;
     input.value = "";
 
-    turn += 1;
-    if (turn < script.length) {
-        setTimeout(() => addMsg("ai", script[turn].ai), 350);
-    } else {
-        setTimeout(showResult, 400);
+    if (phase === "assess") {
+        if (turn >= assessScript.length) return;
+        answers[assessScript[turn].field] = text;
+        turn += 1;
+        if (turn < assessScript.length) {
+            setTimeout(() => addMsg("ai", assessScript[turn].ai), 350);
+        } else {
+            setTimeout(showResult, 400);
+        }
+    } else if (phase === "coach") {
+        coachReply(text);
     }
 }
 
@@ -161,7 +240,7 @@ document.getElementById("demo-input").addEventListener("keydown", (e) => {
 
 // Kick off
 window.addEventListener("DOMContentLoaded", () => {
-    addMsg("ai", script[0].ai);
+    addMsg("ai", assessScript[0].ai);
 });
 </script>
 </body>

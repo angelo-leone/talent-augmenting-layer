@@ -1,7 +1,7 @@
 [project]
 name = "talent-augmenting-layer-mcp"
 version = "0.3.0"
-description = "Talent-Augmenting Layer — MCP server for personalised AI augmentation"
+description = "Talent-Augmenting OS: MCP server for personalised AI augmentation"
 requires-python = ">=3.10"
 dependencies = [
     "mcp>=1.7.0",

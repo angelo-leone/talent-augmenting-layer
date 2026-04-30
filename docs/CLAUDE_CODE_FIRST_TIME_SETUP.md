@@ -2,10 +2,10 @@
 
 This guide is for a brand new user who wants to:
 - install Claude Code,
-- connect the Talent-Augmenting Layer MCP server (local or remote),
+- connect the Talent-Augmenting OS MCP server (local or remote),
 - and run /talent-assess, /talent-coach, and /talent-update.
 
-Your Claude Code model (using **your own** API key or subscription) drives the conversation. The MCP server provides pure Python tools for scoring, task classification, interaction logging, and progression tracking. The server requires no LLM API keys — your client's model does all the thinking.
+Your Claude Code model (using **your own** API key or subscription) drives the conversation. The MCP server provides pure Python tools for scoring, task classification, interaction logging, and progression tracking. The server requires no LLM API keys: your client's model does all the thinking.
 
 ## 1. Prerequisites
 
@@ -74,7 +74,7 @@ Replace `/path/to/talent-augmenting-layer` with your actual repo path.
 
 ### Option B: Remote MCP server (recommended for most users)
 
-Connects to the hosted server on Render. No local install needed. All MCP tools are pure Python — no API keys are required on the server side. Your own Claude Code model (with your API key or Claude subscription) drives the conversation; the remote server only provides tools for scoring, classification, and logging.
+Connects to the hosted server on Render. No local install needed. All MCP tools are pure Python: no API keys are required on the server side. Your own Claude Code model (with your API key or Claude subscription) drives the conversation; the remote server only provides tools for scoring, classification, and logging.
 
 Create or edit `~/.claude/settings.json`:
 
@@ -83,7 +83,7 @@ Create or edit `~/.claude/settings.json`:
   "mcpServers": {
     "talent-augmenting-layer": {
       "url": "https://proworker-hosted.onrender.com/mcp",
-      "description": "Talent-Augmenting Layer — Remote MCP Server"
+      "description": "Talent-Augmenting OS: Remote MCP Server"
     }
   }
 }
@@ -91,7 +91,7 @@ Create or edit `~/.claude/settings.json`:
 
 Restart Claude Code.
 
-**How it works**: Your Claude Code uses your own API key / subscription to run the LLM. The remote MCP server only provides tools (scoring, task classification, domain suggestions, interaction logging) — all pure Python with zero external API calls.
+**How it works**: Your Claude Code uses your own API key / subscription to run the LLM. The remote MCP server only provides tools (scoring, task classification, domain suggestions, interaction logging): all pure Python with zero external API calls.
 
 ## 4. Enable Slash Commands
 
@@ -118,7 +118,7 @@ In Claude Code, check that the MCP server is connected, then run:
 
 Expected behavior:
 - The conversation is driven by your Claude Code model.
-- TAL tools (scoring, profile CRUD, interaction logging, progression tracking) come from the MCP server.
+- TAOS tools (scoring, profile CRUD, interaction logging, progression tracking) come from the MCP server.
 - Profiles and interaction logs are stored in `profiles/` (local server) or on the hosted server (remote).
 - If the MCP server isn't connected, the commands fall back to reading/writing local files directly.
 
@@ -149,16 +149,16 @@ Expected behavior:
 
 ### 403 "Invalid API Key format" or API key errors
 
-This error means your Claude Code client can't authenticate with its LLM provider (Anthropic, etc.). The MCP server itself requires NO API keys — it only provides pure Python tools.
+This error means your Claude Code client can't authenticate with its LLM provider (Anthropic, etc.). The MCP server itself requires NO API keys: it only provides pure Python tools.
 
 **Fix**: Verify your Claude Code API key / subscription is valid:
 - If using Anthropic API: your key must start with `sk-ant-`
 - If using Claude Pro/Max subscription: no API key is needed, just sign in
-- The remote MCP server never uses your API key — it's your Claude Code model that needs it
+- The remote MCP server never uses your API key: it's your Claude Code model that needs it
 
 ### Could not load credentials from any providers
 
-This is a legacy issue from the old remote server setup. The current remote MCP server does not make any LLM API calls — all tools are pure Python.
+This is a legacy issue from the old remote server setup. The current remote MCP server does not make any LLM API calls: all tools are pure Python.
 
 **Fix**: Update your `~/.claude/settings.json` to point to the current SSE endpoint (Step 3, Option B) and restart Claude Code.
 
@@ -167,7 +167,7 @@ This is a legacy issue from the old remote server setup. The current remote MCP 
 | Component | Location |
 |-----------|----------|
 | Conversation model | Your Claude Code model (your own API key / subscription) |
-| TAL tools/prompts/resources | MCP server (local or remote) — pure Python, no API keys needed |
+| TAOS tools/prompts/resources | MCP server (local or remote): pure Python, no API keys needed |
 | Profile data (`.md`) | `profiles/` directory in your local repo clone |
 | Interaction logs (`.jsonl`) | `profiles/log-{name}.jsonl` in your local repo clone |
 | Slash command definitions | `.claude/commands/` in this repo or `~/.claude/commands/` |

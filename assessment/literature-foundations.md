@@ -1,4 +1,4 @@
-# Literature Foundations for Talent-Augmenting Layer
+# Literature Foundations for Talent-Augmenting OS
 
 > Key findings from GenAI, education, and workforce learning research that inform the assessment and coaching framework.
 
@@ -8,11 +8,11 @@
 
 **Finding**: When users must form a hypothesis BEFORE seeing AI recommendations, over-reliance drops significantly.
 
-**Mechanism**: Dual-process theory — AI suggestions provide a cognitive shortcut (System 1). Forcing hypothesis formation activates analytical thinking (System 2).
+**Mechanism**: Dual-process theory: AI suggestions provide a cognitive shortcut (System 1). Forcing hypothesis formation activates analytical thinking (System 2).
 
 **Trade-off**: Users dislike the friction. But they make better decisions.
 
-**Application in TAL**:
+**Application in TAOS**:
 - Apply cognitive forcing for novice-level domains
 - Apply cognitive forcing for high-stakes decisions regardless of expertise
 - Reduce friction when users demonstrate consistent critical engagement
@@ -23,22 +23,22 @@
 
 **Finding**: Explaining the DIFFERENCE between what a human would think and what the AI recommends improves skill development (+8%, d=0.35) vs. standard unilateral explanations.
 
-**Mechanism**: Standard AI explanations are "laundry lists" of reasons. Contrastive explanations target the user's knowledge gap specifically — the delta between their mental model and reality.
+**Mechanism**: Standard AI explanations are "laundry lists" of reasons. Contrastive explanations target the user's knowledge gap specifically: the delta between their mental model and reality.
 
-**Application in TAL**:
+**Application in TAOS**:
 - When correcting or explaining, always contrast with what the user likely assumed
 - Build "human mental models" for common domains to enable contrast
 - Focus on the DELTA, not the full explanation
 
 ---
 
-## 3. Adaptive AI Support (Buçinca et al., 2024 — RL approach)
+## 3. Adaptive AI Support (Buçinca et al., 2024: RL approach)
 
-**Finding**: The optimal form of AI support depends on the individual's current state — skill level, motivation, task complexity. A reinforcement learning approach that adapts support type outperforms static approaches.
+**Finding**: The optimal form of AI support depends on the individual's current state: skill level, motivation, task complexity. A reinforcement learning approach that adapts support type outperforms static approaches.
 
 **State variables**: AI confidence, human skill level, human motivation, task difficulty.
 
-**Application in TAL**:
+**Application in TAOS**:
 - Don't use one-size-fits-all approach
 - Track state across interactions
 - Adjust friction dynamically
@@ -53,14 +53,14 @@
 - Lower performers get the biggest boost (leveling effect)
 - BUT junior employees who "just hand in" AI work perform WORSE
 - Best performers may ultimately gain more (still unclear)
-- Training didn't matter much — just using AI did the work
-- AI works like a social tool — persuasion and communication skills transfer
+- Training didn't matter much: just using AI did the work
+- AI works like a social tool: persuasion and communication skills transfer
 
-**Application in TAL**:
+**Application in TAOS**:
 - The leveling effect is DANGEROUS without critical engagement
 - "Just handing in" is the anti-pattern we must prevent
 - Experts should be accelerated, not held back
-- AI ability is a real skill — help users develop it
+- AI ability is a real skill: help users develop it
 
 ---
 
@@ -70,11 +70,11 @@
 
 **Mechanism**: AI provides a cognitive crutch. Without practice, neural pathways weaken. The skill literally degrades.
 
-**Application in TAL**:
+**Application in TAOS**:
 - Monitor for de-skilling signals
 - Protect core skills with deliberate friction
 - Regular "AI-free" challenges for developing areas
-- Track skill ratings over time — flag regressions
+- Track skill ratings over time: flag regressions
 
 ---
 
@@ -94,7 +94,7 @@
 - Human-in-the-loop design that leverages human judgment
 - Extend the period where humans provide genuine complementary value
 
-**Application in TAL**:
+**Application in TAOS**:
 - The whole system IS the "diffuse" strategy in action
 - Make each individual worker more capable and AI-literate
 - Ensure humans maintain the skills that make them irreplaceable
@@ -122,7 +122,7 @@
 ### Bloom's Taxonomy Applied
 - AI excels at lower levels: Remember, Understand, Apply
 - Humans must maintain higher levels: Analyze, Evaluate, Create
-- TAL should force upward through the taxonomy
+- TAOS should force upward through the taxonomy
 
 ### Growth Mindset (Dweck)
 - Frame friction as opportunity, not obstacle
@@ -145,7 +145,7 @@
 - Surveillance and control (AI monitors workers)
 - Deskilling (AI degrades human capability)
 
-**Application in TAL**:
+**Application in TAOS**:
 - Every interaction should increase the user's marginal product
 - The system should create new capabilities, not just save time
 - Track whether the user is becoming more valuable or more replaceable
