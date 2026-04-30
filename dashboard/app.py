@@ -1,5 +1,5 @@
 """
-Talent-Augmenting Layer — Organisation Dashboard
+Talent-Augmenting OS: Organisation Dashboard
 
 Streamlit dashboard for org-level workforce augmentation analytics.
 Tracks: dependency risk, skill progression, de-skilling alerts, engagement trends.
@@ -27,12 +27,12 @@ store = ProfileStore(PROFILES_DIR)
 # ── Page Config ──────────────────────────────────────────────────────────────
 
 st.set_page_config(
-    page_title="Talent-Augmenting Layer — Org Dashboard",
+    page_title="Talent-Augmenting OS: Org Dashboard",
     page_icon="🎯",
     layout="wide",
 )
 
-st.title("Talent-Augmenting Layer — Organisation Dashboard")
+st.title("Talent-Augmenting OS: Organisation Dashboard")
 st.markdown("*Workforce augmentation analytics. Track skill growth, dependency risk, and de-skilling.*")
 
 # ── Load Data ────────────────────────────────────────────────────────────────
@@ -91,7 +91,7 @@ if alerts["at_risk_count"] > 0 or alerts["declining_trend_count"] > 0 or alerts[
     if alerts["total_atrophy_warnings"] > 0:
         atrophy_people = [(p["name"], p["atrophy_warnings"]) for p in profiles if p["atrophy_warnings"]]
         for name, domains in atrophy_people:
-            st.warning(f"**Atrophy Risk**: {name} — domains: {', '.join(domains)}")
+            st.warning(f"**Atrophy Risk**: {name}: domains: {', '.join(domains)}")
 
 
 # ── Individual Profiles ──────────────────────────────────────────────────────
@@ -99,7 +99,7 @@ if alerts["at_risk_count"] > 0 or alerts["declining_trend_count"] > 0 or alerts[
 st.header("Individual Profiles")
 
 for p in sorted(profiles, key=lambda x: x["dependency_risk"], reverse=True):
-    with st.expander(f"**{p['name']}** — {p.get('role', 'No role')} | Risk: {p['dependency_risk']}/10 | Growth: {p['growth_potential']}/10"):
+    with st.expander(f"**{p['name']}**: {p.get('role', 'No role')} | Risk: {p['dependency_risk']}/10 | Growth: {p['growth_potential']}/10"):
         pcol1, pcol2 = st.columns(2)
 
         with pcol1:
@@ -107,7 +107,7 @@ for p in sorted(profiles, key=lambda x: x["dependency_risk"], reverse=True):
             for domain, rating in p["expertise_by_domain"].items():
                 bar_fill = "█" * rating + "░" * (5 - rating)
                 label = {1: "Novice", 2: "Developing", 3: "Proficient", 4: "Advanced", 5: "Expert"}.get(rating, "?")
-                st.text(f"  {bar_fill} {rating}/5 {label} — {domain}")
+                st.text(f"  {bar_fill} {rating}/5 {label}: {domain}")
 
         with pcol2:
             st.subheader("Tracking")
@@ -132,7 +132,7 @@ if domain_summary:
         with col_a:
             bar_len = int(stats["avg"] * 10)
             bar = "█" * bar_len + "░" * (50 - bar_len)
-            st.text(f"  {bar} {stats['avg']}/5 — {domain}")
+            st.text(f"  {bar} {stats['avg']}/5: {domain}")
         with col_b:
             st.text(f"  Range: {stats['min']}-{stats['max']} | n={stats['count']}")
 
@@ -141,6 +141,6 @@ if domain_summary:
 
 st.divider()
 st.markdown(
-    "*Talent-Augmenting Layer — Making workers better, not dependent. "
+    "*Talent-Augmenting OS: Making workers better, not dependent. "
     "Powered by research from Bucinca, Acemoglu, Mollick.*"
 )

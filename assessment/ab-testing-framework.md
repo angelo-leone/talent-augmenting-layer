@@ -1,6 +1,6 @@
-# Talent-Augmenting Layer — A/B Testing & Measurement Framework
+# Talent-Augmenting OS: A/B Testing & Measurement Framework
 
-> Does TAL actually work? This framework measures user outcomes.
+> Does TAOS actually work? This framework measures user outcomes.
 > What makes this publishable AND sellable.
 
 ---
@@ -9,24 +9,24 @@
 
 ### Primary Hypotheses
 
-**H1: TAL reduces AI dependency risk**
-- Users with TAL profiles have lower dependency risk scores over time than control group
+**H1: TAOS reduces AI dependency risk**
+- Users with TAOS profiles have lower dependency risk scores over time than control group
 - Measured: ADR score trajectory (scoring-instrument.md Section A)
 
-**H2: TAL improves skill development**
-- Users coached by TAL show faster expertise growth than uncoached users
+**H2: TAOS improves skill development**
+- Users coached by TAOS show faster expertise growth than uncoached users
 - Measured: ESA ratings over time (scoring-instrument.md Section C)
 
-**H3: TAL prevents de-skilling**
+**H3: TAOS prevents de-skilling**
 - Protected skills show stable or improving ratings; unprotected skills don't decline faster
 - Measured: Before/after ESA ratings for protected vs. unprotected domains
 
-**H4: TAL improves AI literacy**
-- Users with TAL calibration develop stronger AI usage patterns
+**H4: TAOS improves AI literacy**
+- Users with TAOS calibration develop stronger AI usage patterns
 - Measured: ALI score trajectory (scoring-instrument.md Section D)
 
-**H5: TAL improves work output quality**
-- Work products created with TAL are rated higher by blind reviewers
+**H5: TAOS improves work output quality**
+- Work products created with TAOS are rated higher by blind reviewers
 - Measured: Quality ratings by independent evaluators
 
 ---
@@ -35,16 +35,16 @@
 
 ### Design 1: Within-Subjects (Single Organisation)
 
-**Setup**: All participants assessed at T0. Half get TAL (treatment), half use standard AI (control). Reassess at T1 (3 months) and T2 (6 months).
+**Setup**: All participants assessed at T0. Half get TAOS (treatment), half use standard AI (control). Reassess at T1 (3 months) and T2 (6 months).
 
 ```
 Timeline:
-  T0 (Week 0)     → Full TALQ assessment for ALL participants
-  T0-T1            → Treatment: TAL active | Control: Standard AI use
-  T1 (Month 3)     → Re-assess ALL participants (TALQ + ESA)
+  T0 (Week 0)     → Full TAOSQ assessment for ALL participants
+  T0-T1            → Treatment: TAOS active | Control: Standard AI use
+  T1 (Month 3)     → Re-assess ALL participants (TAOSQ + ESA)
   T1-T2            → Continue same conditions
   T2 (Month 6)     → Final assessment + qualitative interviews
-  T2+              → Optional crossover: Control gets TAL
+  T2+              → Optional crossover: Control gets TAOS
 ```
 
 **Sample size**: Minimum 30 per group (power analysis for d=0.35 effect, the Bucinca contrastive explanation effect size, at alpha=0.05 and power=0.80).
@@ -53,22 +53,22 @@ Timeline:
 
 ### Design 2: Across-Organisations (Marketplace Deployment)
 
-**Setup**: Organisation A adopts TAL; Organisation B (matched sector/size) serves as control. Natural experiment design.
+**Setup**: Organisation A adopts TAOS; Organisation B (matched sector/size) serves as control. Natural experiment design.
 
 **Matching criteria**: Sector, org size, AI tool availability, average tenure, baseline AI usage.
 
-**Advantage**: Ecological validity — real organisational contexts.
+**Advantage**: Ecological validity: real organisational contexts.
 **Risk**: Many confounders. Address with propensity score matching.
 
 ### Design 3: Time-Series (Self-Control)
 
-**Setup**: Each user serves as their own control. Measure before TAL adoption, then track trajectory after.
+**Setup**: Each user serves as their own control. Measure before TAOS adoption, then track trajectory after.
 
 ```
-Phase 1 (Weeks 1-4):    Baseline — standard AI use, log interactions
-Phase 2 (Weeks 5-8):    TAL activated — track all metrics
-Phase 3 (Weeks 9-12):   TAL continued — observe adaptation and growth
-Phase 4 (Week 13):      TAL removed — test skill retention
+Phase 1 (Weeks 1-4):    Baseline: standard AI use, log interactions
+Phase 2 (Weeks 5-8):    TAOS activated: track all metrics
+Phase 3 (Weeks 9-12):   TAOS continued: observe adaptation and growth
+Phase 4 (Week 13):      TAOS removed: test skill retention
 ```
 
 **Advantage**: Controls for individual differences.
@@ -82,10 +82,10 @@ Phase 4 (Week 13):      TAL removed — test skill retention
 
 | Measure | Instrument | Frequency | Source |
 |---------|-----------|-----------|--------|
-| AI Dependency Risk | TALQ Section A (5 items) | Monthly | Self-report |
-| Growth Potential | TALQ Section B (5 items) | Monthly | Self-report |
-| Expertise Ratings | TALQ Section C (per domain) | Monthly | Self-report + behavioural evidence |
-| AI Literacy | TALQ Section D (4 items) | Monthly | Self-report |
+| AI Dependency Risk | TAOSQ Section A (5 items) | Monthly | Self-report |
+| Growth Potential | TAOSQ Section B (5 items) | Monthly | Self-report |
+| Expertise Ratings | TAOSQ Section C (per domain) | Monthly | Self-report + behavioural evidence |
+| AI Literacy | TAOSQ Section D (4 items) | Monthly | Self-report |
 | Interaction Patterns | MCP interaction logs | Continuous | System data |
 | Engagement Quality | MCP engagement level logs | Continuous | System data |
 | Skill Signals | MCP growth/atrophy logs | Continuous | System data |
@@ -106,7 +106,7 @@ Phase 4 (Week 13):      TAL removed — test skill retention
 | Method | Timing | Questions |
 |--------|--------|-----------|
 | Semi-structured interview | T1, T2 | "How has your AI usage changed? What skills feel stronger/weaker? Do you notice the friction? Is it helpful or annoying?" |
-| Work sample analysis | T0, T1, T2 | Blind rating of matched work products (same task type, with/without TAL) |
+| Work sample analysis | T0, T1, T2 | Blind rating of matched work products (same task type, with/without TAOS) |
 | Manager assessment | T1, T2 | "Has this person's work quality/independence changed? How?" |
 
 ---
@@ -119,7 +119,7 @@ Phase 4 (Week 13):      TAL removed — test skill retention
 ```
 score ~ time * condition + (1|participant)
 ```
-- Fixed effects: time (T0/T1/T2), condition (TAL/control), interaction
+- Fixed effects: time (T0/T1/T2), condition (TAOS/control), interaction
 - Random intercept per participant
 - Key test: significant time × condition interaction
 
@@ -130,12 +130,12 @@ quality_rating ~ condition
 
 ### Secondary Analyses
 
-**Moderation**: Does initial expertise level moderate TAL effectiveness?
+**Moderation**: Does initial expertise level moderate TAOS effectiveness?
 ```
 score ~ time * condition * baseline_expertise + (1|participant)
 ```
 
-**Dose-response**: Does more interaction with TAL = bigger effect?
+**Dose-response**: Does more interaction with TAOS = bigger effect?
 ```
 delta_score ~ total_interactions + coaching_frequency + friction_acceptance
 ```
@@ -151,15 +151,15 @@ For each domain: domain_score ~ time * condition + (1|participant)
 ```
 For each participant:
   - Fit trend line to weekly metrics
-  - Compare slopes between TAL and control groups
-  - Test for structural breaks at TAL activation
+  - Compare slopes between TAOS and control groups
+  - Test for structural breaks at TAOS activation
 ```
 
 **Sequence analysis**: Do interaction patterns change over time?
 ```
 Markov chain analysis:
   - Model transition probabilities: automate→augment→coach→protect
-  - Test whether TAL users show more "upward" transitions
+  - Test whether TAOS users show more "upward" transitions
 ```
 
 ---
@@ -181,7 +181,7 @@ Markov chain analysis:
 | Metric | Target | Measurement |
 |--------|--------|-------------|
 | Time to competence | 20% faster | Weeks from onboarding to proficient rating |
-| AI tool ROI | 15% higher | Productivity gains WITH TAL vs. standard AI |
+| AI tool ROI | 15% higher | Productivity gains WITH TAOS vs. standard AI |
 | Skill retention | 30% better | Post-AI-removal performance |
 | Employee satisfaction | +10 NPS | Survey comparison |
 | De-skilling incidents | 50% fewer | Atrophy warning count comparison |
@@ -212,14 +212,14 @@ talent_org_summary()
 # Returns: aggregated stats across all profiles
 ```
 
-**To add**: Systematic before/after TALQ scores stored in profile change log.
+**To add**: Systematic before/after TAOSQ scores stored in profile change log.
 
 ---
 
 ## Ethical Considerations
 
 1. **Informed consent**: All participants must understand what's being measured
-2. **No performance evaluation**: TAL data must NOT be used for performance reviews
+2. **No performance evaluation**: TAOS data must NOT be used for performance reviews
 3. **Anonymization**: Org-level dashboards show aggregated data only
 4. **Right to withdraw**: Participants can delete their profile at any time
 5. **No deception**: Control group knows they're in a study (but not the specific hypothesis)

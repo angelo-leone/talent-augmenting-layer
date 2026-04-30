@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" width="480" height="480" role="img" aria-labelledby="compassTitle compassDesc" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
-  <title id="compassTitle">TAL 5-mode compass</title>
-  <desc id="compassDesc">A radial diagram of the five Talent-Augmenting Layer interaction modes arranged clockwise: Automate (top right, low friction), Augment (right, low-to-medium friction), Coach (bottom, medium-to-high friction), Protect (left, high friction), and Hands-off (top left, AI does not participate).</desc>
+  <title id="compassTitle">TAOS 5-mode compass</title>
+  <desc id="compassDesc">A radial diagram of the five Talent-Augmenting OS interaction modes arranged clockwise: Automate (top right, low friction), Augment (right, low-to-medium friction), Coach (bottom, medium-to-high friction), Protect (left, high friction), and Hands-off (top left, AI does not participate).</desc>
 
   <!--
     Centre (240, 240). Outer radius 180, inner radius 80.
@@ -24,7 +24,7 @@
 
   <!-- Centre hub -->
   <circle cx="240" cy="240" r="80" fill="#1a1a2e" stroke="#ffffff" stroke-width="2"/>
-  <text x="240" y="232" text-anchor="middle" fill="#ffffff" font-size="22" font-weight="700">TAL</text>
+  <text x="240" y="232" text-anchor="middle" fill="#ffffff" font-size="22" font-weight="700">TAOS</text>
   <text x="240" y="256" text-anchor="middle" fill="#cccccc" font-size="12">5 modes</text>
 
   <!-- Sector labels (mid-angle of each sector, at radius ~128) -->

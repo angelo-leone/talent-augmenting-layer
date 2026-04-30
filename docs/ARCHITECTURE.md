@@ -1,6 +1,6 @@
-# Talent-Augmenting Layer — Architecture
+# Talent-Augmenting OS: Architecture
 
-> A layered, platform-portable system. Same TALQ instrument, same scoring, same profile format across every entry point.
+> A layered, platform-portable system. Same TAOSQ instrument, same scoring, same profile format across every entry point.
 
 ---
 
@@ -27,11 +27,11 @@ flowchart TB
     L3["Any LLM<br/>(via system prompt)"]
   end
 
-  %% ───────── TAL Core ─────────
-  subgraph CORE["TAL Core Logic"]
+  %% ───────── TAOS Core ─────────
+  subgraph CORE["TAOS Core Logic"]
     direction TB
     MCP["MCP Server<br/>mcp-server/src/server.py<br/>14 tools · 5 resources · 4 prompts"]
-    ASSESS["Assessment Engine<br/>TALQ · ADR / GP / ALI / ESA / TALRI"]
+    ASSESS["Assessment Engine<br/>TAOSQ · ADR / GP / ALI / ESA / TAOSRI"]
     CLASSIFY["Task Classifier<br/>automate · augment · coach<br/>protect · hands-off"]
     TRACK["Interaction Logger<br/>engagement · skill signal<br/>atrophy detection"]
     CONTRAST["Contrastive Explanation<br/>Engine"]
@@ -114,25 +114,25 @@ All tiers share the same 14-tool MCP surface and the same portable markdown prof
 
 ## MCP Tool Surface (14 tools)
 
-**Profile management** — `talent_get_profile`, `talent_get_calibration`, `talent_status`, `talent_list_profiles`, `talent_save_profile`, `talent_delete_profile`
-**Assessment** — `talent_assess_start`, `talent_assess_score`, `talent_assess_create_profile`, `talent_suggest_domains`
-**Runtime** — `talent_classify_task`, `talent_log_interaction`, `talent_get_progression`
-**Org** — `talent_org_summary`
-**Telemetry** — `talent_parse_telemetry` (extracts `<tal_log>` JSON from LLM responses)
+**Profile management**: `talent_get_profile`, `talent_get_calibration`, `talent_status`, `talent_list_profiles`, `talent_save_profile`, `talent_delete_profile`
+**Assessment**: `talent_assess_start`, `talent_assess_score`, `talent_assess_create_profile`, `talent_suggest_domains`
+**Runtime**: `talent_classify_task`, `talent_log_interaction`, `talent_get_progression`
+**Org**: `talent_org_summary`
+**Telemetry**: `talent_parse_telemetry` (extracts `<tal_log>` JSON from LLM responses)
 
 ---
 
 ## Key Files
 
-- `mcp-server/src/server.py` — MCP tool surface (stdio + remote)
-- `desktop-extension/manifest.json` — Claude Desktop `.mcpb` package
-- `.claude-plugin/marketplace.json` + `plugin/` — Claude Cowork plugin
-- `server.json` — MCP registry manifest (Streamable HTTP remote)
-- `hosted/app.py` — FastAPI hosted web app
-- `hosted/mcp_sse_handler.py` + `hosted/mcp_oauth.py` — Remote MCP transport + OAuth
-- `render.yaml` — Deployed service + managed PostgreSQL
-- `CLAUDE.md` — Behavioural system prompt loaded into every session
-- `profiles/pro-*.md` — Portable markdown profile (the calibration layer)
+- `mcp-server/src/server.py`: MCP tool surface (stdio + remote)
+- `desktop-extension/manifest.json`: Claude Desktop `.mcpb` package
+- `.claude-plugin/marketplace.json` + `plugin/`: Claude Cowork plugin
+- `server.json`: MCP registry manifest (Streamable HTTP remote)
+- `hosted/app.py`: FastAPI hosted web app
+- `hosted/mcp_sse_handler.py` + `hosted/mcp_oauth.py`: Remote MCP transport + OAuth
+- `render.yaml`: Deployed service + managed PostgreSQL
+- `CLAUDE.md`: Behavioural system prompt loaded into every session
+- `profiles/pro-*.md`: Portable markdown profile (the calibration layer)
 
 ---
 

@@ -1,4 +1,4 @@
-"""Talent-Augmenting Layer -- Hosted FastAPI Application.
+"""Talent-Augmenting OS: Hosted FastAPI Application.
 
 Provides: LLM-powered conversational assessment, persistent user profiles
 with Google OAuth, 2-week email reminders, and profile export for any LLM.
@@ -16,7 +16,7 @@ from fastapi import FastAPI, Request, Depends, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import select, func
+from sqlalchemy import select, func, text
 from starlette.middleware.sessions import SessionMiddleware
 
 from hosted.config import SECRET_KEY, APP_URL, BASE_DIR, ENABLE_BILLING
@@ -38,8 +38,10 @@ from hosted.database import (
     SkillSignal,
     Organization,
     OrgInvite,
+    AuditLog,
     compute_passive_ratio,
 )
+from hosted import audit_log as audit
 from hosted.org_service import get_org_summary_scoped
 from hosted.billing import register_billing_routes
 from hosted.auth import (
@@ -82,10 +84,10 @@ async def lifespan(app: FastAPI):
     # Start the MCP Streamable HTTP session manager so it can handle requests
     session_mgr = get_session_manager()
     async with session_mgr.run():
-        logger.info("Talent-Augmenting Layer hosted app started")
+        logger.info("Talent-Augmenting OS hosted app started")
         yield
     sched.shutdown(wait=False)
-    logger.info("Talent-Augmenting Layer hosted app stopped")
+    logger.info("Talent-Augmenting OS hosted app stopped")
 
 
 # ---------------------------------------------------------------------------
@@ -93,15 +95,15 @@ async def lifespan(app: FastAPI):
 # ---------------------------------------------------------------------------
 
 app = FastAPI(
-    title="Talent-Augmenting Layer",
-    description="Personalised AI augmentation -- hosted edition",
+    title="Talent-Augmenting OS",
+    description="Personalised AI augmentation: hosted edition",
     version="1.0.0",
     lifespan=lifespan,
 )
 
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 
-# CORS — required for Claude Desktop connectors and other MCP clients that
+# CORS: required for Claude Desktop connectors and other MCP clients that
 # send an Origin header.  Without this, the CORS preflight (OPTIONS) fails
 # and the client reports "Couldn't reach the MCP server".
 from starlette.middleware.cors import CORSMiddleware  # noqa: E402
@@ -113,6 +115,12 @@ app.add_middleware(
     allow_headers=["Content-Type", "Accept", "Authorization", "Mcp-Session-Id"],
     expose_headers=["Mcp-Session-Id"],
 )
+
+# Security headers + rate limiting. Must be registered before route handlers
+# are added so the middleware stack covers every response.
+from hosted.security import register_security  # noqa: E402
+
+register_security(app)
 
 # Static files and templates
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
@@ -126,7 +134,7 @@ setup_oauth(app)
 # Billing (no-op when ENABLE_BILLING=false)
 register_billing_routes(app)
 
-# LLM client (lazy -- only created when needed)
+# LLM client (lazy: only created when needed)
 _llm: LLMClient | None = None
 
 
@@ -170,7 +178,7 @@ def _assessment_system_prompt(turn_count: int = 0) -> str:
         )
 
     return (
-        "You are a Talent-Augmenting Layer assessment interviewer. Your job is to have a "
+        "You are a Talent-Augmenting OS assessment interviewer. Your job is to have a "
         "natural, warm conversation to build a professional profile.\n\n"
         f"{protocol['instructions']}\n\n"
         "IMPORTANT RULES FOR THIS HOSTED CHAT:\n"
@@ -276,6 +284,134 @@ async def logout():
 
 
 # ---------------------------------------------------------------------------
+# GDPR subject-rights endpoints
+#
+# These satisfy the "Access" and "Erasure" rights promised in PRIVACY_POLICY.md.
+# Both routes operate on the currently authenticated user only; you cannot use
+# them to act on someone else's account.
+# ---------------------------------------------------------------------------
+
+@app.get("/api/account/export")
+async def api_account_export(request: Request):
+    """Return every row of personal data we hold about the current user."""
+    user_ctx = await require_auth(request)
+    uid = user_ctx["id"]
+    async with async_session_factory() as db:
+        u = (await db.execute(select(User).where(User.id == uid))).scalar_one()
+        profiles = (await db.execute(select(Profile).where(Profile.user_id == uid))).scalars().all()
+        sessions = (await db.execute(select(AssessmentSession).where(AssessmentSession.user_id == uid))).scalars().all()
+        chats = (await db.execute(select(ChatLog).where(ChatLog.user_id == uid))).scalars().all()
+        reminders = (await db.execute(select(CheckinReminder).where(CheckinReminder.user_id == uid))).scalars().all()
+        surveys = (await db.execute(select(PilotSurvey).where(PilotSurvey.user_id == uid))).scalars().all()
+        audits = (await db.execute(
+            select(AuditLog).where(AuditLog.actor_user_id == uid).order_by(AuditLog.created_at.desc()).limit(5000)
+        )).scalars().all()
+        await audit.record(
+            db=db,
+            action="account.exported",
+            actor_user_id=uid,
+            actor_email=u.email,
+            org_id=u.org_id,
+            request=request,
+        )
+        await db.commit()
+
+    def iso(dt):
+        return dt.isoformat() if dt else None
+
+    payload = {
+        "exported_at": datetime.datetime.utcnow().isoformat() + "Z",
+        "user": {
+            "id": u.id,
+            "email": u.email,
+            "name": u.name,
+            "google_id": u.google_id,
+            "org_id": u.org_id,
+            "role": u.role.value if u.role else None,
+            "plan_tier": u.plan_tier.value if u.plan_tier else None,
+            "subscription_status": u.subscription_status,
+            "created_at": iso(u.created_at),
+        },
+        "profiles": [
+            {"version": p.version, "content_md": p.content_md, "scores_json": p.scores_json, "created_at": iso(p.created_at)}
+            for p in profiles
+        ],
+        "assessment_sessions": [
+            {"id": s.id, "status": s.status.value if s.status else None, "conversation_json": s.conversation_json,
+             "created_at": iso(s.created_at), "completed_at": iso(s.completed_at)}
+            for s in sessions
+        ],
+        "chat_logs": [
+            {"id": c.id, "session_id": c.session_id, "task_category": c.task_category.value if c.task_category else None,
+             "domain": c.domain, "engagement_level": c.engagement_level.value if c.engagement_level else None,
+             "skill_signal": c.skill_signal.value if c.skill_signal else None, "notes": c.notes,
+             "created_at": iso(c.created_at)}
+            for c in chats
+        ],
+        "checkin_reminders": [
+            {"id": r.id, "sent_at": iso(r.sent_at), "responded_at": iso(r.responded_at),
+             "response_json": r.response_json}
+            for r in reminders
+        ],
+        "pilot_surveys": [
+            {"id": s.id, "timepoint": s.timepoint.value if s.timepoint else None,
+             "recorded_at": iso(s.recorded_at), "raw_responses_json": s.raw_responses_json}
+            for s in surveys
+        ],
+        "audit_log": [
+            {"id": a.id, "action": a.action, "target_type": a.target_type, "target_id": a.target_id,
+             "ip": a.ip, "details_json": a.details_json, "created_at": iso(a.created_at)}
+            for a in audits
+        ],
+    }
+    return JSONResponse(
+        content=payload,
+        headers={
+            "Content-Disposition": f'attachment; filename="taos-account-{u.id}.json"',
+        },
+    )
+
+
+@app.delete("/api/account")
+async def api_account_delete(request: Request):
+    """Hard-delete the current user and every related row.
+
+    Foreign keys on profiles, assessment_sessions, chat_logs,
+    checkin_reminders, pilot_surveys, and oauth_tokens use ON DELETE
+    CASCADE, so deleting the user row removes everything downstream.
+    Audit log rows for this user keep ``actor_user_id = NULL`` (ON
+    DELETE SET NULL) so the org-level audit trail stays intact for
+    other admins, but the email field is cleared too.
+    """
+    user_ctx = await require_auth(request)
+    uid = user_ctx["id"]
+    async with async_session_factory() as db:
+        u = (await db.execute(select(User).where(User.id == uid))).scalar_one_or_none()
+        if u is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        # Record before deletion so the org keeps a forensic record
+        await audit.record(
+            db=db,
+            action="account.deleted",
+            actor_user_id=uid,
+            actor_email=u.email,
+            org_id=u.org_id,
+            request=request,
+        )
+        # Anonymise audit rows owned by this user (email PII removal)
+        await db.execute(
+            text("UPDATE audit_logs SET actor_email = NULL WHERE actor_user_id = :uid"),
+            {"uid": uid},
+        )
+        await db.delete(u)
+        await db.commit()
+
+    response = JSONResponse({"ok": True, "deleted_user_id": uid})
+    clear_session_cookie(response)
+    return response
+
+
+# ---------------------------------------------------------------------------
 # CLI access token
 # ---------------------------------------------------------------------------
 
@@ -301,7 +437,7 @@ async def api_auth_token(request: Request):
         raise HTTPException(status_code=401, detail="Not authenticated")
     token = request.cookies.get(COOKIE_NAME)
     if not token:
-        # Caller is authenticated via a pre-existing Bearer token — re-issue
+        # Caller is authenticated via a pre-existing Bearer token: re-issue
         # a fresh JWT for CLI storage.
         from hosted.auth import create_session_token
         token = create_session_token(user["id"], user["email"], user["name"])
@@ -363,7 +499,7 @@ async def assess_message(request: Request):
         # If this is the first message in a new session, start the conversation
         if not conversation and not user_message:
             user_message = (
-                f"Hi, I'm {user['name']}. I'd like to start my Talent-Augmenting Layer assessment."
+                f"Hi, I'm {user['name']}. I'd like to start my Talent-Augmenting OS assessment."
             )
 
         # Append user message
@@ -607,6 +743,15 @@ async def admin_dashboard(request: Request):
         raise
     async with async_session_factory() as db:
         summary = await get_org_summary_scoped(admin_user["org_id"], db)
+        await audit.record(
+            db=db,
+            action="admin.dashboard_viewed",
+            actor_user_id=admin_user["id"],
+            actor_email=admin_user.get("email"),
+            org_id=admin_user["org_id"],
+            request=request,
+        )
+        await db.commit()
     return templates.TemplateResponse(
         name="admin_dashboard.html",
         request=request,
@@ -626,6 +771,94 @@ async def api_org_summary(request: Request):
     async with async_session_factory() as db:
         summary = await get_org_summary_scoped(admin_user["org_id"], db)
     return JSONResponse(summary)
+
+
+# ---------------------------------------------------------------------------
+# Audit log views (admin-only, scoped to the admin's org)
+# ---------------------------------------------------------------------------
+
+AUDIT_PAGE_LIMIT = 200
+
+
+@app.get("/admin/audit", response_class=HTMLResponse)
+async def admin_audit_view(request: Request, limit: int = AUDIT_PAGE_LIMIT):
+    """HTML view of recent audit events for the admin's organisation."""
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login?next=/admin/audit", status_code=302)
+    admin_user = await require_admin(request)
+    limit = max(1, min(limit, 1000))
+
+    async with async_session_factory() as db:
+        result = await db.execute(
+            select(AuditLog)
+            .where(AuditLog.org_id == admin_user["org_id"])
+            .order_by(AuditLog.created_at.desc())
+            .limit(limit)
+        )
+        rows = result.scalars().all()
+
+    return templates.TemplateResponse(
+        name="admin_audit.html",
+        request=request,
+        context={
+            "user": user,
+            "admin": admin_user,
+            "rows": rows,
+            "limit": limit,
+        },
+    )
+
+
+@app.get("/api/admin/audit.csv", response_class=PlainTextResponse)
+async def api_admin_audit_csv(request: Request, days: int = 90):
+    """CSV export of audit events for the admin's organisation, last N days."""
+    import csv
+    import io
+
+    admin_user = await require_admin(request)
+    days = max(1, min(days, 365))
+    cutoff = datetime.datetime.utcnow() - datetime.timedelta(days=days)
+
+    async with async_session_factory() as db:
+        result = await db.execute(
+            select(AuditLog)
+            .where(
+                AuditLog.org_id == admin_user["org_id"],
+                AuditLog.created_at >= cutoff,
+            )
+            .order_by(AuditLog.created_at.desc())
+        )
+        rows = result.scalars().all()
+
+    buf = io.StringIO()
+    writer = csv.writer(buf)
+    writer.writerow([
+        "id", "created_at", "action",
+        "actor_user_id", "actor_email", "org_id",
+        "target_type", "target_id", "ip", "user_agent", "details_json",
+    ])
+    for r in rows:
+        writer.writerow([
+            r.id,
+            r.created_at.isoformat() if r.created_at else "",
+            r.action,
+            r.actor_user_id or "",
+            r.actor_email or "",
+            r.org_id or "",
+            r.target_type or "",
+            r.target_id or "",
+            r.ip or "",
+            r.user_agent or "",
+            r.details_json or "",
+        ])
+    return PlainTextResponse(
+        content=buf.getvalue(),
+        media_type="text/csv",
+        headers={
+            "Content-Disposition": f'attachment; filename="taos-audit-{cutoff.date().isoformat()}.csv"',
+        },
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -661,7 +894,7 @@ async def api_admin_invite(request: Request):
         if not org:
             raise HTTPException(status_code=404, detail="Organization not found")
 
-        # Bounce if the email is already a member of any org — reassignment
+        # Bounce if the email is already a member of any org: reassignment
         # should be a deliberate action, not an invite side-effect.
         existing_user_result = await db.execute(select(User).where(User.email == email))
         existing_user = existing_user_result.scalar_one_or_none()
@@ -682,6 +915,17 @@ async def api_admin_invite(request: Request):
             expires_at=expires,
         )
         db.add(invite)
+        await audit.record(
+            db=db,
+            action="org.invite_sent",
+            actor_user_id=admin_user["id"],
+            actor_email=admin_user.get("email"),
+            org_id=org.id,
+            target_type="invite_email",
+            target_id=email,
+            request=request,
+            details={"role": role_raw},
+        )
         await db.commit()
         await db.refresh(invite)
 
@@ -749,6 +993,17 @@ async def api_admin_revoke_invite(invite_id: int, request: Request):
         if invite.accepted_at is not None:
             raise HTTPException(status_code=409, detail="Already accepted")
         invite.revoked_at = datetime.datetime.utcnow()
+        await audit.record(
+            db=db,
+            action="org.invite_revoked",
+            actor_user_id=admin_user["id"],
+            actor_email=admin_user.get("email"),
+            org_id=admin_user["org_id"],
+            target_type="invite",
+            target_id=invite.id,
+            request=request,
+            details={"email": invite.email},
+        )
         await db.commit()
     return JSONResponse({"ok": True})
 
@@ -933,7 +1188,7 @@ async def api_export_profile(request: Request, fmt: str):
 def _wrap_for_platform(platform_name: str, profile_md: str) -> str:
     """Wrap profile markdown with platform-specific instructions."""
     return (
-        f"# Talent-Augmenting Layer Profile ({platform_name})\n\n"
+        f"# Talent-Augmenting OS Profile ({platform_name})\n\n"
         f"Paste this into your {platform_name} to enable personalised AI augmentation.\n"
         f"The profile below tells the AI how to interact with you based on your expertise,\n"
         f"growth areas, and preferences.\n\n"
@@ -998,7 +1253,7 @@ async def api_profile_evolve(request: Request):
         profile = prof_result.scalar_one_or_none()
 
         if not profile:
-            raise HTTPException(status_code=404, detail="No profile to evolve — run assessment first")
+            raise HTTPException(status_code=404, detail="No profile to evolve: run assessment first")
 
         try:
             scores_data = json.loads(profile.scores_json)
@@ -1021,7 +1276,7 @@ async def api_profile_evolve(request: Request):
         logs = log_result.scalars().all()
 
         if not logs:
-            return JSONResponse({"message": "No new signals — profile unchanged", "version": profile.version})
+            return JSONResponse({"message": "No new signals: profile unchanged", "version": profile.version})
 
         # Aggregate signals per domain
         domain_signals: dict[str, list[str]] = {}
@@ -1058,7 +1313,7 @@ async def api_profile_evolve(request: Request):
             if section in answers and "raw" in answers[section]:
                 # Reconstruct approximate raw answers from stored raw averages
                 pass
-        # Use existing section scores directly — only domain ratings changed
+        # Use existing section scores directly: only domain ratings changed
         new_scores = scores_data.get("scores", {})
         new_scores["esa"] = compute_esa(domain_ratings)
         new_calibration = compute_calibration(new_scores, domain_ratings)
@@ -1396,7 +1651,7 @@ for _route in create_protected_resource_routes(
     resource_url=RESOURCE_URL,
     authorization_servers=[ISSUER_URL],
     scopes_supported=["mcp:tools"],
-    resource_name="Talent-Augmenting Layer MCP",
+    resource_name="Talent-Augmenting OS MCP",
 ):
     app.routes.insert(0, _route)
 

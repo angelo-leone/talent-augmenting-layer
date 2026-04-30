@@ -1,10 +1,10 @@
 {
   "manifest_version": "0.4",
   "name": "talent-augmenting-layer",
-  "display_name": "Talent-Augmenting Layer",
+  "display_name": "Talent-Augmenting OS",
   "version": "0.3.0",
   "description": "Personalised AI augmentation that makes you better at your work, not dependent on AI. Creates skill profiles, calibrates AI friction levels, tracks skill progression, and prevents de-skilling.",
-  "long_description": "The Talent-Augmenting Layer (TAL) is a research-backed system that personalises how AI interacts with you based on your expertise levels, goals, and growth areas.\n\n**What it does:**\n- Runs a conversational onboarding assessment to build your personalised profile\n- Classifies every task as automate, augment, coach, protect, or hands-off\n- Calibrates AI friction — adds challenge where you're learning, removes it where you're expert\n- Tracks skill progression over time and warns about potential de-skilling\n- Provides coaching sessions tailored to your growth domains\n\n**Based on research by** Buçinca (Harvard), Acemoglu (MIT), and Mollick (Wharton) on AI-human complementarity, cognitive forcing, and contrastive explanations.\n\n**All data stays local** — profiles are stored as markdown files on your machine. No cloud, no API keys needed.",
+  "long_description": "The Talent-Augmenting OS (TAOS) is a research-backed system that personalises how AI interacts with you based on your expertise levels, goals, and growth areas.\n\n**What it does:**\n- Runs a conversational onboarding assessment to build your personalised profile\n- Classifies every task as automate, augment, coach, protect, or hands-off\n- Calibrates AI friction: adds challenge where you're learning, removes it where you're expert\n- Tracks skill progression over time and warns about potential de-skilling\n- Provides coaching sessions tailored to your growth domains\n\n**Based on research by** Buçinca (Harvard), Acemoglu (MIT), and Mollick (Wharton) on AI-human complementarity, cognitive forcing, and contrastive explanations.\n\n**All data stays local**: profiles are stored as markdown files on your machine. No cloud, no API keys needed.",
   "author": {
     "name": "Angelo Leone",
     "url": "https://github.com/angelo-leone"
@@ -47,17 +47,17 @@
     { "name": "talent_delete_profile", "description": "Delete a user's profile and interaction logs" },
     { "name": "talent_save_profile", "description": "Save or update a user's profile" },
     { "name": "talent_assess_start", "description": "Start the onboarding assessment (returns protocol for the LLM)" },
-    { "name": "talent_assess_score", "description": "Compute TALRI scores from raw assessment answers" },
+    { "name": "talent_assess_score", "description": "Compute TAOSRI scores from raw assessment answers" },
     { "name": "talent_assess_create_profile", "description": "Generate and save a profile from assessment data" },
     { "name": "talent_suggest_domains", "description": "Suggest expertise domains based on role and industry" },
     { "name": "talent_parse_telemetry", "description": "Parse telemetry blocks from LLM responses and log them" }
   ],
   "tools_generated": false,
   "prompts": [
-    { "name": "talent-system", "description": "Full TAL system prompt with user profile injected", "text": "Load the Talent-Augmenting Layer system prompt for {name}, including their personalised profile, calibration settings, and interaction guidelines." },
-    { "name": "talent-assess", "description": "Interactive onboarding assessment conversation", "text": "Run the Talent-Augmenting Layer onboarding assessment for {name}. Ask questions conversationally, collect answers, compute scores, and generate a personalised profile." },
+    { "name": "talent-system", "description": "Full TAOS system prompt with user profile injected", "text": "Load the Talent-Augmenting OS system prompt for {name}, including their personalised profile, calibration settings, and interaction guidelines." },
+    { "name": "talent-assess", "description": "Interactive onboarding assessment conversation", "text": "Run the Talent-Augmenting OS onboarding assessment for {name}. Ask questions conversationally, collect answers, compute scores, and generate a personalised profile." },
     { "name": "talent-coach", "description": "Targeted coaching session on a specific skill", "text": "Start a coaching session for {name} focused on {domain}. Use contrastive explanations and progressive challenge based on their current skill level." },
-    { "name": "talent-update", "description": "Update profile based on recent interactions", "text": "Review recent interactions for {name} and update their Talent-Augmenting Layer profile with any observed skill changes, new goals, or adjusted calibration." }
+    { "name": "talent-update", "description": "Update profile based on recent interactions", "text": "Review recent interactions for {name} and update their Talent-Augmenting OS profile with any observed skill changes, new goals, or adjusted calibration." }
   ],
   "prompts_generated": false,
   "keywords": [
@@ -76,7 +76,7 @@
     "profiles_directory": {
       "type": "directory",
       "title": "Profiles Directory",
-      "description": "Where to store your TAL profile and interaction logs. Defaults to ~/.talent-augmenting-layer/profiles",
+      "description": "Where to store your TAOS profile and interaction logs. Defaults to ~/.talent-augmenting-layer/profiles",
       "default": "${HOME}/.talent-augmenting-layer/profiles",
       "required": false
     }

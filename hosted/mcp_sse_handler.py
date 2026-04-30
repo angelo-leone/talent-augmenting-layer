@@ -1,7 +1,7 @@
 """
-MCP Remote Transport Handler — OAuth 2.1 Protected
+MCP Remote Transport Handler: OAuth 2.1 Protected
 
-Exposes the Talent-Augmenting Layer MCP server over HTTP so remote clients
+Exposes the Talent-Augmenting OS MCP server over HTTP so remote clients
 (Claude Code, Claude Desktop, Cursor, etc.) can connect.
 
 Authentication:
@@ -11,16 +11,16 @@ Authentication:
 
 Two transports are provided:
 
-  **Streamable HTTP** (primary — what modern MCP clients use):
+  **Streamable HTTP** (primary: what modern MCP clients use):
     - All methods on a single endpoint: POST/GET/DELETE /mcp
-    - Stateless — no long-lived connections needed
+    - Stateless: no long-lived connections needed
     - Protected by Bearer token
 
-  **SSE** (legacy — for older clients):
-    - GET  /mcp/sse        — persistent SSE stream
-    - POST /mcp/messages/   — JSON-RPC message delivery
+  **SSE** (legacy: for older clients):
+    - GET  /mcp/sse       : persistent SSE stream
+    - POST /mcp/messages/  : JSON-RPC message delivery
 
-All MCP tools are pure Python — no LLM API keys on the server.
+All MCP tools are pure Python: no LLM API keys on the server.
 The client's own model drives the conversation.
 """
 
@@ -63,14 +63,14 @@ ISSUER_URL = AnyHttpUrl(f"{APP_URL}/mcp")
 RESOURCE_URL = AnyHttpUrl(f"{APP_URL}/mcp")
 
 # ---------------------------------------------------------------------------
-# Lazy-load the TAL MCP server (from mcp-server/src/server.py)
+# Lazy-load the TAOS MCP server (from mcp-server/src/server.py)
 # ---------------------------------------------------------------------------
 
 _tal_server = None
 
 
 def get_tal_server():
-    """Lazy-load the TAL MCP server instance."""
+    """Lazy-load the TAOS MCP server instance."""
     global _tal_server
     if _tal_server is None:
         server_path = str(Path(__file__).parent.parent / "mcp-server")
@@ -84,7 +84,7 @@ def get_tal_server():
 
 
 # ---------------------------------------------------------------------------
-# Streamable HTTP transport (primary — Claude Desktop 2025+, Claude Code)
+# Streamable HTTP transport (primary: Claude Desktop 2025+, Claude Code)
 # ---------------------------------------------------------------------------
 
 _session_manager = None
@@ -117,14 +117,14 @@ def get_oauth_provider() -> TALOAuthProvider:
 
 
 # ---------------------------------------------------------------------------
-# SSE transport (legacy — older MCP clients)
+# SSE transport (legacy: older MCP clients)
 # ---------------------------------------------------------------------------
 
 _sse_transport = SseServerTransport("/messages/")
 
 
 async def handle_sse_get(request: Request):
-    """GET /mcp/sse — legacy SSE stream for older MCP clients."""
+    """GET /mcp/sse: legacy SSE stream for older MCP clients."""
     tal_server = get_tal_server()
     async with _sse_transport.connect_sse(
         request.scope, request.receive, request._send
@@ -137,7 +137,7 @@ async def handle_sse_get(request: Request):
 
 
 async def handle_messages_post(request: Request):
-    """POST /mcp/messages/ — legacy SSE message delivery."""
+    """POST /mcp/messages/: legacy SSE message delivery."""
     await _sse_transport.handle_post_message(
         request.scope, request.receive, request._send
     )
@@ -148,17 +148,17 @@ async def handle_messages_post(request: Request):
 # ---------------------------------------------------------------------------
 
 async def handle_mcp_config(request: Request):
-    """GET /mcp/config — return client configuration JSON."""
+    """GET /mcp/config: return client configuration JSON."""
     app_url = APP_URL
     return JSONResponse(
         {
             "type": "streamable-http",
             "url": f"{app_url}/mcp",
             "legacy_sse_url": f"{app_url}/mcp/sse",
-            "description": "Talent-Augmenting Layer — Remote MCP Server",
+            "description": "Talent-Augmenting OS: Remote MCP Server",
             "auth": "OAuth 2.1 (Authorization Code + PKCE via Google)",
             "note": (
-                "All tools are pure Python — no API keys needed on the server. "
+                "All tools are pure Python: no API keys needed on the server. "
                 "Your Claude Code / Cursor model drives the conversation."
             ),
             "documentation": "https://github.com/angelo-leone/talent-augmenting-layer#remote-mcp-configuration",
@@ -178,7 +178,7 @@ _GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configur
 
 
 async def handle_google_oauth_start(request: Request):
-    """GET /mcp/oauth/google/start — Redirect to Google login.
+    """GET /mcp/oauth/google/start: Redirect to Google login.
 
     This is called by the provider's authorize() method, which passes the
     mcp_state parameter to link back to the pending authorization.
@@ -210,7 +210,7 @@ async def handle_google_oauth_start(request: Request):
 
 
 async def handle_google_oauth_callback(request: Request):
-    """GET /mcp/oauth/google/callback — Google redirects here after login.
+    """GET /mcp/oauth/google/callback: Google redirects here after login.
 
     Exchanges the Google auth code for user info, creates/gets the user,
     then mints an MCP authorization code and redirects to the MCP client.
@@ -270,7 +270,7 @@ async def handle_google_oauth_callback(request: Request):
 # ---------------------------------------------------------------------------
 
 async def handle_streamable_http(request: Request):
-    """GET/POST/DELETE /mcp — Streamable HTTP for modern MCP clients.
+    """GET/POST/DELETE /mcp: Streamable HTTP for modern MCP clients.
 
     Protected by RequireAuthMiddleware which checks for a valid Bearer token.
     """
@@ -299,7 +299,7 @@ def _build_mcp_app() -> Starlette:
         revocation_options=RevocationOptions(enabled=True),
     )
 
-    # Streamable HTTP — open by default, optionally authenticated.
+    # Streamable HTTP: open by default, optionally authenticated.
     # If a Bearer token is present, BearerAuthBackend validates it and sets
     # the user in auth_context_var (available to MCP tools).  If no token,
     # the request proceeds anonymously.
@@ -310,7 +310,7 @@ def _build_mcp_app() -> Starlette:
         # Google OAuth flow for MCP
         Route("/oauth/google/start", endpoint=handle_google_oauth_start),
         Route("/oauth/google/callback", endpoint=handle_google_oauth_callback),
-        # Legacy SSE (unprotected for now — add auth later if needed)
+        # Legacy SSE (unprotected for now: add auth later if needed)
         Route("/sse", endpoint=handle_sse_get),
         Route("/messages/", endpoint=handle_messages_post, methods=["POST"]),
         # Discovery (public)

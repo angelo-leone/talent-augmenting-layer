@@ -1,6 +1,6 @@
 ---
 name: talent-sync
-description: Push a local TAL profile (profiles/pro-*.md or ~/.talent-augmenting-layer/profiles/) up to the hosted web app at proworker-hosted.onrender.com so it can be viewed in the dashboard and used by the hosted remote-MCP endpoint. Use when a user wants their local profile to show up in the hosted UI.
+description: Push a local TAOS profile (profiles/pro-*.md or ~/.talent-augmenting-layer/profiles/) up to the hosted web app at proworker-hosted.onrender.com so it can be viewed in the dashboard and used by the hosted remote-MCP endpoint. Use when a user wants their local profile to show up in the hosted UI.
 allowed-tools:
   - Read
   - Write
@@ -11,11 +11,11 @@ allowed-tools:
 
 # /talent-sync
 
-Upload the local Talent-Augmenting Layer profile to the hosted web app so the user can view it in the dashboard and so the remote MCP endpoint can serve it.
+Upload the local Talent-Augmenting OS profile to the hosted web app so the user can view it in the dashboard and so the remote MCP endpoint can serve it.
 
 ## First: greet the user before any tool calls
 
-> "Hi — I'll push your local TAL profile up to the hosted app so it shows up in your dashboard. One moment."
+> "Hi: I'll push your local TAOS profile up to the hosted app so it shows up in your dashboard. One moment."
 
 ## Flow
 
@@ -55,13 +55,13 @@ Upload the local Talent-Augmenting Layer profile to the hosted web app so the us
 
 ## Environment overrides
 
-- `TAL_HOSTED_URL` — override the default `https://proworker-hosted.onrender.com`.
+- `TAL_HOSTED_URL`: override the default `https://proworker-hosted.onrender.com`.
 - Pilot testers running against a local dev instance can set `TAL_HOSTED_URL=http://localhost:8000`.
 
 ## What this does NOT do
 
 - **No deletion.** Each sync creates a new profile *version* on the server. Old versions stay intact.
-- **No automatic scoring.** `scores_json` is sent as an empty object unless the profile markdown has a `## TALQ Scores` block the skill can parse into JSON. Add that later if needed.
+- **No automatic scoring.** `scores_json` is sent as an empty object unless the profile markdown has a `## TAOSQ Scores` block the skill can parse into JSON. Add that later if needed.
 - **No merge.** If the user edited the profile in the web UI after the last sync, this overwrites that version with the local copy. Warn them before syncing if they've used the web UI recently.
 
 Keep it short. If sync succeeds in one round, just say "Synced to version N."

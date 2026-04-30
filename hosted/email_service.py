@@ -1,4 +1,4 @@
-"""Talent-Augmenting Layer -- Email service for 2-week check-in reminders.
+"""Talent-Augmenting OS: Email service for 2-week check-in reminders.
 
 Uses SendGrid when SENDGRID_API_KEY is set; otherwise falls back to logging.
 """
@@ -38,10 +38,10 @@ def generate_checkin_questions(profile_data: dict[str, Any]) -> list[dict[str, A
         "text": "Over the past two weeks, how would you rate your professional growth?",
         "type": "choice",
         "options": [
-            "Significant growth -- I learnt or improved noticeably",
-            "Some growth -- small wins and steady progress",
-            "Flat -- no real change",
-            "Decline -- I feel less sharp than before",
+            "Significant growth: I learnt or improved noticeably",
+            "Some growth: small wins and steady progress",
+            "Flat: no real change",
+            "Decline: I feel less sharp than before",
         ],
     })
 
@@ -67,8 +67,8 @@ def generate_checkin_questions(profile_data: dict[str, Any]) -> list[dict[str, A
             "type": "choice",
             "options": [
                 "Yes, real progress",
-                "A little -- I've been working on it",
-                "Not yet -- haven't had the chance",
+                "A little: I've been working on it",
+                "Not yet: haven't had the chance",
                 "I've actually been delegating this to AI more",
             ],
         })
@@ -82,8 +82,8 @@ def generate_checkin_questions(profile_data: dict[str, Any]) -> list[dict[str, A
             "type": "choice",
             "options": [
                 "Yes, I did it myself this week",
-                "Partly -- I used AI but stayed hands-on",
-                "Mostly AI-driven -- I reviewed but didn't do the core work",
+                "Partly: I used AI but stayed hands-on",
+                "Mostly AI-driven: I reviewed but didn't do the core work",
                 "I haven't done this task recently",
             ],
         })
@@ -96,10 +96,10 @@ def generate_checkin_questions(profile_data: dict[str, Any]) -> list[dict[str, A
             "text": "Compared to two weeks ago, how reliant on AI do you feel?",
             "type": "choice",
             "options": [
-                "Less reliant -- I'm doing more independently",
+                "Less reliant: I'm doing more independently",
                 "About the same",
-                "More reliant -- I'm delegating more to AI",
-                "Much more reliant -- I'd struggle without AI now",
+                "More reliant: I'm delegating more to AI",
+                "Much more reliant: I'd struggle without AI now",
             ],
         })
 
@@ -135,23 +135,23 @@ async def send_checkin_reminder(
     for i, q in enumerate(questions, 1):
         question_lines.append(f"  {i}. {q['text']}")
 
-    subject = f"Talent-Augmenting Layer -- Your 2-week check-in, {user_name}"
+    subject = f"Talent-Augmenting OS: Your 2-week check-in, {user_name}"
     body_text = (
         f"Hi {user_name},\n\n"
-        f"It's been two weeks since your last Talent-Augmenting Layer profile update. "
+        f"It's been two weeks since your last Talent-Augmenting OS profile update. "
         f"Take 2 minutes to reflect on your growth:\n\n"
         + "\n".join(question_lines)
         + f"\n\nComplete your check-in here:\n{checkin_url}\n\n"
         f"This helps keep your AI calibration accurate and tracks your skill development over time.\n\n"
-        f"📝 If you're using the Talent-Augmenting Layer with external platforms (Gemini, ChatGPT, Claude),\n"
+        f"📝 If you're using the Talent-Augmenting OS with external platforms (Gemini, ChatGPT, Claude),\n"
         f"please also remember to upload your conversation transcripts to the team Drive folder.\n\n"
-        f"-- Talent-Augmenting Layer\n"
+        f"-- Talent-Augmenting OS\n"
         f"Making workers better, not dependent."
     )
     body_html = (
         f"<div style='font-family: -apple-system, sans-serif; max-width: 600px; margin: 0 auto; "
         f"background: #1a1a2e; color: #eee; padding: 2rem; border-radius: 12px;'>"
-        f"<h2 style='color: #e94560;'>Talent-Augmenting Layer Check-in</h2>"
+        f"<h2 style='color: #e94560;'>Talent-Augmenting OS Check-in</h2>"
         f"<p>Hi {user_name},</p>"
         f"<p>It's been two weeks since your last profile update. "
         f"Take 2 minutes to reflect on your growth:</p>"
@@ -167,11 +167,11 @@ async def send_checkin_reminder(
         f"font-weight: 600;'>Complete Check-in</a></p>"
         f"<p style='color: #ccc; font-size: 0.9em; margin-top: 2em; padding-top: 1.5em; border-top: 1px solid #333;'>"
         f"<strong>📝 Transcript Upload Reminder:</strong><br>"
-        f"If you're using the Talent-Augmenting Layer prompt on external platforms (Google Gemini, ChatGPT, Claude),\n"
+        f"If you're using the Talent-Augmenting OS prompt on external platforms (Google Gemini, ChatGPT, Claude),\n"
         f"please export and upload your conversation transcripts to the team Drive folder this week.\n"
         f"This helps us capture the full picture of your AI-augmented work.</p>"
         f"<p style='color: #999; font-size: 0.85em; margin-top: 1.5em;'>"
-        f"Talent-Augmenting Layer -- Making workers better, not dependent.</p>"
+        f"Talent-Augmenting OS: Making workers better, not dependent.</p>"
         f"</div>"
     )
 
@@ -199,21 +199,21 @@ async def send_invite_email(
 
     Returns True if sent via SendGrid (or logged when no API key configured).
     """
-    subject = f"{inviter_name} invited you to {org_name} on Talent-Augmenting Layer"
+    subject = f"{inviter_name} invited you to {org_name} on Talent-Augmenting OS"
     body_text = (
         f"Hi,\n\n"
-        f"{inviter_name} has invited you to join {org_name} on Talent-Augmenting Layer "
+        f"{inviter_name} has invited you to join {org_name} on Talent-Augmenting OS "
         f"as a {role}.\n\n"
         f"Accept here (sign in with Google):\n{invite_url}\n\n"
         f"If you weren't expecting this invite, you can ignore this email.\n\n"
-        f"-- Talent-Augmenting Layer"
+        f"-- Talent-Augmenting OS"
     )
     body_html = (
         f"<div style='font-family: -apple-system, sans-serif; max-width: 600px; margin: 0 auto; "
         f"background: #1a1a2e; color: #eee; padding: 2rem; border-radius: 12px;'>"
         f"<h2 style='color: #e94560; margin-top: 0;'>You've been invited</h2>"
         f"<p><strong>{inviter_name}</strong> invited you to join "
-        f"<strong>{org_name}</strong> on Talent-Augmenting Layer as a <strong>{role}</strong>.</p>"
+        f"<strong>{org_name}</strong> on Talent-Augmenting OS as a <strong>{role}</strong>.</p>"
         f"<p style='margin-top: 1.5em;'>"
         f"<a href='{invite_url}' style='display: inline-block; padding: 0.75rem 1.5rem; "
         f"background: #e94560; color: white; text-decoration: none; border-radius: 8px; "
@@ -221,7 +221,7 @@ async def send_invite_email(
         f"<p style='color: #999; font-size: 0.85em; margin-top: 2em; padding-top: 1.5em; "
         f"border-top: 1px solid #333;'>"
         f"If you weren't expecting this, ignore this email.<br>"
-        f"Talent-Augmenting Layer &mdash; making workers better, not dependent.</p>"
+        f"Talent-Augmenting OS : making workers better, not dependent.</p>"
         f"</div>"
     )
     if SENDGRID_API_KEY:

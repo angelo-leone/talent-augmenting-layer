@@ -1,10 +1,10 @@
 # /talent-sync
 
-Push the local TAL profile to the hosted web app at proworker-hosted.onrender.com.
+Push the local TAOS profile to the hosted web app at proworker-hosted.onrender.com.
 
 ## First: greet the user before any tool calls
 
-> "Hi — I'll push your local TAL profile up to the hosted app so it shows up in your dashboard. One moment."
+> "Hi: I'll push your local TAOS profile up to the hosted app so it shows up in your dashboard. One moment."
 
 ## Flow
 
@@ -28,10 +28,10 @@ Push the local TAL profile to the hosted web app at proworker-hosted.onrender.co
 
 ## Env overrides
 
-- `TAL_HOSTED_URL` — default `https://proworker-hosted.onrender.com`.
+- `TAL_HOSTED_URL`: default `https://proworker-hosted.onrender.com`.
 
 ## Not supported (yet)
 
 - No merge with web-UI edits. Sync overwrites with the local copy.
-- `scores_json` sent empty unless the profile has a parseable TALQ Scores block.
-- No deletion — each sync creates a new profile version.
+- `scores_json` sent empty unless the profile has a parseable TAOSQ Scores block.
+- No deletion: each sync creates a new profile version.

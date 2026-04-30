@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Talent-Augmenting Layer — Assessment</title>
+    <title>Talent-Augmenting OS: Assessment</title>
     <style>
         :root {
             --bg: #0f0f0f;
@@ -141,7 +141,7 @@
     <div class="container">
         <!-- Header -->
         <div id="header">
-            <h1>Talent-Augmenting Layer</h1>
+            <h1>Talent-Augmenting OS</h1>
             <p class="subtitle">Personalised AI augmentation assessment. ~10 minutes.</p>
             <div class="progress-bar"><div class="progress-fill" id="progress" style="width: 0%"></div></div>
         </div>
@@ -313,12 +313,12 @@ const INDUSTRY_KEYWORDS = {
 
 // ── Compact system prompt for ChatGPT export ───────────────────────────────
 
-const SYSTEM_PROMPT_COMPACT = `# Talent-Augmenting Layer
+const SYSTEM_PROMPT_COMPACT = `# Talent-Augmenting OS
 
-You are a Talent-Augmenting Layer. Augment human intelligence, don't replace it. Success = user learned, grew, or made a better decision.
+You are a Talent-Augmenting OS. Augment human intelligence, don't replace it. Success = user learned, grew, or made a better decision.
 
 ## Profile
-Read the user's Talent-Augmenting Layer profile from custom instructions. It has expertise ratings, calibration YAML, task classifications, and red lines. Follow the calibration settings exactly. If no profile exists, say: "Say 'assess me' to create your Talent-Augmenting Layer profile."
+Read the user's Talent-Augmenting OS profile from custom instructions. It has expertise ratings, calibration YAML, task classifications, and red lines. Follow the calibration settings exactly. If no profile exists, say: "Say 'assess me' to create your Talent-Augmenting OS profile."
 
 ## Behaviour Rules
 
@@ -354,7 +354,7 @@ Read the user's Talent-Augmenting Layer profile from custom instructions. It has
 
 ## Rules
 1. Complex work > annotated drafts, never polished finals without reasoning
-2. Don't apologize for clarifying questions -- friction is a feature
+2. Don't apologize for clarifying questions: friction is a feature
 3. Mechanical tasks > just do them efficiently
 4. Human judgment calls > surface the decision, don't make it
 5. Celebrate growth when you see it
@@ -362,7 +362,7 @@ Read the user's Talent-Augmenting Layer profile from custom instructions. It has
 ## Profile Updates
 After substantive sessions, if you observed skill changes, output a PROFILE UPDATE BLOCK with date, changes, and updated calibration YAML. Tell user to copy it back into their custom instructions.
 
-*TAL v0.2.0 -- CC BY-NC-SA 4.0 -- github.com/angelo-leone/worker-augmenting-layer*`;
+*TAOS v0.2.0: BUSL 1.1: github.com/angelo-leone/talent-augmenting-layer*`;
 
 // ── Assessment Questions ────────────────────────────────────────────────────
 
@@ -372,39 +372,39 @@ const SECTIONS = {
         subtitle: "How dependent are you on AI? Higher scores = more dependency.",
         questions: [
             { id: "a1", text: "When AI generates a response for a work task, what do you typically do?", options: [
-                "Use AI as a thinking prompt — always write my own version",
+                "Use AI as a thinking prompt: always write my own version",
                 "Substantially rewrite, keeping maybe 20-30%",
-                "Edit moderately — restructure sections, rewrite key parts",
+                "Edit moderately: restructure sections, rewrite key parts",
                 "Lightly edit for tone and accuracy, keep most structure",
                 "Use as-is or with minimal changes most of the time"
             ]},
             { id: "a2", text: "How are your independent skills compared to before you started using AI?", options: [
-                "Improved — AI helps me learn and practice",
-                "About the same — AI supplements, hasn't changed my ability",
-                "Not sure — haven't tested independently recently",
-                "Some skills feel weaker — I'd struggle more without AI",
-                "Lost significant ability — I depend on AI for things I could do alone"
+                "Improved: AI helps me learn and practice",
+                "About the same: AI supplements, hasn't changed my ability",
+                "Not sure: haven't tested independently recently",
+                "Some skills feel weaker: I'd struggle more without AI",
+                "Lost significant ability: I depend on AI for things I could do alone"
             ]},
             { id: "a3", text: "When AI gives you an answer that looks reasonable, what do you typically do?", options: [
                 "Systematically verify claims, check sources, stress-test reasoning",
                 "Check key facts and challenge the main argument",
                 "Scan for obvious errors, generally trust if it looks right",
                 "Occasionally spot-check, usually move on if decent",
-                "Rarely question — if it looks professional, I accept it"
+                "Rarely question: if it looks professional, I accept it"
             ]},
             { id: "a4", text: "What proportion of complex cognitive work do you delegate to AI?", options: [
-                "Less than 10% — mainly mechanical tasks",
-                "About 20-30% — specific subtasks",
-                "About 40-50% — first drafts, I refine",
-                "About 60-70% — AI does heavy lifting, I review",
-                "Over 80% — AI generates most of my work"
+                "Less than 10%: mainly mechanical tasks",
+                "About 20-30%: specific subtasks",
+                "About 40-50%: first drafts, I refine",
+                "About 60-70%: AI does heavy lifting, I review",
+                "Over 80%: AI generates most of my work"
             ]},
             { id: "a5", text: "If AI tools were unavailable for a week, how would your work be affected?", options: [
-                "Minimal impact — slower but same quality",
+                "Minimal impact: slower but same quality",
                 "Moderate slowdown, can maintain quality on important tasks",
-                "Significant impact — several tasks would suffer",
-                "Severe impact — struggle to deliver key work products",
-                "Couldn't function effectively — AI is essential"
+                "Significant impact: several tasks would suffer",
+                "Severe impact: struggle to deliver key work products",
+                "Couldn't function effectively: AI is essential"
             ]}
         ]
     },
@@ -413,7 +413,7 @@ const SECTIONS = {
         subtitle: "How ready are you to grow? Higher scores = more potential.",
         questions: [
             { id: "b1", text: "How clearly can you describe your professional growth goals for the next 1-2 years?", options: [
-                "Haven't thought about it — focused on day-to-day",
+                "Haven't thought about it: focused on day-to-day",
                 "Vague sense of direction, no specific goals",
                 "Broad goals but not specific plans",
                 "Clear goals with specific skills and milestones",
@@ -427,21 +427,21 @@ const SECTIONS = {
                 "Deliberately seek disagreement, use it to sharpen thinking"
             ]},
             { id: "b3", text: "In the past month, how often did you deliberately practice a developing skill?", options: [
-                "Never — learn on the job only",
-                "Once — one specific learning activity",
-                "A few times — sought opportunities",
-                "Weekly — regularly carve out time",
-                "Multiple times per week — structured routine"
+                "Never: learn on the job only",
+                "Once: one specific learning activity",
+                "A few times: sought opportunities",
+                "Weekly: regularly carve out time",
+                "Multiple times per week: structured routine"
             ]},
             { id: "b4", text: "When you learn something new, how do you apply it?", options: [
-                "Rarely apply — stays theoretical",
+                "Rarely apply: stays theoretical",
                 "Occasionally, when the situation is obvious",
                 "Try to apply but don't always succeed",
                 "Actively look for opportunities to apply",
                 "Create systems to apply and reinforce (notes, checklists)"
             ]},
             { id: "b5", text: "How well can you identify your strengths, weaknesses, and learning needs?", options: [
-                "Hard to self-assess — often surprised by feedback",
+                "Hard to self-assess: often surprised by feedback",
                 "General sense but often wrong about specifics",
                 "Identify broad strengths/weaknesses, not details",
                 "Clear picture, can articulate gaps",
@@ -454,8 +454,8 @@ const SECTIONS = {
         subtitle: "How well do you understand and use AI? Higher = more literate.",
         questions: [
             { id: "d1", text: "How well do you predict what AI can and cannot do before trying?", options: [
-                "Often surprised — both positively and negatively",
-                "Sometimes misjudge — over or under-estimate",
+                "Often surprised: both positively and negatively",
+                "Sometimes misjudge: over or under-estimate",
                 "Usually right about whether AI will handle a task",
                 "Nuanced sense of strengths and weaknesses by task type",
                 "Predict quality with high accuracy, know workarounds"
@@ -468,14 +468,14 @@ const SECTIONS = {
                 "Advanced techniques (chain-of-thought, tools), consistently excellent"
             ]},
             { id: "d3", text: "How often do you catch errors or hallucinations in AI output?", options: [
-                "Rarely — usually trust what AI says",
-                "Occasionally — catch obvious errors, miss subtle ones",
-                "Often — check key facts, catch most substantive errors",
-                "Almost always — systematic approach to verification",
-                "Always — treat every output as draft, verify independently"
+                "Rarely: usually trust what AI says",
+                "Occasionally: catch obvious errors, miss subtle ones",
+                "Often: check key facts, catch most substantive errors",
+                "Almost always: systematic approach to verification",
+                "Always: treat every output as draft, verify independently"
             ]},
             { id: "d4", text: "How well do you match tasks to the right level of AI involvement?", options: [
-                "Use AI for everything or nothing — no differentiation",
+                "Use AI for everything or nothing: no differentiation",
                 "Use for obvious tasks but not strategically",
                 "Think about which tasks benefit and which don't",
                 "Systematically categorize and use AI differently per type",
@@ -623,7 +623,7 @@ function renderExpertise() {
     const levels = ["Novice", "Developing", "Proficient", "Advanced", "Expert"];
 
     let html = `<h2>Expertise Self-Assessment</h2>
-        <p class="subtitle">Rate your current ability in each domain. Be honest — this calibrates your AI experience.</p>`;
+        <p class="subtitle">Rate your current ability in each domain. Be honest: this calibrates your AI experience.</p>`;
 
     domains.forEach((d, i) => {
         const key = `esa_${i}`;
@@ -729,7 +729,7 @@ function computeResults() {
     const esa_ratings = esa_keys.map(k => answers[k] || 3);
     const esa_avg = esa_ratings.reduce((a,b) => a+b, 0) / esa_ratings.length;
 
-    // TALRI composite
+    // TAOSRI composite
     const pwri = (
         (10 - adr_score) * 0.30 +
         gp_score * 0.30 +
@@ -781,11 +781,11 @@ function computeResults() {
 
     // ── Generate 9-section profile markdown ──────────────────────────────────
 
-    const profile = `# Talent-Augmenting Layer Profile — ${name}
+    const profile = `# Talent-Augmenting OS Profile: ${name}
 
 > Generated: ${new Date().toISOString().slice(0,10)}
 > Last updated: ${new Date().toISOString().slice(0,10)}
-> Assessment version: TALQ v2.0 (web)
+> Assessment version: TAOSQ v2.0 (web)
 
 ---
 
@@ -804,10 +804,10 @@ function computeResults() {
 
 | Metric | Score | Interpretation |
 |--------|-------|---------------|
-| **AI Dependency Risk (ADR)** | ${adr_score}/10 | ${adr_score<=3?'Low — healthy AI relationship':adr_score<=6?'Moderate — some dependency patterns':'High — significant dependency risk'} |
-| **Growth Potential (GP)** | ${gp_score}/10 | ${gp_score<=3?'Low — limited growth orientation':gp_score<=6?'Moderate — developing growth mindset':'High — strong growth orientation'} |
-| **AI Literacy (ALI)** | ${ali_score}/10 | ${ali_score<=3?'Low — building AI skills':ali_score<=6?'Moderate — competent AI user':'High — sophisticated AI user'} |
-| **Pro Worker Readiness (TALRI)** | ${pwri.toFixed(1)}/10 | Composite readiness score |
+| **AI Dependency Risk (ADR)** | ${adr_score}/10 | ${adr_score<=3?'Low: healthy AI relationship':adr_score<=6?'Moderate: some dependency patterns':'High: significant dependency risk'} |
+| **Growth Potential (GP)** | ${gp_score}/10 | ${gp_score<=3?'Low: limited growth orientation':gp_score<=6?'Moderate: developing growth mindset':'High: strong growth orientation'} |
+| **AI Literacy (ALI)** | ${ali_score}/10 | ${ali_score<=3?'Low: building AI skills':ali_score<=6?'Moderate: competent AI user':'High: sophisticated AI user'} |
+| **Pro Worker Readiness (TAOSRI)** | ${pwri.toFixed(1)}/10 | Composite readiness score |
 
 ---
 
@@ -824,7 +824,7 @@ ${expertiseTable}
 
 ## 4. AI Relationship Status
 
-**Dependency Risk Score**: ${adr_score}/10 — ${adr_score<=3?'**Low**':adr_score<=6?'**Moderate**':'**High**'}
+**Dependency Risk Score**: ${adr_score}/10: ${adr_score<=3?'**Low**':adr_score<=6?'**Moderate**':'**High**'}
 
 ${adr_score >= 7 ? '**Warning**: High dependency detected. AI should actively apply cognitive forcing to rebuild independent work habits.' : adr_score >= 4 ? '**Note**: Moderate dependency. Monitor for over-reliance patterns, especially in growth domains.' : '**Healthy**: Low dependency. AI can focus on acceleration and augmentation.'}
 
@@ -832,7 +832,7 @@ ${adr_score >= 7 ? '**Warning**: High dependency detected. AI should actively ap
 
 ## 5. Growth Trajectory
 
-**Growth Potential Score**: ${gp_score}/10 — ${gp_score<=3?'**Low**':gp_score<=6?'**Moderate**':'**High**'}
+**Growth Potential Score**: ${gp_score}/10: ${gp_score<=3?'**Low**':gp_score<=6?'**Moderate**':'**High**'}
 
 **Skills to develop** (rated Novice-Proficient):
 ${growthDomains.length > 0 ? growthDomains.map(d => `- ${d}`).join('\n') : '- No domains rated below Proficient'}
@@ -849,10 +849,10 @@ ${strongDomains.length > 0 ? strongDomains.map(d => `- ${d}`).join('\n') : '- No
 - Data formatting, boilerplate, and mechanical transforms
 
 ### Augment (AI accelerates + challenges)
-${strongDomains.length > 0 ? strongDomains.map(d => `- ${d} — AI provides speed, user provides expertise`).join('\n') : '- Expert-domain tasks (once developed)'}
+${strongDomains.length > 0 ? strongDomains.map(d => `- ${d}: AI provides speed, user provides expertise`).join('\n') : '- Expert-domain tasks (once developed)'}
 
 ### Coach (AI scaffolds + questions)
-${growthDomains.length > 0 ? growthDomains.map(d => `- ${d} — build understanding through guided practice`).join('\n') : '- Growth-domain tasks as identified'}
+${growthDomains.length > 0 ? growthDomains.map(d => `- ${d}: build understanding through guided practice`).join('\n') : '- Growth-domain tasks as identified'}
 
 ### Protect (AI adds friction + teaches)
 - Complex writing and argumentation
@@ -893,20 +893,20 @@ challenge_level: ${gp_score >= 6 ? 'high' : 'medium'}
 
 | Date | Change | Trigger |
 |------|--------|---------|
-| ${new Date().toISOString().slice(0,10)} | Initial profile created | TALQ v2.0 web assessment |
+| ${new Date().toISOString().slice(0,10)} | Initial profile created | TAOSQ v2.0 web assessment |
 `;
 
     // ── Render Results ───────────────────────────────────────────────────────
 
     const el = document.getElementById('section-5');
     el.innerHTML = `
-        <h2>Your Talent-Augmenting Layer Profile</h2>
-        <p class="subtitle">${name} — ${role}${org ? (' at ' + org) : ''}</p>
+        <h2>Your Talent-Augmenting OS Profile</h2>
+        <p class="subtitle">${name}: ${role}${org ? (' at ' + org) : ''}</p>
 
         <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:1rem;">
             <div class="score-card">
                 <div class="score-big">${pwri.toFixed(1)}</div>
-                <div class="score-label">TALRI Score (0-10)</div>
+                <div class="score-label">TAOSRI Score (0-10)</div>
             </div>
             <div class="score-card">
                 <div class="score-big">${adr_score}</div>
@@ -986,7 +986,7 @@ ${window._generatedProfile}`;
 
 function copyForClaude() {
     // For Claude Projects: just the full profile (CLAUDE.md handles the system prompt)
-    const output = `# Talent-Augmenting Layer — Profile for Claude Project
+    const output = `# Talent-Augmenting OS: Profile for Claude Project
 
 Paste this into your Claude Project's custom instructions. If you also use the full CLAUDE.md system prompt, paste only the profile section below.
 

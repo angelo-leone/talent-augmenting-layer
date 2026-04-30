@@ -1,6 +1,6 @@
-# Talent-Augmenting Layer — Personalised AI Augmentation Layer
+# Talent-Augmenting OS: Personalised AI Augmentation Layer
 
-[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![License: BUSL 1.1](https://img.shields.io/badge/License-BUSL%201.1-blue.svg)](./LICENSE)
 [![MCP Tools](https://img.shields.io/badge/MCP%20Tools-14-blue)]()
 [![Research-Backed](https://img.shields.io/badge/Research--Backed-Yes-green)]()
 
@@ -12,13 +12,13 @@
 
 ## What Is This?
 
-Talent-Augmenting Layer (TAL) is a **personalised AI augmentation layer** that transforms how AI interacts with you. It works with any LLM, on any platform, through a 4-tier architecture designed for cross-platform portability. Instead of treating you as a generic user, TAL:
+Talent-Augmenting OS (TAOS) is a **personalised AI augmentation layer** that transforms how AI interacts with you. It works with any LLM, on any platform, through a 4-tier architecture designed for cross-platform portability. Instead of treating you as a generic user, TAOS:
 
-1. **Assesses** your expertise, goals, work style, and growth areas using the TALQ (Talent-Augmenting Layer Questionnaire)
+1. **Assesses** your expertise, goals, work style, and growth areas using the TAOSQ (Talent-Augmenting OS Questionnaire)
 2. **Creates** a living profile in portable markdown that calibrates all AI interactions to YOUR context
-3. **Adapts** — coaching you in areas where you're growing, accelerating you where you're expert, automating what should be automated, and protecting skills at risk of atrophying
-4. **Evolves** — your profile updates as you grow, keeping the AI aligned with your changing needs
-5. **Travels with you** — the same profile works in ChatGPT, Claude, Gemini, Cursor, Windsurf, or any LLM
+3. **Adapts**: coaching you in areas where you're growing, accelerating you where you're expert, automating what should be automated, and protecting skills at risk of atrophying
+4. **Evolves**: your profile updates as you grow, keeping the AI aligned with your changing needs
+5. **Travels with you**: the same profile works in ChatGPT, Claude, Gemini, Cursor, Windsurf, or any LLM
 
 **The core insight**: AI that does everything for you makes you worse over time. AI that knows WHEN to help, WHEN to coach, WHEN to challenge, and WHEN to step back makes you permanently better.
 
@@ -31,10 +31,10 @@ Current AI tools have one mode: **maximum helpfulness**. This creates three fail
 | Pattern | What Happens | Research Evidence |
 |---------|-------------|-------------------|
 | **De-skilling** | Workers lose skills they stop practicing | Clinicians using AI for 3 months performed WORSE after removal than before (2024-25 studies) |
-| **Over-reliance** | Workers accept AI output without critical evaluation | Humans with AI perform better than humans alone but WORSE than AI alone — because they blindly accept wrong suggestions (Buçinca 2021) |
+| **Over-reliance** | Workers accept AI output without critical evaluation | Humans with AI perform better than humans alone but WORSE than AI alone: because they blindly accept wrong suggestions (Buçinca 2021) |
 | **Autopilot** | Workers disengage from cognitive work | Junior employees who "just hand in" AI work perform worse than those who engage critically (Mollick 2023) |
 
-**Talent-Augmenting Layer exists to prevent all three.**
+**Talent-Augmenting OS exists to prevent all three.**
 
 ---
 
@@ -42,7 +42,7 @@ Current AI tools have one mode: **maximum helpfulness**. This creates three fail
 
 ### Architecture: 4 Tiers
 
-Talent-Augmenting Layer is a **layer**, not a product tied to one platform. It works through 4 tiers, from zero-dependency copy-paste to a full hosted web app:
+Talent-Augmenting OS is a **layer**, not a product tied to one platform. It works through 4 tiers, from zero-dependency copy-paste to a full hosted web app:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -68,11 +68,11 @@ Talent-Augmenting Layer is a **layer**, not a product tied to one platform. It w
 ┌─────────────────────────────────────────────────────────────────┐
 │                  profiles/pro-{name}.md                          │
 │  Portable markdown · same format across all tiers               │
-│  Identity · Expertise Map · TALQ Scores · Task Classification   │
+│  Identity · Expertise Map · TAOSQ Scores · Task Classification   │
 │  Growth Trajectory · Contrast Libraries · Red Lines             │
 └─────────────────────────────────────────────────────────────────┘
 
-All tiers share: same TALQ instrument, same scoring,
+All tiers share: same TAOSQ instrument, same scoring,
 same profile format, same behavioural rules.
 ```
 
@@ -93,7 +93,7 @@ In short: tasks happen in domains, and your profile rates your skill in each dom
 ### The Five Modes
 
 <p align="center">
-  <img src="docs/compass.svg" alt="TAL 5-mode compass: Automate, Augment, Coach, Protect, Hands-off arranged by friction level" width="360"/>
+  <img src="docs/compass.svg" alt="TAOS 5-mode compass: Automate, Augment, Coach, Protect, Hands-off arranged by friction level" width="360"/>
 </p>
 
 Every task gets classified into one of five AI interaction modes:
@@ -110,17 +110,17 @@ Every task gets classified into one of five AI interaction modes:
 
 | Technique | Source | When Used |
 |-----------|--------|-----------|
-| **Cognitive Forcing** | Buçinca et al. (2021) | Novice domains, high-stakes decisions — ask for user's hypothesis first |
-| **Contrastive Explanations** | Buçinca et al. (2024) | Learning moments — explain the DELTA between user's mental model and reality |
-| **Adaptive Support** | Buçinca et al. (2024) | All interactions — adjust friction based on user state |
-| **Expert Augmentation** | Mollick (2023) | Expert domains — skip basics, challenge assumptions, accelerate |
-| **De-skilling Protection** | Multiple (2024-25) | Protected skills — add friction, require human-first attempts |
+| **Cognitive Forcing** | Buçinca et al. (2021) | Novice domains, high-stakes decisions: ask for user's hypothesis first |
+| **Contrastive Explanations** | Buçinca et al. (2024) | Learning moments: explain the DELTA between user's mental model and reality |
+| **Adaptive Support** | Buçinca et al. (2024) | All interactions: adjust friction based on user state |
+| **Expert Augmentation** | Mollick (2023) | Expert domains: skip basics, challenge assumptions, accelerate |
+| **De-skilling Protection** | Multiple (2024-25) | Protected skills: add friction, require human-first attempts |
 
 ---
 
 ## Quick Start
 
-New to Claude Code and TAL MCP? Start with the first-time guide: `docs/CLAUDE_CODE_FIRST_TIME_SETUP.md`.
+New to Claude Code and TAOS MCP? Start with the first-time guide: `docs/CLAUDE_CODE_FIRST_TIME_SETUP.md`.
 
 Pick the option that matches your setup:
 
@@ -149,7 +149,7 @@ Pre-configured instances with persistent context and conversation starters:
 
 ### Claude Desktop Extension (1 click)
 
-Prebuilt `.mcpb` bundle — no Python setup, no config editing:
+Prebuilt `.mcpb` bundle: no Python setup, no config editing:
 
 1. Download `desktop-extension/talent-augmenting-layer.mcpb`.
 2. Double-click to install in Claude Desktop.
@@ -159,7 +159,7 @@ Profiles are stored locally (default: `~/.talent-augmenting-layer/profiles/`). N
 
 ### Claude Cowork Plugin (1 click)
 
-Install from the `.claude-plugin` marketplace — ships three Claude Code skills (`talent-assess`, `talent-coach`, `talent-update`) plus the MCP server config in `plugin/.mcp.json`.
+Install from the `.claude-plugin` marketplace: ships three Claude Code skills (`talent-assess`, `talent-coach`, `talent-update`) plus the MCP server config in `plugin/.mcp.json`.
 
 ### Remote MCP (hosted, OAuth)
 
@@ -173,7 +173,7 @@ Sign in with Google; your profile persists in the hosted PostgreSQL database. Se
 
 ### MCP Server (10 min, local stdio)
 
-Full tool integration with automatic tracking. Works with Claude Code, Claude Desktop, Cursor, Windsurf, Codex CLI, Zed, VS Code MCP — any client that follows the MCP stdio spec.
+Full tool integration with automatic tracking. Works with Claude Code, Claude Desktop, Cursor, Windsurf, Codex CLI, Zed, VS Code MCP: any client that follows the MCP stdio spec.
 
 ```bash
 cd mcp-server && pip install -e .
@@ -212,9 +212,9 @@ cd hosted && docker build -t talent-augmenting-layer . && docker run -p 5000:500
 See `hosted/README.md` for full setup (OAuth credentials, LLM API key, SMTP config).
 
 ### Day-to-Day Commands (MCP / Claude Code)
-- `/talent-assess` — Run initial assessment or full re-assessment
-- `/talent-update` — Update profile based on recent interactions
-- `/talent-coach` — Start a targeted coaching session on a specific skill
+- `/talent-assess`: Run initial assessment or full re-assessment
+- `/talent-update`: Update profile based on recent interactions
+- `/talent-coach`: Start a targeted coaching session on a specific skill
 
 These slash commands are separate from the MCP server prompts. The MCP server exposes `talent-assess`, `talent-coach`, and `talent-update` as prompts. In MCP usage, the conversation is powered by your selected client model (for example, your Claude Code model), while the server provides tools and profile storage.
 
@@ -224,7 +224,7 @@ See `docs/integration-guide.md` for detailed platform-specific instructions.
 
 ## Cross-Platform Portability
 
-Talent-Augmenting Layer is designed as a **layer** -- not tied to any specific tool, LLM, or platform. The 4-tier architecture means it works everywhere:
+Talent-Augmenting OS is designed as a **layer**: not tied to any specific tool, LLM, or platform. The 4-tier architecture means it works everywhere:
 
 | Tier | Platforms | Setup |
 |------|-----------|-------|
@@ -236,7 +236,7 @@ Talent-Augmenting Layer is designed as a **layer** -- not tied to any specific t
 | **Tier 3**: Remote MCP (Streamable HTTP + OAuth) | Any MCP client with remote support | Google sign-in |
 | **Tier 4**: Hosted web app | Any browser | Docker deploy (15 min) |
 
-The profile is **portable markdown** -- it works anywhere you can inject system context. Take your profile from Claude Code to ChatGPT to Cursor and back. Your AI calibration follows you.
+The profile is **portable markdown**: it works anywhere you can inject system context. Take your profile from Claude Code to ChatGPT to Cursor and back. Your AI calibration follows you.
 
 ---
 
@@ -249,7 +249,7 @@ Built on empirical research, not opinions:
 | Buçinca et al. (2021) | Cognitive forcing reduces over-reliance by ~30% | Ask for hypothesis before revealing AI's answer |
 | Buçinca et al. (2024) | Contrastive explanations improve skills +8% (d=0.35) | Explain delta between user's model and AI's |
 | Buçinca et al. (2024) | Optimal AI support depends on individual state | Personalize via profile, adapt dynamically |
-| Mollick et al. (2023) | AI: +40% quality, +26% speed — but juniors who "just hand in" do worse | Protect against autopilot, especially in growth areas |
+| Mollick et al. (2023) | AI: +40% quality, +26% speed: but juniors who "just hand in" do worse | Protect against autopilot, especially in growth areas |
 | Drago & Laine (2025) | The Intelligence Curse: humans must stay complementary | Build skills that maintain human economic relevance |
 | Acemoglu | Pro-worker AI should increase human marginal product | Every interaction should make the user more valuable |
 | Vygotsky | Zone of Proximal Development | Scaffold just beyond current ability |
@@ -266,7 +266,7 @@ talent-augmenting-layer/
 ├── CLAUDE.md                           # Core system prompt (the brain)
 ├── README.md                           # This file
 ├── CITATION.cff                        # Machine-readable citation metadata
-├── LICENSE                             # CC BY-NC-SA 4.0
+├── LICENSE                             # BUSL 1.1 (converts to Apache 2.0 on 2030-04-30)
 ├── COPYRIGHT                           # Attribution notice
 ├── .claude/
 │   ├── commands/
@@ -282,7 +282,7 @@ talent-augmenting-layer/
 │   └── skills/                         # talent-assess · talent-coach · talent-update skills
 ├── desktop-extension/                  # Claude Desktop 1-click extension
 │   ├── manifest.json                   # .mcpb manifest (MCP + user config schema)
-│   ├── talent-augmenting-layer.mcpb    # Prebuilt bundle — double-click to install
+│   ├── talent-augmenting-layer.mcpb    # Prebuilt bundle: double-click to install
 │   └── src/                            # Bundled server (assessment, profile_manager, server)
 ├── server.json                         # MCP registry manifest (Streamable HTTP remote)
 ├── render.yaml                         # Render deployment (hosted service + PostgreSQL)
@@ -307,7 +307,7 @@ talent-augmenting-layer/
 │   ├── config.py                       # Environment configuration
 │   ├── database.py                     # Database models and persistence
 │   ├── llm_client.py                   # LLM integration for conversational assessment
-│   ├── scoring.py                      # TALQ scoring engine
+│   ├── scoring.py                      # TAOSQ scoring engine
 │   ├── auth.py                         # Google OAuth authentication
 │   ├── email_service.py                # 2-week check-in email reminders
 │   ├── scheduler.py                    # Background task scheduling
@@ -318,7 +318,7 @@ talent-augmenting-layer/
 │   └── README.md                       # Hosted app setup guide
 ├── assessment/
 │   ├── framework.md                    # Assessment methodology
-│   ├── scoring-instrument.md           # TALQ psychometric instrument
+│   ├── scoring-instrument.md           # TAOSQ psychometric instrument
 │   ├── coaching-modules.md             # Structured coaching sessions (5 modules, 13 sessions)
 │   ├── ab-testing-framework.md         # A/B testing design for outcomes research
 │   └── literature-foundations.md       # Research backing
@@ -337,25 +337,25 @@ talent-augmenting-layer/
 └── context/                            # Research papers (Buçinca, Acemoglu, Mollick)
 ```
 
-> **Related project**: [Talent-Augmenting Layer Benchmark](https://github.com/angelo-leone/pro-worker-benchmark) -- a 3-layer evaluation framework for measuring whether LLMs augment or replace human intelligence.
+> **Related project**: [Talent-Augmenting OS Benchmark](https://github.com/angelo-leone/pro-worker-benchmark): a 3-layer evaluation framework for measuring whether LLMs augment or replace human intelligence.
 
 ---
 
 ## What Makes This Different From Memory?
 
-Good question. Memory stores facts. **Talent-Augmenting Layer is how memory is used.**
+Good question. Memory stores facts. **Talent-Augmenting OS is how memory is used.**
 
-| Feature | Plain Memory | Talent-Augmenting Layer |
+| Feature | Plain Memory | Talent-Augmenting OS |
 |---------|-------------|---------------|
 | Stores user info | Yes | Yes |
-| Adapts AI behaviour | No — just recalls | Yes — systematically calibrates every interaction |
-| Protects skills | No | Yes — cognitive forcing, de-skilling prevention |
-| Coaches growth | No | Yes — targeted scaffolding in growth areas |
-| Classifies tasks | No | Yes — automate/augment/coach/protect/hands-off |
+| Adapts AI behaviour | No: just recalls | Yes: systematically calibrates every interaction |
+| Protects skills | No | Yes: cognitive forcing, de-skilling prevention |
+| Coaches growth | No | Yes: targeted scaffolding in growth areas |
+| Classifies tasks | No | Yes: automate/augment/coach/protect/hands-off |
 | Evolves over time | Appends facts | Tracks skill progression, adjusts calibration |
-| Research-backed | No | Yes — grounded in HCI and workforce learning literature |
+| Research-backed | No | Yes: grounded in HCI and workforce learning literature |
 
-Memory is the database. **TAL is the operating system.**
+Memory is the database. **TAOS is the operating system.**
 
 ---
 
@@ -364,7 +364,7 @@ Memory is the database. **TAL is the operating system.**
 This is an open-source personalised AI augmentation layer. Current status:
 
 - [x] Core system prompt with 4 interaction modes (CLAUDE.md)
-- [x] Interactive assessment with profile generation (TALQ)
+- [x] Interactive assessment with profile generation (TAOSQ)
 - [x] Psychometric scoring instrument with validated Likert scales
 - [x] Tier 1: Universal system prompt for any LLM (4 files)
 - [x] Tier 2: Platform-native configs for ChatGPT, Gemini, Claude (3 files)
@@ -389,7 +389,7 @@ This is an open-source personalised AI augmentation layer. Current status:
 
 ## License
 
-This work is licensed under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+This work is licensed under the [Business Source License 1.1](./LICENSE). The licence converts to Apache License 2.0 on 2030-04-30 (or four years after a given version's first publication, whichever is earlier). See [`COMMERCIAL.md`](./COMMERCIAL.md) for a plain-language summary.
 
 **You are free to** share and adapt this work for non-commercial purposes, as long as you give appropriate credit and distribute contributions under the same license.
 
@@ -399,12 +399,12 @@ See [LICENSE](LICENSE) for the full text.
 
 ## Citation
 
-If you use Talent-Augmenting Layer in research or publications, please cite:
+If you use Talent-Augmenting OS in research or publications, please cite:
 
 ```bibtex
 @software{leone2026talentaugmentinglayer,
   author    = {Leone, Angelo},
-  title     = {Talent-Augmenting Layer: A Personalised AI Augmentation Layer for Workforce Development},
+  title     = {Talent-Augmenting OS: A Personalised AI Augmentation Layer for Workforce Development},
   version   = {0.2.0},
   year      = {2026},
   url       = {https://github.com/angelo-leone/talent-augmenting-layer},
@@ -419,4 +419,4 @@ Or see [CITATION.cff](CITATION.cff) for machine-readable citation metadata.
 *Built by Angelo Leone at PUBLIC. Powered by research from Buçinca, Acemoglu, Mollick, Drago & Laine.*
 *Every interaction should leave you more capable, not more dependent.*
 
-Copyright (c) 2026 Angelo Leone. All rights reserved under CC BY-NC-SA 4.0.
+Copyright (c) 2026 Angelo Leone. Licensed under the Business Source License 1.1. See `LICENSE` and `COMMERCIAL.md`.

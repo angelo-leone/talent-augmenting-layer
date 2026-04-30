@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Admin -- {{ summary.org.name if summary.org else "TAL" }}{% endblock %}
+{% block title %}Admin · {{ summary.org.name if summary.org else "TAOS" }}{% endblock %}
 
 {% block head %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
@@ -13,14 +13,14 @@
     .alert-card .alert-num { font-size: 1.75rem; font-weight: 700; }
     .alert-card .alert-lbl { color: var(--text-muted); font-size: 0.85rem; }
     .admin-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-    .admin-table th, .admin-table td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid #2a2a4a; }
+    .admin-table th, .admin-table td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
     .admin-table th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; }
     .trend-declining { color: var(--danger); }
     .trend-improving { color: var(--success); }
     .trend-stable { color: var(--text-muted); }
     .trend-no_data { color: var(--text-muted); opacity: 0.6; }
     .matrix-cell { display: inline-block; width: 22px; height: 22px; border-radius: 3px; text-align: center; line-height: 22px; font-size: 0.75rem; font-weight: 600; color: #000; }
-    .matrix-cell.r0 { background: #2a2a4a; color: var(--text-muted); }
+    .matrix-cell.r0 { background: #F1F5F9; color: var(--text-muted); }
     .matrix-cell.r1 { background: #c0392b; }
     .matrix-cell.r2 { background: #e67e22; }
     .matrix-cell.r3 { background: #f1c40f; }
@@ -41,7 +41,8 @@
             {{ summary.total_profiles or 0 }} profile{{ "s" if (summary.total_profiles or 0) != 1 else "" }}.
         </p>
     </div>
-    <div>
+    <div style="display: flex; gap: 0.5rem;">
+        <a href="/admin/audit" class="btn btn-secondary">Audit log</a>
         <a href="/dashboard" class="btn btn-secondary">My dashboard</a>
     </div>
 </div>
@@ -128,7 +129,7 @@
     </p>
     <form id="invite-form" onsubmit="sendInvite(event)" style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
         <input type="email" id="invite-email" class="chat-input" required placeholder="name@company.com" style="flex: 1; min-width: 220px; padding: 0.55rem;"/>
-        <select id="invite-role" style="padding: 0.55rem; background: var(--surface-2); color: var(--text); border: 1px solid #2a2a4a; border-radius: 0.4rem;">
+        <select id="invite-role" style="padding: 0.55rem; background: var(--surface-2); color: var(--text); border: 1px solid var(--border); border-radius: 0.4rem;">
             <option value="member">member</option>
             <option value="admin">admin</option>
         </select>
@@ -210,12 +211,12 @@ new Chart(document.getElementById("distribution-chart"), {
         labels: ["Low ADR (<4)", "Medium ADR (4-6)", "High ADR (>=7)", "No profile"],
         datasets: [{
             data: [buckets.low, buckets.medium, buckets.high, buckets.none],
-            backgroundColor: ["#2ecc71", "#f39c12", "#e74c3c", "#5a5a7a"],
-            borderColor: "#1a1a2e",
+            backgroundColor: ["#1B7A5A", "#B45309", "#B42318", "#CBD5E1"],
+            borderColor: "#FFFFFF",
             borderWidth: 2,
         }],
     },
-    options: { plugins: { legend: { position: "bottom", labels: { color: "#ccc" } } } },
+    options: { plugins: { legend: { position: "bottom", labels: { color: "#475569" } } } },
 });
 
 // Domain coverage: count of members per domain
@@ -231,15 +232,15 @@ new Chart(document.getElementById("domain-chart"), {
         datasets: [{
             label: "Members rated in domain",
             data: domains.map((d) => domainCoverage[d]),
-            backgroundColor: "#533483",
+            backgroundColor: "#2D6A4F",
         }],
     },
     options: {
         indexAxis: "y",
         plugins: { legend: { display: false } },
         scales: {
-            x: { ticks: { color: "#ccc", stepSize: 1 }, grid: { color: "#2a2a4a" } },
-            y: { ticks: { color: "#ccc" }, grid: { color: "#2a2a4a" } },
+            x: { ticks: { color: "#475569", stepSize: 1 }, grid: { color: "#E2E8F0" } },
+            y: { ticks: { color: "#475569" }, grid: { color: "#E2E8F0" } },
         },
     },
 });
@@ -289,7 +290,7 @@ async function sendInvite(event) {
         }
         const linkMsg = data.email_sent
             ? "Email sent. Invite link (copy if email fails)"
-            : "Email not configured on this deployment — copy this link and send it manually";
+            : "Email not configured on this deployment. Copy this link and send it manually";
         result.innerHTML = linkMsg + ': <code style="word-break: break-all;">' + data.invite_url + '</code>';
         document.getElementById("invite-email").value = "";
         loadInvites();

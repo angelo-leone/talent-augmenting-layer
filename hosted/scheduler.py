@@ -1,4 +1,4 @@
-"""Talent-Augmenting Layer -- Background scheduler for check-in reminders and Drive sync.
+"""Talent-Augmenting OS: Background scheduler for check-in reminders and Drive sync.
 
 Uses APScheduler to run:
   - Daily 09:00 UTC: check-in reminders for overdue profile updates
@@ -65,7 +65,7 @@ async def _check_and_send_reminders() -> None:
             )
             recent_result = await session.execute(recent_stmt)
             if recent_result.scalar_one_or_none() is not None:
-                logger.debug("Skipping %s -- already reminded recently", user.email)
+                logger.debug("Skipping %s: already reminded recently", user.email)
                 continue
 
             # Get their latest profile scores for question generation
@@ -114,13 +114,13 @@ async def _export_pilot_data_to_drive() -> None:
     """Export anonymised pilot telemetry/survey data to a shared Google Drive folder.
 
     Runs at 02:00 UTC daily.  Uses OAuth 2.0 user credentials (refresh token)
-    so the app uploads files as the folder owner — no service account sharing
+    so the app uploads files as the folder owner: no service account sharing
     required.  Writes a single JSONL file per day named
     ``pilot-export-YYYY-MM-DD.jsonl`` into the Drive folder specified by
     ``GDRIVE_FOLDER_ID``.
 
     Each row is keyed by ``pilot_participant_id`` (a randomised opaque ID set
-    during group assignment) — no email/name fields are exported.
+    during group assignment): no email/name fields are exported.
     """
     from hosted.config import (
         GDRIVE_OAUTH_CLIENT_ID,
@@ -134,7 +134,7 @@ async def _export_pilot_data_to_drive() -> None:
         return
     if not all([GDRIVE_OAUTH_CLIENT_ID, GDRIVE_OAUTH_CLIENT_SECRET,
                 GDRIVE_OAUTH_REFRESH_TOKEN, GDRIVE_FOLDER_ID]):
-        logger.warning("Drive export enabled but OAuth credentials/folder not configured — skipping")
+        logger.warning("Drive export enabled but OAuth credentials/folder not configured: skipping")
         return
 
     try:
@@ -142,7 +142,7 @@ async def _export_pilot_data_to_drive() -> None:
         from googleapiclient.discovery import build
         from googleapiclient.http import MediaIoBaseUpload
     except ImportError:
-        logger.error("google-api-python-client / google-auth not installed — Drive export skipped")
+        logger.error("google-api-python-client / google-auth not installed: Drive export skipped")
         return
 
     today = datetime.date.today()
@@ -226,7 +226,7 @@ async def _export_pilot_data_to_drive() -> None:
                 })
 
     if not rows:
-        logger.info("Drive export: no pilot data from %s — nothing to upload", yesterday)
+        logger.info("Drive export: no pilot data from %s: nothing to upload", yesterday)
         return
 
     # Build JSONL file in memory
@@ -259,7 +259,7 @@ async def _export_pilot_data_to_drive() -> None:
             media_body=media,
             fields="id,name",
         ).execute()
-        logger.info("Drive export: uploaded %s (%d rows) — file id %s",
+        logger.info("Drive export: uploaded %s (%d rows): file id %s",
                      file_name, len(rows), uploaded.get("id"))
     except Exception:
         logger.exception("Drive export failed")

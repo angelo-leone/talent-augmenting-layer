@@ -1,1 +1,1 @@
-"""Talent-Augmenting Layer -- Hosted web application package."""
+"""Talent-Augmenting OS: Hosted web application package."""

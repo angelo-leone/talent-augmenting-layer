@@ -1,13 +1,13 @@
-# Talent-Augmenting Layer — Usage Examples
+# Talent-Augmenting OS: Usage Examples
 
-These examples demonstrate the core workflows of the Talent-Augmenting Layer desktop extension.
+These examples demonstrate the core workflows of the Talent-Augmenting OS desktop extension.
 
 ---
 
 ## Example 1: Onboarding Assessment
 
 **User prompt:**
-> "I'd like to set up my Talent-Augmenting Layer profile. My name is Sarah."
+> "I'd like to set up my Talent-Augmenting OS profile. My name is Sarah."
 
 **What happens:**
 1. Claude calls `talent_assess_start` with name "Sarah"
@@ -29,7 +29,7 @@ These examples demonstrate the core workflows of the Talent-Augmenting Layer des
     "GP": { "raw": 4.1, "interpretation": "High growth potential" },
     "ALI": { "raw": 3.8, "interpretation": "Good AI literacy" },
     "ESA": { "mean": 3.4, "spread": 1.2 },
-    "TALRI": { "composite": 62, "interpretation": "Balanced profile — augmentation-ready with coaching in growth areas" }
+    "TAOSRI": { "composite": 62, "interpretation": "Balanced profile: augmentation-ready with coaching in growth areas" }
   },
   "recommended_calibration": {
     "default_friction_level": "medium",
@@ -89,7 +89,7 @@ These examples demonstrate the core workflows of the Talent-Augmenting Layer des
   "profile_summary": {
     "name": "Sarah",
     "role": "Product Manager",
-    "TALRI_score": 62,
+    "TAOSRI_score": 62,
     "domains_count": 6,
     "last_updated": "2026-03-15"
   },
@@ -102,7 +102,7 @@ These examples demonstrate the core workflows of the Talent-Augmenting Layer des
       "Technical writing": { "growth": 0, "stable": 1, "atrophy": 4, "direction": "declining" }
     },
     "atrophy_warnings": [
-      "Technical writing: 4 atrophy signals detected. This is a protected skill — consider practicing it independently."
+      "Technical writing: 4 atrophy signals detected. This is a protected skill: consider practicing it independently."
     ],
     "engagement_pattern": {
       "passive": 12,
@@ -112,8 +112,8 @@ These examples demonstrate the core workflows of the Talent-Augmenting Layer des
     }
   },
   "recommendations": [
-    "Strong growth in Strategic planning — consider moving from 'coach' to 'augment' mode",
-    "Technical writing shows atrophy risk — try a skill refresh exercise",
+    "Strong growth in Strategic planning: consider moving from 'coach' to 'augment' mode",
+    "Technical writing shows atrophy risk: try a skill refresh exercise",
     "Overall engagement is healthy (74% active/critical)"
   ]
 }
@@ -127,11 +127,11 @@ These examples demonstrate the core workflows of the Talent-Augmenting Layer des
 > "Review this SQL query for performance issues" (with a complex query pasted)
 
 **What happens:**
-1. Claude calls `talent_classify_task` — returns "augment" because Sarah rated "Data analysis" as 4/5 (advanced)
+1. Claude calls `talent_classify_task`: returns "augment" because Sarah rated "Data analysis" as 4/5 (advanced)
 2. Claude skips basics and jumps straight to edge cases:
 
 **Claude's response:**
-> "Two things stand out. First, the subquery on line 12 will cause a full table scan on `orders` — consider rewriting it as a CTE with a date filter pushed down. Second, the LEFT JOIN to `user_preferences` is likely unnecessary here since you're filtering on it in the WHERE clause anyway, which converts it to an INNER JOIN. Have you checked the execution plan? The estimated cost difference could be significant with your table sizes."
+> "Two things stand out. First, the subquery on line 12 will cause a full table scan on `orders`: consider rewriting it as a CTE with a date filter pushed down. Second, the LEFT JOIN to `user_preferences` is likely unnecessary here since you're filtering on it in the WHERE clause anyway, which converts it to an INNER JOIN. Have you checked the execution plan? The estimated cost difference could be significant with your table sizes."
 
 3. After the interaction, Claude calls `talent_log_interaction` to record:
    - task_category: "augment"
@@ -148,8 +148,8 @@ These examples demonstrate the core workflows of the Talent-Augmenting Layer des
 
 **What happens:**
 1. Claude detects this is the 3rd delegation of "writing" tasks in the session without Sarah offering her own attempt
-2. Claude calls `talent_classify_task` — returns "protect" because writing is in Sarah's protected skills list
+2. Claude calls `talent_classify_task`: returns "protect" because writing is in Sarah's protected skills list
 3. Claude applies the Anti-Autopilot Protocol:
 
 **Claude's response:**
-> "I've been writing a few things for you today. Since written communication is one of the skills you flagged as important to maintain, let me flip this one — give me your draft of the key points, and I'll help you refine it. What are the three most important updates the team needs to hear?"
+> "I've been writing a few things for you today. Since written communication is one of the skills you flagged as important to maintain, let me flip this one: give me your draft of the key points, and I'll help you refine it. What are the three most important updates the team needs to hear?"

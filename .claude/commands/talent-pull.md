@@ -1,6 +1,6 @@
 # /talent-pull
 
-Download the user's TAL profile from the hosted app and cache it locally so the SessionStart hook finds it.
+Download the user's TAOS profile from the hosted app and cache it locally so the SessionStart hook finds it.
 
 ## Why
 
@@ -8,7 +8,7 @@ Plugin users whose profile lives in the remote DB get "no profile found" from th
 
 ## First: greet the user before any tool calls
 
-> "Hi — I'll pull your hosted TAL profile down into the local cache so the ambient coach picks it up from turn one. One moment."
+> "Hi: I'll pull your hosted TAOS profile down into the local cache so the ambient coach picks it up from turn one. One moment."
 
 ## Flow
 
@@ -25,7 +25,7 @@ Plugin users whose profile lives in the remote DB get "no profile found" from th
 
 ## Env overrides
 
-- `TAL_HOSTED_URL` — default `https://proworker-hosted.onrender.com`.
+- `TAL_HOSTED_URL`: default `https://proworker-hosted.onrender.com`.
 
 ## Related
 

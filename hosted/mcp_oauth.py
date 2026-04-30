@@ -316,7 +316,7 @@ class TALOAuthProvider(
     # ── Access token verification ────────────────────────────────────────
 
     async def load_access_token(self, token: str) -> Optional[TALAccessToken]:
-        """Stateless JWT verification — no DB hit per request."""
+        """Stateless JWT verification: no DB hit per request."""
         try:
             payload = jwt.decode(
                 token,
@@ -362,7 +362,7 @@ class TALOAuthProvider(
                     )
                 )
             else:
-                # Access token — decode JTI
+                # Access token: decode JTI
                 try:
                     payload = jwt.decode(
                         token.token, SECRET_KEY, algorithms=[JWT_ALGORITHM],

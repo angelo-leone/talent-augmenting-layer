@@ -1,4 +1,4 @@
-# Talent-Augmenting Layer Profile — [NAME]
+# Talent-Augmenting OS Profile: [NAME]
 
 > Generated: [DATE]
 > Last updated: [DATE]
@@ -56,7 +56,7 @@
 
 **AI Interaction Pattern**: [accept-as-is / light-edit / substantial-rewrite / thinking-partner]
 
-**Dependency Risk Score**: [0-10] — [explanation]
+**Dependency Risk Score**: [0-10]: [explanation]
 
 **De-skilling concerns**: [specific skills at risk]
 
@@ -83,7 +83,7 @@
 **Tasks to eliminate** (automate away):
 -
 
-**Growth Potential Score**: [0-10] — [explanation]
+**Growth Potential Score**: [0-10]: [explanation]
 
 ---
 

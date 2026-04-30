@@ -1,14 +1,14 @@
 # Pro-Worker AI Benchmark
 
-[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![License: BUSL 1.1](https://img.shields.io/badge/License-BUSL%201.1-blue.svg)](./LICENSE)
 [![Layers](https://img.shields.io/badge/Evaluation%20Layers-3-blue)]()
 [![Dimensions](https://img.shields.io/badge/Dimensions-7-green)]()
 
-A benchmark for evaluating LLMs on **pro-worker** principles — measuring whether AI systems augment human intelligence rather than replacing it.
+A benchmark for evaluating LLMs on **pro-worker** principles: measuring whether AI systems augment human intelligence rather than replacing it.
 
 Based on the research of **Zana Buçinca** (MIT), **Daron Acemoglu**, and **Ethan Mollick** (Wharton).
 
-> **Related project**: [Worker-Augmenting AI Layer](https://github.com/angelo-leone/worker-augmenting-layer) — the personalized augmentation layer that this benchmark evaluates.
+> **Related project**: [Worker-Augmenting AI Layer](https://github.com/angelo-leone/worker-augmenting-layer): the personalized augmentation layer that this benchmark evaluates.
 
 ## What It Measures
 
@@ -30,9 +30,9 @@ These roll up into a **Pro-Worker Index (PWI)** from 0-100.
 
 **3 evaluation layers:**
 
-1. **Layer 1 — Behavioral Probes** (~90 single-turn prompts across 6 dimensions)
-2. **Layer 2 — Multi-Turn Scenarios** (10 realistic conversations, 5 turns each)
-3. **Layer 3 — Adversarial Stress Tests** (30 prompts with urgency, authority, emotional pressure)
+1. **Layer 1: Behavioral Probes** (~90 single-turn prompts across 6 dimensions)
+2. **Layer 2: Multi-Turn Scenarios** (10 realistic conversations, 5 turns each)
+3. **Layer 3: Adversarial Stress Tests** (30 prompts with urgency, authority, emotional pressure)
 
 All responses are scored by an **LLM-as-judge** using detailed rubrics with few-shot calibration examples.
 
@@ -117,14 +117,14 @@ Range: 0 (fully substitutional AI) to 100 (fully pro-worker AI).
 
 ## Key Comparison: Baseline vs. System Prompt
 
-The benchmark's most valuable test: run each model **twice** — once without any system prompt (baseline) and once with the `system_prompt.md` applied. The delta shows how much the prompt actually moves behavior.
+The benchmark's most valuable test: run each model **twice**: once without any system prompt (baseline) and once with the `system_prompt.md` applied. The delta shows how much the prompt actually moves behavior.
 
 ## Project Structure
 
 ```
 pro-worker-benchmark/
 ├── CITATION.cff                         # Machine-readable citation metadata
-├── LICENSE                              # CC BY-NC-SA 4.0
+├── LICENSE                              # BUSL 1.1 (converts to Apache 2.0 on 2030-04-30)
 ├── COPYRIGHT                            # Attribution notice
 ├── config.yaml                          # Models, judge, weights
 ├── dashboard.py                         # Streamlit visualization
@@ -196,18 +196,18 @@ turns:
 
 This benchmark operationalizes findings from:
 
-- **Buçinca et al. (2021)** — Cognitive forcing functions reduce over-reliance
-- **Buçinca et al. (2024)** — Contrastive explanations improve learning (+8%, d=0.35)
-- **Buçinca et al. (2024)** — Optimal AI assistance adapts to user state (RL policies)
-- **Buçinca et al. (2023)** — AHA! framework for anticipating harms
-- **Acemoglu et al.** — Pro-worker AI policy framework
-- **Mollick et al.** — Empirical productivity gains from AI (40% quality, 26% speed)
+- **Buçinca et al. (2021)**: Cognitive forcing functions reduce over-reliance
+- **Buçinca et al. (2024)**: Contrastive explanations improve learning (+8%, d=0.35)
+- **Buçinca et al. (2024)**: Optimal AI assistance adapts to user state (RL policies)
+- **Buçinca et al. (2023)**: AHA! framework for anticipating harms
+- **Acemoglu et al.**: Pro-worker AI policy framework
+- **Mollick et al.**: Empirical productivity gains from AI (40% quality, 26% speed)
 
 ---
 
 ## License
 
-This work is licensed under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+This work is licensed under the [Business Source License 1.1](./LICENSE). The licence converts to Apache License 2.0 on 2030-04-30 (or four years after a given version's first publication, whichever is earlier). See [`COMMERCIAL.md`](./COMMERCIAL.md) for a plain-language summary.
 
 See [LICENSE](LICENSE) for the full text.
 
@@ -234,4 +234,4 @@ Or see [CITATION.cff](CITATION.cff) for machine-readable citation metadata.
 
 *Built by Angelo Leone at PUBLIC. Powered by research from Buçinca, Acemoglu, and Mollick.*
 
-Copyright (c) 2026 Angelo Leone. All rights reserved under CC BY-NC-SA 4.0.
+Copyright (c) 2026 Angelo Leone. Licensed under the Business Source License 1.1. See `LICENSE` and `COMMERCIAL.md`.

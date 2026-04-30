@@ -1,6 +1,6 @@
 ---
 name: talent-pull
-description: Download the user's TAL profile from the hosted web app (proworker-hosted.onrender.com) and cache it locally at ~/.talent-augmenting-layer/profiles/ so the SessionStart hook can read it on next session start. Use when the user created their profile via the remote MCP or hosted web assessment and wants ambient coaching to pick it up locally.
+description: Download the user's TAOS profile from the hosted web app (proworker-hosted.onrender.com) and cache it locally at ~/.talent-augmenting-layer/profiles/ so the SessionStart hook can read it on next session start. Use when the user created their profile via the remote MCP or hosted web assessment and wants ambient coaching to pick it up locally.
 allowed-tools:
   - Read
   - Write
@@ -10,7 +10,7 @@ allowed-tools:
 
 # /talent-pull
 
-Fetch the user's profile from the hosted web app and drop it into the local cache that the TAL `SessionStart` hook scans on every new session.
+Fetch the user's profile from the hosted web app and drop it into the local cache that the TAOS `SessionStart` hook scans on every new session.
 
 ## Why this exists
 
@@ -20,7 +20,7 @@ After running `/talent-pull` once, the profile is cached locally and the hook fi
 
 ## First: greet the user before any tool calls
 
-> "Hi — I'll pull your hosted TAL profile down into the local cache so the ambient coach picks it up from turn one. One moment."
+> "Hi: I'll pull your hosted TAOS profile down into the local cache so the ambient coach picks it up from turn one. One moment."
 
 ## Flow
 
@@ -45,7 +45,7 @@ After running `/talent-pull` once, the profile is cached locally and the hook fi
 
 ## Environment overrides
 
-- `TAL_HOSTED_URL` — default `https://proworker-hosted.onrender.com`. Pilot testers can point at a local dev server with `TAL_HOSTED_URL=http://localhost:8000`.
+- `TAL_HOSTED_URL`: default `https://proworker-hosted.onrender.com`. Pilot testers can point at a local dev server with `TAL_HOSTED_URL=http://localhost:8000`.
 
 ## Relationship to /talent-sync
 

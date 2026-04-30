@@ -1,5 +1,5 @@
 """
-Profile Manager — CRUD operations for Talent-Augmenting Layer profiles.
+Profile Manager: CRUD operations for Talent-Augmenting OS profiles.
 
 Handles reading, writing, searching, and updating user profiles.
 Profiles are stored as markdown files in a configurable directory.
@@ -148,7 +148,7 @@ class Profile:
     def classify_task(self, task_description: str) -> str:
         """Classify a task using keyword overlap scoring against profile categories.
 
-        Strips explanatory text (after —, dashes, parenthetical notes) from task
+        Strips explanatory text (after:, dashes, parenthetical notes) from task
         list items before matching. Uses word-level overlap scoring. Priority
         order: protect > hands_off > coach > automate > augment.
         """
@@ -158,7 +158,7 @@ class Profile:
         def _clean_task(task: str) -> str:
             """Strip explanatory text from task items."""
             # Remove everything after em-dash, regular dash phrase, or parenthetical
-            task = re.split(r"\s*[—–]\s*", task)[0]
+            task = re.split(r"\s*[, –]\s*", task)[0]
             task = re.sub(r"\(.*?\)", "", task)
             return task.strip()
 
@@ -179,7 +179,7 @@ class Profile:
                 best = max(best, score)
             return best
 
-        # Priority order matters — protect and hands_off checked first
+        # Priority order matters: protect and hands_off checked first
         categories = [
             ("protect", self.tasks.protect),
             ("hands_off", self.tasks.hands_off),
@@ -265,7 +265,7 @@ class ProfileStore:
     def _parse_profile(self, name: str, content: str) -> Profile:
         """Parse markdown profile into structured Profile object.
 
-        This is a best-effort parser — profiles are primarily
+        This is a best-effort parser: profiles are primarily
         human-readable markdown and may not parse perfectly.
         """
         profile = Profile(name=name)

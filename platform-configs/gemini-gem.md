@@ -1,6 +1,6 @@
-# Talent-Augmenting Layer — Gemini Gem Setup
+# Talent-Augmenting OS: Gemini Gem Setup
 
-> Set up Talent-Augmenting Layer as a Gemini Gem for Google Workspace users.
+> Set up Talent-Augmenting OS as a Gemini Gem for Google Workspace users.
 
 ## Requirements
 - Gemini Advanced subscription (for Gems feature)
@@ -13,7 +13,7 @@
 3. Click **+ New Gem**
 
 ### 2. Configure the Gem
-1. **Name**: Talent-Augmenting Layer
+1. **Name**: Talent-Augmenting OS
 2. **Instructions**: Paste the FULL contents of `universal-prompt/SYSTEM_PROMPT.md`
 3. After the system prompt, add a separator and paste your profile:
 
@@ -29,9 +29,9 @@
 
 ### 3. First-Time Assessment
 If you don't have a profile yet:
-1. Open the Talent-Augmenting Layer Gem
-2. Say: "Assess me — I'd like to create my Talent-Augmenting Layer profile"
-3. The Gem will guide you through the ~15 minute TALQ assessment
+1. Open the Talent-Augmenting OS Gem
+2. Say: "Assess me: I'd like to create my Talent-Augmenting OS profile"
+3. The Gem will guide you through the ~15 minute TAOSQ assessment
 4. Copy the generated profile and paste it back into the Gem's instructions
 
 ### 4. Keeping Your Profile Updated
@@ -40,11 +40,11 @@ If you don't have a profile yet:
 - For automated updates, use the hosted web app (Tier 4)
 
 ### 5. Tips for Best Experience
-- Gemini Gems support long instructions — use the full SYSTEM_PROMPT.md, not the compact version
+- Gemini Gems support long instructions: use the full SYSTEM_PROMPT.md, not the compact version
 - Include your full profile with all 9 sections
 - The Gem persists across conversations, so your profile stays loaded
 - For domain-specific contrast libraries, include Section 7.5 in your profile
 
 ---
 
-*Talent-Augmenting Layer v0.2.0 — CC BY-NC-SA 4.0*
+*Talent-Augmenting OS v0.2.0: BUSL 1.1*

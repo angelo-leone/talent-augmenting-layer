@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""TAL ambient-coaching SessionStart hook.
+"""TAOS ambient-coaching SessionStart hook.
 
-Injects the Talent-Augmenting Layer system prompt plus the resolved user
+Injects the Talent-Augmenting OS system prompt plus the resolved user
 profile into the Claude Code session on startup, so coaching is active on
 every turn without the user having to invoke a slash command.
 
@@ -61,11 +61,11 @@ def main() -> None:
     else:
         profile_section = (
             "# Active User Profile\n\n"
-            "_No TAL profile found on this machine. If you already ran the "
+            "_No TAOS profile found on this machine. If you already ran the "
             "assessment on the hosted web app (proworker-hosted.onrender.com) "
             "or via the remote MCP, run `/talent-augmenting-layer:talent-pull` "
             "to download it into the local cache. Otherwise run "
-            "`/talent-augmenting-layer:talent-assess` to build one — takes "
+            "`/talent-augmenting-layer:talent-assess` to build one: takes "
             "~15 minutes._"
         )
 
