@@ -181,24 +181,43 @@ function startCoach() {
 function coachReply(userText) {
     coachStep += 1;
     if (coachStep === 1) {
-        // One short, open acknowledgement, then hand off to sign-in. The
-        // demo intentionally does not script a probe-and-reframe loop:
-        // the actual coaching needs the user's profile and a real model
-        // behind the conversation, neither of which the demo has.
+        // Give a real piece of coaching first (generic enough to land on
+        // most "help me draft/decide/prep X" tasks), then transition to
+        // a soft sign-in pitch. The demo intentionally does not try to
+        // sustain a back-and-forth: that needs the user's profile and a
+        // real model behind the chat.
         setInputEnabled(false);
         setTimeout(() => {
             addMsg("ai",
-                "Good, that's the kind of thing the coach is built for. " +
-                "To actually work through it with you I need your profile loaded so I know your level here and the kind of push-back you respond to. " +
-                "Without that I'd be guessing at you."
+                "OK. Two things to pin down before you start drafting, and they save more time than the drafting itself does." +
+                "\n\nFirst: what outcome would make this a win? Not 'send the email' or 'finish the draft'. " +
+                "What reaction do you actually want from the reader? Acceptance, a reply, a meeting, push-back you can answer? " +
+                "Naming the outcome changes what the work has to do."
             );
             setTimeout(() => {
                 addMsg("ai",
-                    "Sign in and we'll do it properly together. Takes a minute, it's free."
+                    "Second: what's the strongest objection they'll have? " +
+                    "Address it before they have to bring it up. The hardest part of most persuasive work is anticipating where the reader will resist, " +
+                    "and naming it back to them in your own words first."
+                );
+            }, 1300);
+            setTimeout(() => {
+                addMsg("ai",
+                    "A move that almost always helps when you're stuck on the opening: write two short opening lines, " +
+                    "one that leads with the news, one that leads with the relationship or context. " +
+                    "Read both out loud. Pick whichever makes the rest of the message easier to write. " +
+                    "Most people default to one style without realising the other might fit the specific reader better."
+                );
+            }, 2600);
+            setTimeout(() => {
+                addMsg("ai",
+                    "That's a slice of how a coaching session feels. " +
+                    "In the full experience the coach stays with you on the actual draft, pushes back on the assumptions in your first cut, " +
+                    "and calibrates how hard to push based on your profile and your past work. Sign in to try it for real."
                 );
                 document.getElementById("coach-cta").style.display = "block";
                 phase = "done";
-            }, 1100);
+            }, 4000);
         }, 600);
         return;
     }
