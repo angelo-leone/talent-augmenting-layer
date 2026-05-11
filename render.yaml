@@ -69,6 +69,13 @@ services:
       - key: ENABLE_BILLING
         value: "false"
 
+      # MCP authentication enforcement.
+      # Default false to preserve the in-flight Vanguard pilot (some clients
+      # are still configured without OAuth). Flip to "true" once the pilot
+      # has ended; every /mcp connection then requires a Bearer token.
+      - key: MCP_REQUIRE_AUTH
+        value: "false"
+
       # Database (provided by the proworker-db reference below)
       - key: DATABASE_URL
         fromDatabase:

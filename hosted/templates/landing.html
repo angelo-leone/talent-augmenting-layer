@@ -25,11 +25,8 @@
         .compass-row .compass-img-wrap img { width: 100%; height: auto; display: block; }
         .compass-row ul { flex: 1; min-width: 280px; max-width: 480px; padding-left: 1.2rem; }
         .compass-row ul li { margin-bottom: 0.5rem; line-height: 1.55; }
-        .stats-band { background: var(--surface-2); padding: 2.5rem 1.5rem; }
-        .stats-grid { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; text-align: center; }
-        .stat .stat-num { font-size: clamp(2.2rem, 4vw, 3.2rem); font-weight: 700; color: var(--accent); line-height: 1; letter-spacing: -0.02em; }
-        .stat .stat-lbl { color: var(--text); font-weight: 600; margin-top: 0.5rem; font-size: 1rem; }
-        .stat .stat-src { color: var(--text-muted); font-size: 0.82rem; margin-top: 0.25rem; }
+
+        /* Two-audience section */
         .audience-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1.5rem; }
         .audience-col { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius, 0.75rem); padding: 2rem; display: flex; flex-direction: column; box-shadow: var(--shadow-sm); }
         .audience-col-worker { border-top: 4px solid var(--accent); }
@@ -49,15 +46,40 @@
         .audience-col-worker li::before { color: var(--accent); }
         .audience-col-enterprise li::before { color: #1F2937; }
         .audience-col .btn { align-self: flex-start; }
-        .research-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
-        .research-card { background: var(--surface-2); border-radius: var(--radius-sm, 0.5rem); padding: 1.25rem; }
-        .research-card h4 { margin: 0 0 0.25rem; color: var(--accent); }
-        .research-card p { margin: 0.25rem 0 0; font-size: 0.95rem; color: var(--text-muted); }
-        .install-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
-        .install-card { background: var(--surface-2); border-radius: var(--radius-sm, 0.5rem); padding: 1.25rem; display: flex; flex-direction: column; }
-        .install-card h4 { margin: 0 0 0.25rem; }
-        .install-card p { color: var(--text-muted); font-size: 0.9rem; flex: 1; }
-        .install-card a { margin-top: 0.75rem; }
+        .enterprise-pillar { padding: 1rem 0; border-top: 1px solid var(--border); }
+        .enterprise-pillar:first-of-type { border-top: none; padding-top: 0; }
+        .enterprise-pillar h4 { font-size: 1.05rem; margin: 0 0 0.5rem; line-height: 1.35; color: var(--text); }
+        .enterprise-pillar p { color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; margin: 0; }
+        .enterprise-pillar p .stat-inline { color: #1F2937; font-weight: 700; }
+
+        /* Research-backed section */
+        .research-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+        .research-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm, 0.5rem); padding: 1.5rem; box-shadow: var(--shadow-sm); }
+        .research-card .research-stat { font-size: 2rem; font-weight: 700; color: var(--accent); line-height: 1; letter-spacing: -0.02em; }
+        .research-card h4 { margin: 0.75rem 0 0.25rem; color: var(--text); font-size: 1rem; }
+        .research-card .research-finding { color: var(--text); font-size: 0.95rem; margin: 0.5rem 0; line-height: 1.5; }
+        .research-card .research-cite { color: var(--text-muted); font-size: 0.82rem; margin-top: 0.75rem; }
+
+        /* Install tabs */
+        .install-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .install-tab { background: transparent; border: none; padding: 0.85rem 1.25rem; cursor: pointer; color: var(--text-muted); font-weight: 600; font-size: 0.95rem; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color 0.15s, border-color 0.15s; font-family: inherit; }
+        .install-tab:hover { color: var(--text); }
+        .install-tab.is-active { color: var(--text); border-bottom-color: var(--text); }
+        .install-panel { display: none; }
+        .install-panel.is-active { display: block; }
+        .install-step { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius, 0.75rem); padding: 1.5rem; margin-bottom: 1rem; }
+        .install-step h3 { margin: 0 0 0.5rem; font-size: 1.05rem; }
+        .install-step > p { color: var(--text-muted); margin-bottom: 0.75rem; line-height: 1.5; }
+        .copy-block { background: var(--surface-2); border-radius: 8px; padding: 0.85rem 1rem; display: flex; align-items: flex-start; gap: 0.75rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.88rem; }
+        .copy-block code, .copy-block pre { flex: 1; background: transparent; color: var(--text); margin: 0; padding: 0; white-space: pre-wrap; word-break: break-all; line-height: 1.5; }
+        .copy-btn { background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 0.35rem 0.75rem; font-size: 0.8rem; cursor: pointer; font-weight: 600; flex-shrink: 0; font-family: inherit; }
+        .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .install-note { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.6rem; margin-bottom: 0; }
+        .install-footer { margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-muted); }
+        .install-footer a { color: var(--accent); }
+        .auth-callout { background: var(--accent-soft); border-left: 3px solid var(--accent); padding: 0.85rem 1rem; border-radius: 0.4rem; font-size: 0.9rem; line-height: 1.5; color: var(--text); margin-bottom: 1.25rem; }
+        .auth-callout strong { color: var(--accent); }
+
         .landing-footer-cta { text-align: center; padding: 3rem 1.5rem; background: var(--surface-2); }
     </style>
 </head>
@@ -76,28 +98,8 @@
         </p>
     </section>
 
-    <section class="stats-band">
-        <div class="stats-grid">
-            <div class="stat">
-                <div class="stat-num">&minus;30%</div>
-                <div class="stat-lbl">AI over-reliance</div>
-                <div class="stat-src">Cognitive forcing, Buçinca et al., Harvard 2021</div>
-            </div>
-            <div class="stat">
-                <div class="stat-num">+8%</div>
-                <div class="stat-lbl">Skill improvement</div>
-                <div class="stat-src">Contrastive explanations, Buçinca et al. 2024 (d = 0.35)</div>
-            </div>
-            <div class="stat">
-                <div class="stat-num">+40%</div>
-                <div class="stat-lbl">Output quality</div>
-                <div class="stat-src">AI-augmented work, Mollick, Wharton 2023</div>
-            </div>
-        </div>
-    </section>
-
     <section class="landing-section">
-        <h2>One layer. Two outcomes.</h2>
+        <h2>One layer. Two audiences.</h2>
         <p class="lead">TAOS runs on whichever AI you already use. The same layer delivers a personal benefit to the worker and an organisational benefit to the enterprise that deploys it.</p>
         <div class="audience-grid">
 
@@ -109,13 +111,13 @@
                     </svg>
                 </div>
                 <div class="audience-eyebrow">For workers</div>
-                <h3>Grow your future leadership. Don't lobotomise yourself.</h3>
-                <p class="audience-sub">Most AI tools are designed to do the work. TAOS is designed so doing the work makes you better. Your career capital compounds; it does not erode.</p>
+                <h3>Confidently grow into your role while boosting your productivity.</h3>
+                <p class="audience-sub">TAOS sits between you and the AI you already use. It accelerates the work where you are already strong, and scaffolds the work where you are still learning. You finish more, and you can defend every output.</p>
                 <ul>
-                    <li>Skills you want to grow get coached, not outsourced.</li>
-                    <li>Skills at risk of atrophying get protected with deliberate friction.</li>
-                    <li>Your profile follows you across every LLM you use; growth does not reset when you switch tools.</li>
-                    <li>You stay the expert. AI stays the multiplier.</li>
+                    <li>Acceleration in your expert domains: AI gets out of your way.</li>
+                    <li>Coaching in your growth domains: AI scaffolds the thinking, you make the calls.</li>
+                    <li>Calibrated confidence: AI tags load-bearing claims so you know what to double-check before you ship.</li>
+                    <li>Your profile follows you across Claude, ChatGPT, Gemini, Cursor, Codex.</li>
                 </ul>
                 <a href="/demo" class="btn btn-primary">Try the 3-minute demo &rarr;</a>
             </div>
@@ -128,15 +130,19 @@
                     </svg>
                 </div>
                 <div class="audience-eyebrow">For enterprises</div>
-                <h3>Accelerated productivity. No AI slop.</h3>
-                <p class="audience-sub">AI rolls out fast; quality risks roll out faster. TAOS provides the security and guardrails to deploy AI across your workforce without quality regressions or compliance gaps.</p>
-                <ul>
-                    <li>Anti-hallucination and anti-sycophancy rules baked into every interaction.</li>
-                    <li>Workforce-level visibility into over-reliance, atrophy, and at-risk skills.</li>
-                    <li>Per-employee calibration: AI accelerates your experts, scaffolds your juniors, and protects the skills your auditors need to keep.</li>
-                    <li>BUSL 1.1 licence, audit log, GDPR endpoints, EU residency option.</li>
-                </ul>
-                <a href="mailto:angelo.leone1204@gmail.com?subject=TAOS%20enterprise%20enquiry" class="btn btn-secondary">Talk to us &rarr;</a>
+                <h3>Two risks AI is creating in your workforce. TAOS solves both.</h3>
+
+                <div class="enterprise-pillar">
+                    <h4>1. Grow future leadership. Don't lobotomise your workforce.</h4>
+                    <p>Unguarded AI deskills workers (Bastani et al., PNAS 2025, <span class="stat-inline">17% accuracy drop</span> on a no-AI exam). TAOS surfaces atrophy risks at the team level and coaches skills back, so workforce capability compounds instead of erodes.</p>
+                </div>
+
+                <div class="enterprise-pillar">
+                    <h4>2. Accelerate productivity. No AI slop.</h4>
+                    <p>Workday research (Nov 2025, n=3,200) finds <span class="stat-inline">nearly 40% of AI time savings</span> are lost to rework. TAOS catches AI errors at generation through cognitive forcing and calibrated confidence, recovering the rework tax.</p>
+                </div>
+
+                <a href="mailto:angelo.leone1204@gmail.com?subject=TAOS%20enterprise%20enquiry" class="btn btn-secondary" style="margin-top: 1rem;">Talk to us &rarr;</a>
             </div>
 
         </div>
@@ -144,7 +150,7 @@
 
     <section class="landing-section">
         <h2>The three failures TAOS fixes</h2>
-        <p class="lead">Based on 10 workers in the Vanguard pilot and three research programmes (Harvard, MIT, Wharton). The top frustrations with today's AI tools are not about capability. They are about behaviour.</p>
+        <p class="lead">Pilot users repeatedly named these three things as the gap between what AI does today and what they need from it.</p>
         <div class="pain-grid">
             <div class="pain-card">
                 <span class="pain-icon" aria-hidden="true">
@@ -198,59 +204,108 @@
     </section>
 
     <section class="landing-section">
-        <h2>Research-backed</h2>
-        <p class="lead">TAOS's behaviour is grounded in peer-reviewed work on AI over-reliance, skill atrophy, and augmentation.</p>
+        <h2>Three independent studies. Same finding.</h2>
+        <p class="lead">AI without guardrails causes deskilling. TAOS is the guardrail layer.</p>
         <div class="research-grid">
             <div class="research-card">
-                <h4>Buçinca et al. (Harvard, 2021)</h4>
-                <p>Cognitive forcing reduces AI over-reliance by about 30 per cent. TAOS applies it in novice and at-risk domains.</p>
+                <div class="research-stat">&minus;17%</div>
+                <h4>Accuracy drop on no-AI exams</h4>
+                <p class="research-finding">RCT of around 1,000 high-school students. Users with unguarded AI scored 17 per cent below the no-AI control on a closed-book exam. AI with guardrails fully neutralised the effect.</p>
+                <p class="research-cite">Bastani et al., <em>PNAS</em>, 2025. Product-category validation for TAOS.</p>
             </div>
             <div class="research-card">
-                <h4>Mollick (Wharton, 2023)</h4>
-                <p>AI yields +40 per cent quality and +26 per cent speed, but junior workers who "just hand in" AI output perform worse. TAOS protects against autopilot.</p>
+                <div class="research-stat">&minus;19pts</div>
+                <h4>Accuracy outside the capability frontier</h4>
+                <p class="research-finding">RCT of 758 BCG consultants. AI delivered tasks 25 per cent faster, but produced 19 percentage points lower accuracy on tasks outside the model's competence. The "jagged frontier" risk made visible.</p>
+                <p class="research-cite">Mollick et al., Harvard Business School and BCG, 2023.</p>
             </div>
             <div class="research-card">
-                <h4>Acemoglu (MIT)</h4>
-                <p>Pro-worker AI increases human marginal product. TAOS is designed so every interaction leaves you more capable, not more replaceable.</p>
+                <div class="research-stat">EEG</div>
+                <h4>Cognitive debt is measurable</h4>
+                <p class="research-finding">EEG study of essay writing. Users who switched off AI showed weaker neural engagement than the no-AI control. "Cognitive debt" from over-reliance is not a metaphor; it is a measurable phenomenon.</p>
+                <p class="research-cite">Kosmyna et al., MIT, 2025.</p>
             </div>
         </div>
     </section>
 
     <section class="landing-section">
-        <h2>Install anywhere</h2>
-        <p class="lead">TAOS is a layer, not a product tied to one platform. Pick whichever install matches what you already use. Same profile works across all of them.</p>
-        <div class="install-grid">
-            <div class="install-card">
-                <h4>Claude Code plugin</h4>
-                <p>One-click install via the Claude Cowork marketplace. Runs ambient coaching on every session.</p>
-                <a href="https://github.com/angelo-leone/talent-augmenting-layer#claude-cowork-plugin-1-click" class="btn btn-secondary">Install</a>
-            </div>
-            <div class="install-card">
-                <h4>Claude Desktop extension</h4>
-                <p>Drop-in <code>.mcpb</code> bundle. No Python, no config editing.</p>
-                <a href="https://github.com/angelo-leone/talent-augmenting-layer/raw/main/desktop-extension/talent-augmenting-layer.mcpb" class="btn btn-secondary">Download .mcpb</a>
-            </div>
-            <div class="install-card">
-                <h4>ChatGPT / Gemini / Claude Project</h4>
-                <p>Paste the portable system prompt into a Custom GPT, a Gem, or a Project. Two minutes.</p>
-                <a href="https://github.com/angelo-leone/talent-augmenting-layer/tree/main/platform-configs" class="btn btn-secondary">Config files</a>
-            </div>
-            <div class="install-card">
-                <h4>Codex / Cursor / Windsurf</h4>
-                <p>Any MCP stdio client. TAOS exposes 14 tools for profile, assessment, and tracking.</p>
-                <a href="https://github.com/angelo-leone/talent-augmenting-layer#mcp-server-10-min-local-stdio" class="btn btn-secondary">Setup guide</a>
-            </div>
-            <div class="install-card">
-                <h4>Remote MCP (hosted)</h4>
-                <p>Streamable HTTP + OAuth. Point any compatible client at <code>proworker-hosted.onrender.com/mcp</code>.</p>
-                <a href="https://github.com/angelo-leone/talent-augmenting-layer/blob/main/docs/REMOTE_MCP_SETUP.md" class="btn btn-secondary">Remote MCP docs</a>
-            </div>
-            <div class="install-card">
-                <h4>Hosted web app</h4>
-                <p>Browser-based assessment, persistent profiles, email check-ins. Right here.</p>
-                <a href="/login" class="btn btn-primary">Sign in with Google</a>
-            </div>
+        <h2>Install in one or two steps</h2>
+        <p class="lead">Pick the client you already use. All four use the same hosted endpoint with Google OAuth, so your profile follows you wherever you sign in.</p>
+
+        <div class="auth-callout">
+            <strong>Authentication required.</strong> Every connection to the TAOS MCP endpoint goes through Google OAuth. Click "Sign in with Google" the first time your client hits the endpoint.
         </div>
+
+        <div class="install-tabs" role="tablist">
+            <button class="install-tab is-active" role="tab" data-tab="claude">Claude</button>
+            <button class="install-tab" role="tab" data-tab="claude-code">Claude Code</button>
+            <button class="install-tab" role="tab" data-tab="chatgpt">ChatGPT</button>
+            <button class="install-tab" role="tab" data-tab="codex">Codex</button>
+        </div>
+
+        <div class="install-panels">
+
+            <div class="install-panel is-active" data-panel="claude">
+                <div class="install-step">
+                    <h3>Step 1: Open Claude settings</h3>
+                    <p>In Claude desktop or claude.ai, go to <strong>Settings &rarr; Connectors &rarr; Add custom connector</strong>.</p>
+                </div>
+                <div class="install-step">
+                    <h3>Step 2: Add the TAOS endpoint</h3>
+                    <p>Paste this URL. OAuth opens in your browser automatically.</p>
+                    <div class="copy-block">
+                        <code>https://proworker-hosted.onrender.com/mcp</code>
+                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="install-panel" data-panel="claude-code">
+                <div class="install-step">
+                    <h3>Step 1: Configure</h3>
+                    <p>Run this in your terminal.</p>
+                    <div class="copy-block">
+                        <code>claude mcp add taos --transport http https://proworker-hosted.onrender.com/mcp</code>
+                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
+                    </div>
+                    <p class="install-note">OAuth opens in your browser on first use.</p>
+                </div>
+            </div>
+
+            <div class="install-panel" data-panel="chatgpt">
+                <div class="install-step">
+                    <h3>Step 1: Open ChatGPT settings</h3>
+                    <p>In ChatGPT, go to <strong>Settings &rarr; Connectors &rarr; Add connector</strong>. Requires ChatGPT Plus, Team, or Enterprise.</p>
+                </div>
+                <div class="install-step">
+                    <h3>Step 2: Add the TAOS endpoint</h3>
+                    <p>Paste this URL and authenticate with Google when prompted.</p>
+                    <div class="copy-block">
+                        <code>https://proworker-hosted.onrender.com/mcp</code>
+                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="install-panel" data-panel="codex">
+                <div class="install-step">
+                    <h3>Step 1: Add TAOS to your Codex config</h3>
+                    <p>Append this to <code>~/.codex/config.toml</code>.</p>
+                    <div class="copy-block">
+<pre>[mcp_servers.taos]
+url = "https://proworker-hosted.onrender.com/mcp"</pre>
+                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
+                    </div>
+                    <p class="install-note">Restart Codex. OAuth opens in your browser on first use.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <p class="install-footer">
+            On a different client (Cursor, Windsurf, Gemini CLI)? <a href="https://github.com/angelo-leone/talent-augmenting-layer/blob/main/docs/REMOTE_MCP_SETUP.md">Remote MCP docs &rarr;</a>
+            Want to self-host instead? <a href="https://github.com/angelo-leone/talent-augmenting-layer">Source on GitHub &rarr;</a>
+        </p>
     </section>
 
     <section class="landing-footer-cta">
@@ -265,8 +320,36 @@
     <footer class="footer">
         <div class="footer-container">
             <p>Talent-Augmenting OS v1.0 &middot; Making workers better, not dependent.</p>
-            <p class="text-muted">BUSL 1.1 &middot; Based on research by Buçinca, Acemoglu, Mollick</p>
+            <p class="text-muted">BUSL 1.1</p>
         </div>
     </footer>
+
+    <script>
+    // Install tabs
+    document.querySelectorAll('.install-tab').forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            var target = tab.getAttribute('data-tab');
+            document.querySelectorAll('.install-tab').forEach(function (t) { t.classList.remove('is-active'); });
+            document.querySelectorAll('.install-panel').forEach(function (p) { p.classList.remove('is-active'); });
+            tab.classList.add('is-active');
+            var panel = document.querySelector('[data-panel="' + target + '"]');
+            if (panel) panel.classList.add('is-active');
+        });
+    });
+
+    // Copy buttons
+    function copyText(btn) {
+        var block = btn.closest('.copy-block');
+        if (!block) return;
+        var src = block.querySelector('code, pre');
+        if (!src) return;
+        var text = src.textContent.trim();
+        navigator.clipboard.writeText(text).then(function () {
+            var orig = btn.textContent;
+            btn.textContent = 'Copied';
+            setTimeout(function () { btn.textContent = orig; }, 1500);
+        });
+    }
+    </script>
 </body>
 </html>

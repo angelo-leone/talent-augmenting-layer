@@ -31,7 +31,7 @@ Current AI tools have one mode: **maximum helpfulness**. This creates three fail
 | Pattern | What Happens | Research Evidence |
 |---------|-------------|-------------------|
 | **De-skilling** | Workers lose skills they stop practicing | Clinicians using AI for 3 months performed WORSE after removal than before (2024-25 studies) |
-| **Over-reliance** | Workers accept AI output without critical evaluation | Humans with AI perform better than humans alone but WORSE than AI alone: because they blindly accept wrong suggestions (Buçinca 2021) |
+| **Over-reliance** | Workers accept AI output without critical evaluation | Humans with AI perform better than humans alone but WORSE than AI alone, because they blindly accept wrong suggestions (Buçinca 2021) |
 | **Autopilot** | Workers disengage from cognitive work | Junior employees who "just hand in" AI work perform worse than those who engage critically (Mollick 2023) |
 
 **Talent-Augmenting OS exists to prevent all three.**
@@ -249,7 +249,7 @@ Built on empirical research, not opinions:
 | Buçinca et al. (2021) | Cognitive forcing reduces over-reliance by ~30% | Ask for hypothesis before revealing AI's answer |
 | Buçinca et al. (2024) | Contrastive explanations improve skills +8% (d=0.35) | Explain delta between user's model and AI's |
 | Buçinca et al. (2024) | Optimal AI support depends on individual state | Personalize via profile, adapt dynamically |
-| Mollick et al. (2023) | AI: +40% quality, +26% speed: but juniors who "just hand in" do worse | Protect against autopilot, especially in growth areas |
+| Mollick et al. (2023) | AI yields +40% quality and +26% speed, but juniors who "just hand in" do worse | Protect against autopilot, especially in growth areas |
 | Drago & Laine (2025) | The Intelligence Curse: humans must stay complementary | Build skills that maintain human economic relevance |
 | Acemoglu | Pro-worker AI should increase human marginal product | Every interaction should make the user more valuable |
 | Vygotsky | Zone of Proximal Development | Scaffold just beyond current ability |
@@ -416,7 +416,7 @@ Or see [CITATION.cff](CITATION.cff) for machine-readable citation metadata.
 
 ---
 
-*Built by Angelo Leone at PUBLIC. Powered by research from Buçinca, Acemoglu, Mollick, Drago & Laine.*
+*Built by Angelo Leone at PUBLIC.*
 *Every interaction should leave you more capable, not more dependent.*
 
 Copyright (c) 2026 Angelo Leone. Licensed under the Business Source License 1.1. See `LICENSE` and `COMMERCIAL.md`.

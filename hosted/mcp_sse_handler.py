@@ -124,7 +124,14 @@ _sse_transport = SseServerTransport("/messages/")
 
 
 async def handle_sse_get(request: Request):
-    """GET /mcp/sse: legacy SSE stream for older MCP clients."""
+    """GET /mcp/sse: legacy SSE stream for older MCP clients.
+
+    Gated by MCP_REQUIRE_AUTH; default off so the Vanguard pilot continues to
+    work. Flip the flag once pilot has migrated to OAuth.
+    """
+    rej = _require_auth_response(request)
+    if rej is not None:
+        return rej
     tal_server = get_tal_server()
     async with _sse_transport.connect_sse(
         request.scope, request.receive, request._send
@@ -138,6 +145,9 @@ async def handle_sse_get(request: Request):
 
 async def handle_messages_post(request: Request):
     """POST /mcp/messages/: legacy SSE message delivery."""
+    rej = _require_auth_response(request)
+    if rej is not None:
+        return rej
     await _sse_transport.handle_post_message(
         request.scope, request.receive, request._send
     )
@@ -269,11 +279,45 @@ async def handle_google_oauth_callback(request: Request):
 # Streamable HTTP handler (protected by auth middleware)
 # ---------------------------------------------------------------------------
 
+def _require_auth_response(request: Request):
+    """Return a 401 JSONResponse when MCP_REQUIRE_AUTH is on and the request
+    is unauthenticated. Return None to allow the request through.
+
+    The check is gated by the MCP_REQUIRE_AUTH env var. Default False so
+    legacy pilot clients connecting without a Bearer token continue to work
+    until the operator flips the flag.
+    """
+    from hosted.config import MCP_REQUIRE_AUTH  # local import to keep optionality
+    if not MCP_REQUIRE_AUTH:
+        return None
+    user = getattr(request, "user", None)
+    is_authed = bool(user and getattr(user, "is_authenticated", False))
+    if is_authed:
+        return None
+    from starlette.responses import JSONResponse
+    return JSONResponse(
+        {
+            "error": "invalid_token",
+            "error_description": "MCP authentication is required on this deployment. Sign in via the OAuth flow first.",
+        },
+        status_code=401,
+        headers={
+            "WWW-Authenticate": 'Bearer realm="mcp", error="invalid_token"',
+        },
+    )
+
+
 async def handle_streamable_http(request: Request):
     """GET/POST/DELETE /mcp: Streamable HTTP for modern MCP clients.
 
-    Protected by RequireAuthMiddleware which checks for a valid Bearer token.
+    BearerAuthBackend (in this module's middleware) validates tokens when
+    present. When MCP_REQUIRE_AUTH is true, anonymous requests are rejected
+    here with 401; when false, they fall through (preserves the in-flight
+    Vanguard pilot).
     """
+    rej = _require_auth_response(request)
+    if rej is not None:
+        return rej
     mgr = get_session_manager()
     await mgr.handle_request(request.scope, request.receive, request._send)
 
@@ -299,21 +343,21 @@ def _build_mcp_app() -> Starlette:
         revocation_options=RevocationOptions(enabled=True),
     )
 
-    # Streamable HTTP: open by default, optionally authenticated.
-    # If a Bearer token is present, BearerAuthBackend validates it and sets
-    # the user in auth_context_var (available to MCP tools).  If no token,
-    # the request proceeds anonymously.
+    # MCP transports.
+    # Bearer-token auth: BearerAuthBackend validates tokens when present and
+    # populates request.user. Enforcement of "must be authenticated" is gated
+    # by config.MCP_REQUIRE_AUTH (default false) inside each handler, so the
+    # Vanguard pilot continues to work without code changes on their side.
+    # When MCP_REQUIRE_AUTH=true on the deployment, anonymous requests are
+    # rejected with 401 from the handlers.
     routes = [
         *auth_routes,
-        # Streamable HTTP (open, with optional auth via middleware)
         Route("/", endpoint=handle_streamable_http, methods=["GET", "POST", "DELETE"]),
-        # Google OAuth flow for MCP
         Route("/oauth/google/start", endpoint=handle_google_oauth_start),
         Route("/oauth/google/callback", endpoint=handle_google_oauth_callback),
-        # Legacy SSE (unprotected for now: add auth later if needed)
         Route("/sse", endpoint=handle_sse_get),
         Route("/messages/", endpoint=handle_messages_post, methods=["POST"]),
-        # Discovery (public)
+        # /config stays public (discovery; no auth needed).
         Route("/config", endpoint=handle_mcp_config),
     ]
 
