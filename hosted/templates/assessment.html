@@ -45,7 +45,7 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/app.js"></script>
+<script src="/static/app.js?v={{ build_sha }}"></script>
 <script>
     // Auto-start the assessment
     window.addEventListener('DOMContentLoaded', () => {
