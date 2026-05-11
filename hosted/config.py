@@ -45,6 +45,22 @@ MCP_ACCESS_TOKEN_EXPIRY = int(os.getenv("MCP_ACCESS_TOKEN_EXPIRY", "3600"))  # 1
 MCP_REFRESH_TOKEN_EXPIRY = int(os.getenv("MCP_REFRESH_TOKEN_EXPIRY", str(30 * 24 * 3600)))  # 30 days
 MCP_AUTH_CODE_EXPIRY = int(os.getenv("MCP_AUTH_CODE_EXPIRY", "600"))  # 10 minutes
 
+# MCP authentication enforcement.
+#
+# When False (default) the /mcp Streamable HTTP and /mcp/sse endpoints accept
+# anonymous requests for backward compatibility with the existing Vanguard
+# pilot installs (some of which are still configured against an open endpoint
+# as of mid-May 2026).
+#
+# When True every MCP request must arrive with a valid Bearer token.
+# BearerAuthBackend (Starlette AuthenticationMiddleware) already populates
+# request.user from the token; this flag turns the missing-token case from a
+# silent pass-through into a 401.
+#
+# Flip to True once the Vanguard pilot has ended and all pilot users have
+# either migrated to the OAuth flow or signed out.
+MCP_REQUIRE_AUTH = os.getenv("MCP_REQUIRE_AUTH", "false").lower() == "true"
+
 GDRIVE_OAUTH_CLIENT_ID = os.getenv("GDRIVE_OAUTH_CLIENT_ID", "")
 GDRIVE_OAUTH_CLIENT_SECRET = os.getenv("GDRIVE_OAUTH_CLIENT_SECRET", "")
 GDRIVE_OAUTH_REFRESH_TOKEN = os.getenv("GDRIVE_OAUTH_REFRESH_TOKEN", "")
