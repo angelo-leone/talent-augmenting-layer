@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TAOS Demo · 3-minute profile taster</title>
     <meta name="robots" content="noindex">
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/style.css?v={{ build_sha }}">
     <style>
         .demo-wrap { max-width: 820px; margin: 2rem auto; padding: 0 1rem; }
         .demo-hero { text-align: center; margin-bottom: 1.5rem; }
@@ -180,47 +180,57 @@ function startCoach() {
 
 function coachReply(userText) {
     coachStep += 1;
-    if (coachStep === 1) {
-        // Give a real piece of coaching first (generic enough to land on
-        // most "help me draft/decide/prep X" tasks), then transition to
-        // a soft sign-in pitch. The demo intentionally does not try to
-        // sustain a back-and-forth: that needs the user's profile and a
-        // real model behind the chat.
-        setInputEnabled(false);
-        setTimeout(() => {
-            addMsg("ai",
-                "OK. Two things to pin down before you start drafting, and they save more time than the drafting itself does." +
-                "\n\nFirst: what outcome would make this a win? Not 'send the email' or 'finish the draft'. " +
-                "What reaction do you actually want from the reader? Acceptance, a reply, a meeting, push-back you can answer? " +
-                "Naming the outcome changes what the work has to do."
+    if (coachStep !== 1) return;
+
+    // Call the live LLM-backed demo coach endpoint (rate-limited, hard-capped).
+    // On any error we fall back to a short canned response so the demo never
+    // visibly breaks.
+    setInputEnabled(false);
+
+    const thinkingId = "coach-thinking-" + Date.now();
+    const thinking = document.createElement("div");
+    thinking.className = "msg ai";
+    thinking.id = thinkingId;
+    thinking.textContent = "Thinking...";
+    thinking.style.opacity = "0.6";
+    document.getElementById("chat").appendChild(thinking);
+    thinking.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+    const finish = function (text) {
+        const el = document.getElementById(thinkingId);
+        if (el) el.remove();
+        addMsg("ai", text);
+        setTimeout(function () {
+            document.getElementById("coach-cta").style.display = "block";
+            phase = "done";
+        }, 700);
+    };
+
+    fetch("/api/demo/coach", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ task: userText }),
+    }).then(function (r) {
+        if (r.status === 429) {
+            finish(
+                "You have hit the demo rate limit for this hour. Sign in for the full coach without limits."
             );
-            setTimeout(() => {
-                addMsg("ai",
-                    "Second: what's the strongest objection they'll have? " +
-                    "Address it before they have to bring it up. The hardest part of most persuasive work is anticipating where the reader will resist, " +
-                    "and naming it back to them in your own words first."
-                );
-            }, 1300);
-            setTimeout(() => {
-                addMsg("ai",
-                    "A move that almost always helps when you're stuck on the opening: write two short opening lines, " +
-                    "one that leads with the news, one that leads with the relationship or context. " +
-                    "Read both out loud. Pick whichever makes the rest of the message easier to write. " +
-                    "Most people default to one style without realising the other might fit the specific reader better."
-                );
-            }, 2600);
-            setTimeout(() => {
-                addMsg("ai",
-                    "That's a slice of how a coaching session feels. " +
-                    "In the full experience the coach stays with you on the actual draft, pushes back on the assumptions in your first cut, " +
-                    "and calibrates how hard to push based on your profile and your past work. Sign in to try it for real."
-                );
-                document.getElementById("coach-cta").style.display = "block";
-                phase = "done";
-            }, 4000);
-        }, 600);
-        return;
-    }
+            return null;
+        }
+        if (!r.ok) {
+            throw new Error("HTTP " + r.status);
+        }
+        return r.json();
+    }).then(function (data) {
+        if (data === null) return;
+        const response = (data && data.response) ||
+            "I could not reach the coach. Sign in for the full experience.";
+        finish(response);
+    }).catch(function () {
+        finish(
+            "I could not reach the coach right now. The full version stays available with your profile signed in."
+        );
+    });
 }
 
 function sendDemo() {

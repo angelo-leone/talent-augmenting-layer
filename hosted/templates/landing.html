@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Talent-Augmenting OS · AI that makes you better at work, not dependent on it</title>
     <meta name="description" content="A personalised AI augmentation layer. Assess your expertise, get coached on growth areas, keep at-risk skills sharp. Works with Claude, ChatGPT, Gemini, Cursor, Codex, or any LLM.">
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/style.css?v={{ build_sha }}">
     <style>
         .landing-hero { padding: 4rem 1.5rem 3rem; text-align: center; }
         .landing-hero h1 { font-size: clamp(2rem, 5vw, 3.25rem); margin: 0 0 1rem; line-height: 1.15; }
@@ -191,7 +191,7 @@
         <p class="lead">Every task is classified into one of five interaction modes. The right mode depends on your expertise in that domain and your growth goals. Your profile tells the AI which mode to use for which kind of work.</p>
         <div class="compass-row">
             <div class="compass-img-wrap">
-                <img src="/static/compass.svg" alt="TAOS 5-mode compass: Automate, Augment, Coach, Protect, Hands-off arranged on a friction axis"/>
+                <img src="/static/compass.svg?v={{ build_sha }}" alt="TAOS 5-mode compass: Automate, Augment, Coach, Protect, Hands-off arranged on a friction axis"/>
             </div>
             <ul>
                 <li><strong>Automate</strong>: AI executes and annotates. Low friction, for mechanical work.</li>
@@ -247,12 +247,12 @@
 
             <div class="install-panel is-active" data-panel="claude">
                 <div class="install-step">
-                    <h3>Step 1: Open Claude settings</h3>
-                    <p>In Claude desktop or claude.ai, go to <strong>Settings &rarr; Connectors &rarr; Add custom connector</strong>.</p>
+                    <h3>Step 1: Open the Connectors panel</h3>
+                    <p>In Claude desktop or claude.ai, go to <strong>Customize &rarr; Connectors</strong>, then click the <strong>+</strong> next to Connectors and pick <strong>Add custom connector</strong>.</p>
                 </div>
                 <div class="install-step">
-                    <h3>Step 2: Add the TAOS endpoint</h3>
-                    <p>Paste this URL. OAuth opens in your browser automatically.</p>
+                    <h3>Step 2: Paste the TAOS endpoint</h3>
+                    <p>Enter the name <em>TAOS</em> and this URL, then click <strong>Add</strong>. Claude walks you through Google sign-in automatically.</p>
                     <div class="copy-block">
                         <code>https://proworker-hosted.onrender.com/mcp</code>
                         <button class="copy-btn" onclick="copyText(this)">Copy</button>
@@ -274,12 +274,12 @@
 
             <div class="install-panel" data-panel="chatgpt">
                 <div class="install-step">
-                    <h3>Step 1: Open ChatGPT settings</h3>
-                    <p>In ChatGPT, go to <strong>Settings &rarr; Connectors &rarr; Add connector</strong>. Requires ChatGPT Plus, Team, or Enterprise.</p>
+                    <h3>Step 1: Turn on Developer mode</h3>
+                    <p>Custom MCP connectors are currently a ChatGPT beta. Open <strong>Settings &rarr; Apps &amp; Connectors &rarr; Advanced settings</strong> and enable <strong>Developer mode</strong>. On a workspace plan a workspace admin has to enable it first.</p>
                 </div>
                 <div class="install-step">
-                    <h3>Step 2: Add the TAOS endpoint</h3>
-                    <p>Paste this URL and authenticate with Google when prompted.</p>
+                    <h3>Step 2: Create the TAOS connector</h3>
+                    <p>Go to <strong>Settings &rarr; Connectors &rarr; Create</strong>, paste this URL, and authenticate with Google when prompted.</p>
                     <div class="copy-block">
                         <code>https://proworker-hosted.onrender.com/mcp</code>
                         <button class="copy-btn" onclick="copyText(this)">Copy</button>
@@ -290,7 +290,7 @@
             <div class="install-panel" data-panel="codex">
                 <div class="install-step">
                     <h3>Step 1: Add TAOS to your Codex config</h3>
-                    <p>Append this to <code>~/.codex/config.toml</code>.</p>
+                    <p>Append this to <code>~/.codex/config.toml</code>. Codex's MCP server format can vary by version, so check <a href="https://developers.openai.com/codex">developers.openai.com/codex</a> if the section header below does not match what your version expects.</p>
                     <div class="copy-block">
 <pre>[mcp_servers.taos]
 url = "https://proworker-hosted.onrender.com/mcp"</pre>
