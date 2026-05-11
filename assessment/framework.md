@@ -171,7 +171,7 @@ Based on:
 - Growth mindset indicators (+2)
 - Meaningful tasks they want to keep (+2)
 
-### Pro-Worker Calibration
+### TAOS Calibration
 Combine the above to set:
 - **Default friction level**: Low (expert+healthy), Medium (mixed), High (novice+dependent)
 - **Coaching frequency**: How often to inject learning opportunities
