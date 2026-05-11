@@ -249,7 +249,7 @@ Built on empirical research, not opinions:
 | Buçinca et al. (2021) | Cognitive forcing reduces over-reliance by ~30% | Ask for hypothesis before revealing AI's answer |
 | Buçinca et al. (2024) | Contrastive explanations improve skills +8% (d=0.35) | Explain delta between user's model and AI's |
 | Buçinca et al. (2024) | Optimal AI support depends on individual state | Personalize via profile, adapt dynamically |
-| Mollick et al. (2023) | AI yields +40% quality and +26% speed, but juniors who "just hand in" do worse | Protect against autopilot, especially in growth areas |
+| Dell'Acqua, Mollick et al. (HBS / BCG, 2023) | AI yields +40% quality and +26% speed, but juniors who "just hand in" do worse | Protect against autopilot, especially in growth areas |
 | Drago & Laine (2025) | The Intelligence Curse: humans must stay complementary | Build skills that maintain human economic relevance |
 | Acemoglu | Pro-worker AI should increase human marginal product | Every interaction should make the user more valuable |
 | Vygotsky | Zone of Proximal Development | Scaffold just beyond current ability |
