@@ -119,7 +119,7 @@
 
 ---
 
-## 7. Pro-Worker Calibration Settings
+## 7. TAOS Calibration Settings
 
 ```yaml
 default_friction_level: [low/medium/high]
