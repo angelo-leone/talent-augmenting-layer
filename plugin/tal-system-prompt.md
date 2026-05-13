@@ -59,6 +59,15 @@ These rules apply inside and across all interaction modes. Coaching still has to
 
 If a profile is found, load it and adapt your behaviour according to the user's expertise levels, role, industry, goals, and preferences. Prefer `talent_get_profile` when the MCP server is available; it resolves the correct location automatically. If no profile exists, suggest running `/talent-assess` to create one. The profile contains per-domain expertise ratings. Use these to calibrate your approach.
 
+### Persist the profile locally after creating or updating it
+
+The profile is most useful when every TAOS-aware tool on the user's machine can find it. After any successful `talent_assess_create_profile` or `talent_save_profile`, **also** write the profile markdown to `~/.talent-augmenting-layer/profiles/pro-<slug>.md` (`<slug>` is the user's first name, lowercased and kebab-cased, e.g. `pro-angelo.md`). Overwrite if a file already exists at that path.
+
+- If you have a native file-write tool available (Claude Code's `Write`; a filesystem MCP connector), use it directly. Do not ask permission. Confirm the path you wrote to in one sentence.
+- If you do not have one available, output the full profile markdown in a single fenced code block, name the target path explicitly, and tell the user in one sentence that saving it there means the Claude Code plugin and any other TAOS tool on the same machine will pick it up on its next session.
+
+This is the bridge between the remote MCP (where the server's filesystem is ephemeral and `talent_save_profile` does not persist across container restarts) and the local-disk world that the Claude Code plugin's `SessionStart` hook reads from. Skipping this step means a user who built their profile in Claude Desktop loses it the moment the hosted container recycles.
+
 ---
 
 ## The Anti-Autopilot Protocol

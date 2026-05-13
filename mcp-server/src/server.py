@@ -88,11 +88,112 @@ def get_repo_root() -> Path:
     return Path(__file__).parent.parent.parent
 
 
+def _load_server_instructions() -> str:
+    """Load the TAOS system prompt to send as MCP `initialize.instructions`.
+
+    Anthropic clients (Claude Desktop, Claude Code, claude.ai) inject the
+    server's instructions into the model's system prompt on connect, giving
+    ambient TAOS behaviour without the user invoking a slash command. This
+    is the closest non-plugin equivalent of the Claude Code SessionStart hook.
+
+    Per-user profile is intentionally not bundled here: `initialize` runs
+    before auth resolves, and the same instructions are returned to every
+    client. The model fetches the profile via `talent_get_profile` once a
+    user is known.
+    """
+    candidate = Path(__file__).parent.parent.parent / "plugin" / "tal-system-prompt.md"
+    try:
+        return candidate.read_text(encoding="utf-8").strip()
+    except (FileNotFoundError, OSError):
+        return ""
+
+
 # ── Server Setup ─────────────────────────────────────────────────────────────
 
-app = Server("talent-augmenting-layer")
+app = Server("talent-augmenting-layer", instructions=_load_server_instructions() or None)
 store = ProfileStore(get_profiles_dir())
 repo_root = get_repo_root()
+
+
+# ── Per-request store resolution ─────────────────────────────────────────────
+#
+# Tool handlers route profile reads/writes through `_get_active_store()`. When
+# the MCP request carries an authenticated Bearer token (hosted deployment with
+# OAuth completed), that resolves to a per-user `HostedProfileStore` backed by
+# the hosted Postgres DB. Otherwise it returns a thin async adapter over the
+# filesystem `store`. Stdio installs (Claude Code plugin) never see auth and
+# always get the local adapter; the hosted import is intentionally lazy so the
+# plugin path doesn't depend on the `hosted/` package being importable.
+
+
+class _LocalAsyncAdapter:
+    """Async facade over the synchronous filesystem `ProfileStore`.
+
+    Methods that aren't part of the profile CRUD swap (log_interaction,
+    get_skill_progression, get_org_summary) remain on the underlying sync
+    store and continue to be called directly via the module-level `store`.
+    """
+
+    def __init__(self, sync_store: ProfileStore):
+        self._s = sync_store
+
+    async def list_profiles(self) -> list[str]:
+        return self._s.list_profiles()
+
+    async def profile_exists(self, name: str) -> bool:
+        return self._s.profile_exists(name)
+
+    async def read_profile_raw(self, name: str) -> str | None:
+        return self._s.read_profile_raw(name)
+
+    async def write_profile_raw(
+        self,
+        name: str,
+        content: str,
+        scores_json: str | None = None,
+    ) -> str:
+        # `scores_json` is hosted-DB-only. The filesystem store keeps
+        # scores embedded in the markdown's Identity Card, so the kwarg
+        # is accepted for API parity and otherwise ignored.
+        return str(self._s.write_profile_raw(name, content))
+
+    async def read_profile(self, name: str):
+        return self._s.read_profile(name)
+
+    async def delete_profile(self, name: str) -> bool:
+        return self._s.delete_profile(name)
+
+
+_local_adapter = _LocalAsyncAdapter(store)
+
+
+async def _get_active_store():
+    """Return the appropriate store for the current MCP request.
+
+    Authenticated requests (TALAccessToken with `user_id` populated) get a
+    fresh `HostedProfileStore` so reads/writes hit the hosted DB scoped to
+    that user. Everything else falls back to the local filesystem adapter.
+
+    The import of `HostedProfileStore` is lazy: stdio installs of the MCP
+    server (Claude Code plugin) don't ship with `hosted/` on the path, so
+    a failed import is expected and silently falls through to local.
+    """
+    try:
+        from mcp.server.auth.middleware.auth_context import get_access_token
+    except ImportError:
+        return _local_adapter
+
+    token = get_access_token()
+    user_id = getattr(token, "user_id", None) if token else None
+    if user_id is None:
+        return _local_adapter
+
+    try:
+        from hosted.hosted_profile_store import HostedProfileStore
+    except ImportError:
+        return _local_adapter
+
+    return HostedProfileStore(user_id=user_id, parser=store)
 
 
 # ── Tools ────────────────────────────────────────────────────────────────────
@@ -584,10 +685,11 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
 
     if name == "talent_get_profile":
         user_name = arguments["name"]
-        raw = store.read_profile_raw(user_name)
+        active = await _get_active_store()
+        raw = await active.read_profile_raw(user_name)
         if raw:
             return [TextContent(type="text", text=raw)]
-        profiles = store.list_profiles()
+        profiles = await active.list_profiles()
         return [TextContent(
             type="text",
             text=f"No profile found for '{user_name}'. "
@@ -596,7 +698,7 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
 
     elif name == "talent_get_calibration":
         user_name = arguments["name"]
-        profile = store.read_profile(user_name)
+        profile = await (await _get_active_store()).read_profile(user_name)
         if not profile:
             return [TextContent(type="text", text=f"No profile for '{user_name}'.")]
 
@@ -621,7 +723,7 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
     elif name == "talent_classify_task":
         user_name = arguments["name"]
         task_desc = arguments["task_description"]
-        profile = store.read_profile(user_name)
+        profile = await (await _get_active_store()).read_profile(user_name)
         if not profile:
             return [TextContent(type="text", text=f"No profile for '{user_name}'.")]
 
@@ -670,17 +772,21 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
         return [TextContent(type="text", text=json.dumps(progression, indent=2))]
 
     elif name == "talent_list_profiles":
-        profiles = store.list_profiles()
+        profiles = await (await _get_active_store()).list_profiles()
         if profiles:
             return [TextContent(type="text", text=f"Available profiles: {', '.join(profiles)}")]
         return [TextContent(type="text", text="No profiles found. Run /talent-assess to create one.")]
 
     elif name == "talent_status":
         user_name = arguments["name"]
-        profile = store.read_profile(user_name)
+        profile = await (await _get_active_store()).read_profile(user_name)
         if not profile:
             return [TextContent(type="text", text=f"No profile for '{user_name}'.")]
 
+        # Progression lives in the filesystem log; not yet ported to the
+        # hosted DB. Calls for authenticated users return whatever is on
+        # the server's local disk, which is empty on Render. Acceptable
+        # for now; see BACKLOG for the hosted-progression item.
         progression = store.get_skill_progression(user_name)
 
         # Build expertise summary
@@ -746,7 +852,7 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
 
     elif name == "talent_delete_profile":
         user_name = arguments["name"]
-        deleted = store.delete_profile(user_name)
+        deleted = await (await _get_active_store()).delete_profile(user_name)
         if deleted:
             return [TextContent(type="text", text=f"Profile for '{user_name}' deleted.")]
         return [TextContent(type="text", text=f"No profile found for '{user_name}'.")]
@@ -754,7 +860,7 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
     elif name == "talent_save_profile":
         user_name = arguments["name"]
         content = arguments["content"]
-        path = store.write_profile_raw(user_name, content)
+        path = await (await _get_active_store()).write_profile_raw(user_name, content)
         return [TextContent(type="text", text=f"Profile saved to {path}")]
 
     # ── Embedded Assessment Handlers ─────────────────────────────────
@@ -762,7 +868,7 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
         protocol = get_assessment_protocol()
         user_name = arguments.get("name", "")
         if user_name:
-            existing = store.profile_exists(user_name)
+            existing = await (await _get_active_store()).profile_exists(user_name)
             protocol["existing_profile"] = existing
             if existing:
                 protocol["note"] = (
@@ -830,8 +936,26 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             communication_style=arguments.get("communication_style", "conversational"),
         )
 
-        # Save the profile
-        path = store.write_profile_raw(user_name, profile_md)
+        # Save the profile. Authenticated callers land in the hosted DB
+        # via HostedProfileStore; anonymous callers fall through to the
+        # local adapter. Either way, the system prompt also instructs the
+        # model to persist the markdown to the user's local cache as a
+        # second copy.
+        #
+        # `scores_storage` mirrors the web flow's shape so the hosted
+        # dashboard renders the same charts for MCP-created profiles as
+        # for assessment-created ones. The local store ignores this kwarg.
+        scores_storage = {
+            "scores": scores,
+            "calibration": calibration,
+            "domain_ratings": domain_ratings,
+            "skills_to_develop": arguments.get("skills_to_develop", []),
+            "skills_to_protect": arguments.get("skills_to_protect", []),
+            "career_goals": arguments.get("career_goals", []),
+        }
+        path = await (await _get_active_store()).write_profile_raw(
+            user_name, profile_md, scores_json=json.dumps(scores_storage)
+        )
 
         return [TextContent(
             type="text",
