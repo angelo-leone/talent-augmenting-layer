@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "talent-augmenting-os": {
+      "type": "http",
+      "url": "https://proworker-hosted.onrender.com/mcp"
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "talent-augmenting-os",
+  "version": "1.0.0",
+  "description": "Personalised AI augmentation for Claude Cowork: makes you better at your work, not dependent on AI. Assess your expertise, get coaching in growth areas, protect skills from atrophy. Each skill is self-contained: invoking one primes Claude with the full Talent-Augmenting OS coaching layer, no hooks and no manual setup.",
+  "author": {
+    "name": "Angelo Leone",
+    "url": "https://github.com/angelo-leone"
+  },
+  "homepage": "https://github.com/angelo-leone/talent-augmenting-layer",
+  "repository": "https://github.com/angelo-leone/talent-augmenting-layer",
+  "license": "BUSL-1.1",
+  "keywords": [
+    "talent",
+    "augmentation",
+    "coaching",
+    "skills",
+    "assessment",
+    "de-skilling",
+    "professional-development",
+    "ai-augmentation",
+    "cowork"
+  ]
+}
