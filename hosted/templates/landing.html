@@ -239,6 +239,7 @@
         <div class="install-tabs" role="tablist">
             <button class="install-tab is-active" role="tab" data-tab="claude">Claude</button>
             <button class="install-tab" role="tab" data-tab="claude-code">Claude Code</button>
+            <button class="install-tab" role="tab" data-tab="cowork">Cowork</button>
             <button class="install-tab" role="tab" data-tab="chatgpt">ChatGPT</button>
             <button class="install-tab" role="tab" data-tab="codex">Codex</button>
         </div>
@@ -278,6 +279,30 @@
                         <button class="copy-btn" onclick="copyText(this)">Copy</button>
                     </div>
                     <p class="install-note">OAuth opens in your browser on first use.</p>
+                </div>
+            </div>
+
+            <div class="install-panel" data-panel="cowork">
+                <div class="install-step">
+                    <h3>Step 1: Add the TAOS plugin</h3>
+                    <p>Clone the repo, then in Cowork open <strong>Customize &rarr; Plugins &rarr; Personal</strong> and add the <code>cowork-plugin/</code> folder as a local upload.</p>
+                    <div class="copy-block">
+                        <code>git clone https://github.com/angelo-leone/talent-augmenting-layer.git</code>
+                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
+                    </div>
+                </div>
+                <div class="install-step">
+                    <h3>Step 2: Sign in</h3>
+                    <p>The plugin registers the TAOS MCP server for you. The first time a TAOS skill runs, Cowork walks you through Google sign-in: that links the session to your profile.</p>
+                </div>
+                <div class="install-step">
+                    <h3>Step 3: Start your assessment</h3>
+                    <p>Ask Claude:</p>
+                    <div class="copy-block">
+                        <code>Run my TAOS assessment</code>
+                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
+                    </div>
+                    <p class="install-note">Each TAOS skill carries the full coaching layer, so invoking one activates TAOS for the whole conversation. No hooks, nothing to paste. See <a href="https://github.com/angelo-leone/talent-augmenting-layer/blob/main/cowork-plugin/INSTALL.md">cowork-plugin/INSTALL.md</a> for detail.</p>
                 </div>
             </div>
 
