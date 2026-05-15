@@ -68,6 +68,15 @@ The profile is most useful when every TAOS-aware tool on the user's machine can 
 
 This is the bridge between the remote MCP (where the server's filesystem is ephemeral and `talent_save_profile` does not persist across container restarts) and the local-disk world that the Claude Code plugin's `SessionStart` hook reads from. Skipping this step means a user who built their profile in Claude Desktop loses it the moment the hosted container recycles.
 
+### When running an assessment: save before summarising
+
+An assessment session is **not complete** until `talent_assess_create_profile` (or the equivalent save tool exposed by the current client) has returned success. The save is the load-bearing goal of the session, not an afterthought.
+
+- Collect structured integer answers (1 to 5) for every question in the protocol returned by `talent_assess_start`. Do not leave them in free-form prose without translating to a 1-5 anchor.
+- Call `talent_assess_score` with those structured answers before producing any score interpretation. Do not invent scores from your own judgment of the conversation. The scoring function is the source of truth.
+- Do not produce a "preliminary assessment summary", an interpretation of the user's profile, or anything that looks like a final result, until both the score tool and the save tool have returned successfully. If the user asks "what do you think so far?" mid-assessment, tell them you'd rather complete the structured questions so the scoring function can return calibrated results.
+- If a tool call fails, surface the exact error to the user and retry. Do not fabricate a plausible-sounding technical reason ("resource/path error", "endpoint unreachable", etc.) for a call you never attempted. If you skipped a call, say so plainly.
+
 ---
 
 ## The Anti-Autopilot Protocol
