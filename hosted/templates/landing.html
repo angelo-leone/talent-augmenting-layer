@@ -310,15 +310,26 @@
             <div class="install-panel" data-panel="chatgpt">
                 <div class="install-step">
                     <h3>Step 1: Turn on Developer mode</h3>
-                    <p>Custom MCP connectors are currently a ChatGPT beta. Open <strong>Settings &rarr; Apps &amp; Connectors &rarr; Advanced settings</strong> and enable <strong>Developer mode</strong>. On a workspace plan a workspace admin has to enable it first.</p>
+                    <p>Custom MCP connectors in ChatGPT are gated behind a Developer mode toggle. Without it on, you see <em>Apps</em> but no option to add a custom server. Open <strong>profile &rarr; Settings &rarr; Apps</strong> (sometimes <em>Apps &amp; Connectors</em>), scroll to <strong>Advanced</strong>, and toggle <strong>Developer mode</strong> on.</p>
+                    <p class="install-note">Requires a paid plan (Plus, Pro, Team, Business, Enterprise, or Edu). On a Team / Business / Enterprise workspace, a workspace admin first has to enable it under <strong>Workspace Settings &rarr; Permissions &amp; Roles &rarr; Connected Data &rarr; Developer mode</strong>.</p>
                 </div>
                 <div class="install-step">
-                    <h3>Step 2: Create the TAOS connector</h3>
-                    <p>Go to <strong>Settings &rarr; Connectors &rarr; Create</strong>, paste this URL, and authenticate with Google when prompted.</p>
+                    <h3>Step 2: Add the TAOS connector</h3>
+                    <p>Back in <strong>Settings &rarr; Apps &amp; Connectors</strong>, an <strong>Add new connector</strong> (or <strong>Create</strong>) option now appears. Name the connector <em>TAOS</em> and paste this URL:</p>
                     <div class="copy-block">
                         <code>https://proworker-hosted.onrender.com/mcp</code>
                         <button class="copy-btn" onclick="copyText(this)">Copy</button>
                     </div>
+                    <p class="install-note">Set <strong>Authentication</strong> to <em>OAuth</em>, tick <em>I trust this application</em>, click <strong>Create</strong>, and complete Google sign-in when prompted.</p>
+                </div>
+                <div class="install-step">
+                    <h3>Step 3: Start your assessment</h3>
+                    <p>Ask ChatGPT:</p>
+                    <div class="copy-block">
+                        <code>Run my TAOS assessment</code>
+                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
+                    </div>
+                    <p class="install-note">If ChatGPT's UI labels have drifted again, the principle is the same: enable Developer mode in Apps settings, then a Create-custom-connector option appears. See <a href="https://help.openai.com/en/articles/12584461-developer-mode-apps-and-full-mcp-connectors-in-chatgpt-beta">OpenAI's current guide</a>.</p>
                 </div>
             </div>
 
