@@ -468,10 +468,13 @@ async def list_tools() -> list[Tool]:
         Tool(
             name="talent_assess_score",
             description=(
-                "Compute all Talent-Augmenting OS scores from raw assessment answers. "
-                "Takes the numeric answers collected during the assessment (A1-A5, B1-B5, D1-D4 "
-                "as integers 1-5) and domain expertise ratings. Returns computed ADR, GP, ALI, "
-                "ESA, and composite TAOSRI scores with interpretations and recommended calibration."
+                "Compute the user's TAOS assessment scores from the numeric answers "
+                "collected during the assessment conversation. Takes the per-question "
+                "answers (each 1 to 5) and per-domain expertise ratings, and returns the "
+                "user's dependency risk, growth potential, AI literacy, expertise summary, "
+                "and overall TAOS readiness score, with plain-language interpretations and "
+                "recommended coaching calibration. Call this once all assessment questions "
+                "have been answered, then pass the result to talent_assess_create_profile."
             ),
             inputSchema={
                 "type": "object",
