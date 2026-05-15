@@ -1,26 +1,40 @@
 {
-  "name": "talent-augmenting-layer",
+  "name": "talent-augmenting-os",
   "owner": {
-    "name": "Angelo Leone",
-    "email": "angelo@talent-layer.dev"
+    "name": "Angelo Leone"
   },
   "metadata": {
-    "description": "Personalised AI augmentation: makes you better at your work, not dependent on AI",
-    "version": "1.0.0"
+    "description": "Talent-Augmenting OS (TAOS): personalised AI augmentation that makes you better at your work, not dependent on AI.",
+    "version": "1.1.0"
   },
   "plugins": [
     {
-      "name": "talent-augmenting-layer",
-      "source": "./plugin",
-      "description": "Assess your expertise, get personalised coaching, and protect skills from AI-driven atrophy. Connects to the TAOS MCP server for scoring, progression tracking, and profile management.",
+      "name": "taos",
+      "source": "./cowork-plugin",
+      "description": "TAOS for Claude Cowork, claude.ai, Claude Desktop, ChatGPT, and Codex. Each skill is self-contained: invoking one primes Claude with the full TAOS coaching layer, no hooks and no manual setup. Use this in any client that does not run Claude Code's SessionStart hook.",
       "version": "1.0.0",
       "author": {
         "name": "Angelo Leone"
       },
       "homepage": "https://github.com/angelo-leone/talent-augmenting-layer",
       "repository": "https://github.com/angelo-leone/talent-augmenting-layer",
-      "license": "MIT",
-      "keywords": ["talent", "augmentation", "coaching", "skills", "assessment"],
+      "license": "BUSL-1.1",
+      "keywords": ["talent", "augmentation", "coaching", "skills", "assessment", "de-skilling", "cowork"],
+      "category": "productivity",
+      "tags": ["professional-development", "ai-augmentation", "de-skilling-prevention"]
+    },
+    {
+      "name": "talent-augmenting-layer",
+      "source": "./plugin",
+      "description": "TAOS for Claude Code only. Ambient coaching from turn one via the SessionStart hook, with local-filesystem profiles. Do not install this outside Claude Code: its skills assume the hook has already injected the TAOS system prompt.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Angelo Leone"
+      },
+      "homepage": "https://github.com/angelo-leone/talent-augmenting-layer",
+      "repository": "https://github.com/angelo-leone/talent-augmenting-layer",
+      "license": "BUSL-1.1",
+      "keywords": ["talent", "augmentation", "coaching", "skills", "assessment", "claude-code"],
       "category": "productivity",
       "tags": ["professional-development", "ai-augmentation", "de-skilling-prevention"]
     }

@@ -237,16 +237,53 @@
         </div>
 
         <div class="install-tabs" role="tablist">
-            <button class="install-tab is-active" role="tab" data-tab="claude">Claude</button>
+            <button class="install-tab is-active" role="tab" data-tab="cowork">Claude Cowork</button>
             <button class="install-tab" role="tab" data-tab="claude-code">Claude Code</button>
-            <button class="install-tab" role="tab" data-tab="cowork">Cowork</button>
+            <button class="install-tab" role="tab" data-tab="claude-chat">Claude Chat</button>
             <button class="install-tab" role="tab" data-tab="chatgpt">ChatGPT</button>
             <button class="install-tab" role="tab" data-tab="codex">Codex</button>
+            <button class="install-tab" role="tab" data-tab="others">Others</button>
         </div>
 
         <div class="install-panels">
 
-            <div class="install-panel is-active" data-panel="claude">
+            <div class="install-panel is-active" data-panel="cowork">
+                <div class="install-step">
+                    <h3>Step 1: Add the TAOS marketplace</h3>
+                    <p>In Cowork, open <strong>Customize</strong>, click the <strong>+</strong> next to <strong>Personal Plugins</strong>, pick <strong>Create plugin &rarr; Add marketplace</strong>, paste this URL, and click <strong>Sync</strong>.</p>
+                    <div class="copy-block">
+                        <code>https://github.com/angelo-leone/talent-augmenting-layer</code>
+                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
+                    </div>
+                </div>
+                <div class="install-step">
+                    <h3>Step 2: Install the TAOS plugin</h3>
+                    <p>Two plugins appear in the marketplace. Install the one labelled <strong>TAOS</strong> (source <code>./cowork-plugin</code>). Do not install <em>TAOS for Claude Code</em> in Cowork: it expects a SessionStart hook Cowork does not run, so its skills look intentionally shortened.</p>
+                </div>
+                <div class="install-step">
+                    <h3>Step 3: Start your assessment</h3>
+                    <p>The plugin registers the TAOS MCP server for you. The first time a skill calls a tool, Cowork walks you through Google sign-in. Then ask Claude:</p>
+                    <div class="copy-block">
+                        <code>Run my TAOS assessment</code>
+                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
+                    </div>
+                    <p class="install-note">Each TAOS skill carries the full coaching layer, so invoking one activates TAOS for the whole conversation. No hooks, nothing to paste. See <a href="https://github.com/angelo-leone/talent-augmenting-layer/blob/main/cowork-plugin/INSTALL.md">cowork-plugin/INSTALL.md</a> for detail.</p>
+                </div>
+            </div>
+
+            <div class="install-panel" data-panel="claude-code">
+                <div class="install-step">
+                    <h3>Step 1: Configure</h3>
+                    <p>Run this in your terminal.</p>
+                    <div class="copy-block">
+                        <code>claude mcp add taos --transport http https://proworker-hosted.onrender.com/mcp</code>
+                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
+                    </div>
+                    <p class="install-note">OAuth opens in your browser on first use. To also get the SessionStart hook (ambient coaching from turn one) and the local-filesystem skills, install the <em>TAOS for Claude Code</em> plugin from the marketplace at the same repo URL.</p>
+                </div>
+            </div>
+
+            <div class="install-panel" data-panel="claude-chat">
                 <div class="install-step">
                     <h3>Step 1: Open the Connectors panel</h3>
                     <p>In Claude desktop or claude.ai, go to <strong>Customize &rarr; Connectors</strong>, then click the <strong>+</strong> next to Connectors and pick <strong>Add custom connector</strong>.</p>
@@ -267,42 +304,6 @@
                         <button class="copy-btn" onclick="copyText(this)">Copy</button>
                     </div>
                     <p class="install-note">Slash commands like <code>/talent-assess</code> are a Claude Code nicety; in Claude desktop and claude.ai, you ask Claude in plain language and it picks the right TAOS tool.</p>
-                </div>
-            </div>
-
-            <div class="install-panel" data-panel="claude-code">
-                <div class="install-step">
-                    <h3>Step 1: Configure</h3>
-                    <p>Run this in your terminal.</p>
-                    <div class="copy-block">
-                        <code>claude mcp add taos --transport http https://proworker-hosted.onrender.com/mcp</code>
-                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                    </div>
-                    <p class="install-note">OAuth opens in your browser on first use.</p>
-                </div>
-            </div>
-
-            <div class="install-panel" data-panel="cowork">
-                <div class="install-step">
-                    <h3>Step 1: Add the TAOS plugin</h3>
-                    <p>Clone the repo, then in Cowork open <strong>Customize &rarr; Plugins &rarr; Personal</strong> and add the <code>cowork-plugin/</code> folder as a local upload.</p>
-                    <div class="copy-block">
-                        <code>git clone https://github.com/angelo-leone/talent-augmenting-layer.git</code>
-                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                    </div>
-                </div>
-                <div class="install-step">
-                    <h3>Step 2: Sign in</h3>
-                    <p>The plugin registers the TAOS MCP server for you. The first time a TAOS skill runs, Cowork walks you through Google sign-in: that links the session to your profile.</p>
-                </div>
-                <div class="install-step">
-                    <h3>Step 3: Start your assessment</h3>
-                    <p>Ask Claude:</p>
-                    <div class="copy-block">
-                        <code>Run my TAOS assessment</code>
-                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                    </div>
-                    <p class="install-note">Each TAOS skill carries the full coaching layer, so invoking one activates TAOS for the whole conversation. No hooks, nothing to paste. See <a href="https://github.com/angelo-leone/talent-augmenting-layer/blob/main/cowork-plugin/INSTALL.md">cowork-plugin/INSTALL.md</a> for detail.</p>
                 </div>
             </div>
 
@@ -334,10 +335,21 @@ url = "https://proworker-hosted.onrender.com/mcp"</pre>
                 </div>
             </div>
 
+            <div class="install-panel" data-panel="others">
+                <div class="install-step">
+                    <h3>Cursor, Windsurf, Gemini CLI, anything else MCP-aware</h3>
+                    <p>TAOS is just a remote MCP server. Any client that supports custom MCP connectors over HTTP can connect to this URL:</p>
+                    <div class="copy-block">
+                        <code>https://proworker-hosted.onrender.com/mcp</code>
+                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
+                    </div>
+                    <p class="install-note">The exact configuration step varies by client. See the <a href="https://github.com/angelo-leone/talent-augmenting-layer/blob/main/docs/REMOTE_MCP_SETUP.md">remote MCP docs</a> for Cursor, Windsurf, and Gemini CLI specifics, or check your client's own MCP documentation.</p>
+                </div>
+            </div>
+
         </div>
 
         <p class="install-footer">
-            On a different client (Cursor, Windsurf, Gemini CLI)? <a href="https://github.com/angelo-leone/talent-augmenting-layer/blob/main/docs/REMOTE_MCP_SETUP.md">Remote MCP docs &rarr;</a>
             Want to self-host instead? <a href="https://github.com/angelo-leone/talent-augmenting-layer">Source on GitHub &rarr;</a>
         </p>
     </section>
