@@ -311,7 +311,8 @@
             <div class="install-panel" data-panel="chatgpt">
                 <div class="install-step">
                     <h3>Step 1: Turn on Developer mode</h3>
-                    <p>Custom MCP connectors in ChatGPT are gated behind a Developer mode toggle. Without it on, you see <em>Apps</em> but no option to add a custom server. Open <strong>profile &rarr; Settings &rarr; Apps &rarr; Advanced</strong>, and toggle <strong>Developer mode</strong> on.</p>
+                    <p>Custom MCP apps in ChatGPT are gated behind a Developer mode toggle. Without it on, you see <em>Apps</em> but no option to add a custom server. Open <strong>profile &rarr; Settings &rarr; Apps &rarr; Advanced</strong>, and toggle <strong>Developer mode</strong> on.</p>
+                    <p class="install-note">Developer mode needs to stay on while you use TAOS. Toggling it off disables custom MCP tool calls, so the TAOS app stops responding. This is a ChatGPT requirement for custom MCP apps, not a TAOS setting.</p>
                 </div>
                 <div class="install-step">
                     <h3>Step 2: Add the TAOS app</h3>
@@ -323,17 +324,13 @@
                     <p class="install-note">Set <strong>Authentication</strong> to <em>OAuth</em>, tick <em>I understand and want to continue</em>, click <strong>Create</strong>, and complete Google sign-in when prompted.</p>
                 </div>
                 <div class="install-step">
-                    <h3>Step 3: Turn Developer mode back off</h3>
-                    <p>Once TAOS is connected, go back to <strong>Settings &rarr; Apps &rarr; Advanced</strong> and toggle Developer mode <strong>off</strong>. Your TAOS app stays connected; turning Dev mode off avoids surfacing other developer-only options you do not need day-to-day.</p>
-                </div>
-                <div class="install-step">
-                    <h3>Step 4: Start your assessment</h3>
+                    <h3>Step 3: Start your assessment</h3>
                     <p>Ask ChatGPT:</p>
                     <div class="copy-block">
                         <code>Run my TAOS assessment</code>
                         <button class="copy-btn" onclick="copyText(this)">Copy</button>
                     </div>
-                    <p class="install-note">If ChatGPT's UI labels have drifted again, the principle is the same: enable Developer mode in Apps settings, add the app, switch Developer mode back off. See <a href="https://help.openai.com/en/articles/12584461-developer-mode-apps-and-full-mcp-connectors-in-chatgpt-beta">OpenAI's current guide</a>.</p>
+                    <p class="install-note">If ChatGPT's UI labels have drifted again, the principle is the same: enable Developer mode in Apps settings, leave it on, add the app, talk to ChatGPT normally. See <a href="https://help.openai.com/en/articles/12584461-developer-mode-apps-and-full-mcp-connectors-in-chatgpt-beta">OpenAI's current guide</a>.</p>
                 </div>
             </div>
 
