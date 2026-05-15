@@ -61,6 +61,17 @@ MCP_AUTH_CODE_EXPIRY = int(os.getenv("MCP_AUTH_CODE_EXPIRY", "600"))  # 10 minut
 # either migrated to the OAuth flow or signed out.
 MCP_REQUIRE_AUTH = os.getenv("MCP_REQUIRE_AUTH", "false").lower() == "true"
 
+# When True the MCP server sends the TAOS system prompt as
+# `initialize.instructions` on every connect, giving ambient TAOS coaching
+# without the user invoking a skill. Default False during the pilot
+# wind-down so existing pilot users see no behaviour change. Flip to True
+# on the deployment once the pilot has closed.
+#
+# The flag is read directly inside `mcp-server/src/server.py:_load_server_instructions`
+# (stdio installs do not import this module); this entry exists for
+# operational visibility and parity with MCP_REQUIRE_AUTH.
+MCP_SEND_INSTRUCTIONS = os.getenv("MCP_SEND_INSTRUCTIONS", "false").lower() == "true"
+
 GDRIVE_OAUTH_CLIENT_ID = os.getenv("GDRIVE_OAUTH_CLIENT_ID", "")
 GDRIVE_OAUTH_CLIENT_SECRET = os.getenv("GDRIVE_OAUTH_CLIENT_SECRET", "")
 GDRIVE_OAUTH_REFRESH_TOKEN = os.getenv("GDRIVE_OAUTH_REFRESH_TOKEN", "")

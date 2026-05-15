@@ -100,7 +100,15 @@ def _load_server_instructions() -> str:
     before auth resolves, and the same instructions are returned to every
     client. The model fetches the profile via `talent_get_profile` once a
     user is known.
+
+    Gated by the MCP_SEND_INSTRUCTIONS env var. Default off so behaviour is
+    unchanged for the in-flight pilot. Flip to "true" on the deployment once
+    the pilot has closed and ambient activation is desired across all
+    connected clients. The Cowork plugin does not depend on this flag: its
+    skills carry the system prompt in their bodies.
     """
+    if os.environ.get("MCP_SEND_INSTRUCTIONS", "false").lower() != "true":
+        return ""
     candidate = Path(__file__).parent.parent.parent / "plugin" / "tal-system-prompt.md"
     try:
         return candidate.read_text(encoding="utf-8").strip()

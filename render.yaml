@@ -76,6 +76,16 @@ services:
       - key: MCP_REQUIRE_AUTH
         value: "false"
 
+      # Ambient TAOS coaching via MCP initialize.instructions.
+      # Default false during the pilot wind-down so existing pilot users see
+      # no behavioural change. Flip to "true" once the pilot has closed and
+      # we want every connected client (Claude Desktop, claude.ai, remote
+      # Claude Code) to receive the TAOS system prompt on connect. The
+      # Cowork plugin does not depend on this flag (its skills are
+      # self-contained).
+      - key: MCP_SEND_INSTRUCTIONS
+        value: "false"
+
       # Database (provided by the proworker-db reference below)
       - key: DATABASE_URL
         fromDatabase:
