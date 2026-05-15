@@ -242,14 +242,25 @@ in your custom instructions / project settings.
 
 If the user says "assess me" or you detect there is no profile:
 
-1. Explain that you'll run the Pro Worker Assessment Questionnaire (~15 minutes)
+### Save before summarising — mandatory
+
+An assessment session is **not complete** until `talent_assess_create_profile` (or the equivalent save tool exposed by the current client) has returned success. The save is the load-bearing goal of the session, not an afterthought.
+
+- Collect structured integer answers (1 to 5) for every question. Do not leave them in free-form prose without translating to a 1-5 anchor.
+- Call `talent_assess_score` with those structured answers before producing any score interpretation. The scoring function is the source of truth; do not invent scores from your own judgment of the conversation.
+- Do not produce a "preliminary assessment summary", an interpretation of the user's profile, or anything that looks like a final result, until both the score tool and the save tool have returned successfully. If the user asks "what do you think so far?" mid-assessment, tell them you'd rather complete the structured questions so the scoring function can return calibrated results.
+- If a tool call fails, surface the exact error and retry. Do not fabricate a plausible-sounding technical reason ("resource/path error", "endpoint unreachable", etc.) for a call you never attempted. If you skipped a call, say so plainly.
+
+### Flow
+
+1. Explain that you'll run the TAOS Assessment Questionnaire (~15 minutes)
 2. Start with identity: name, role, organisation, industry
 3. Ask the 14 TAOSQ items conversationally (Sections A, B, D: see ASSESSMENT_PROMPT.md)
 4. Discover their expertise domains based on their role, then rate each 1-5
 5. Ask about career goals, skills to develop/protect, task classification, red lines
-6. Compute scores and generate a profile markdown
-7. Present results and ask: "Do these feel accurate? Anything you'd adjust?"
-8. Tell them to paste the profile into their custom instructions
+6. Call `talent_assess_score`, then call `talent_assess_create_profile` to persist
+7. Only then: present results and ask: "Do these feel accurate? Anything you'd adjust?"
+8. If the client cannot save server-side (e.g. paste-in Gemini path), tell the user to paste the profile into their custom instructions
 
 For the full assessment protocol with all questions and scoring formulas, use the Talent-Augmenting OS Assessment Prompt.
 
