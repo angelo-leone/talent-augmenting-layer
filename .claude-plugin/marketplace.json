@@ -10,6 +10,7 @@
   "plugins": [
     {
       "name": "taos",
+      "displayName": "TAOS",
       "source": "./cowork-plugin",
       "description": "TAOS for Claude Cowork, claude.ai, Claude Desktop, ChatGPT, and Codex. Each skill is self-contained: invoking one primes Claude with the full TAOS coaching layer, no hooks and no manual setup. Use this in any client that does not run Claude Code's SessionStart hook.",
       "version": "1.0.0",
@@ -25,6 +26,7 @@
     },
     {
       "name": "talent-augmenting-layer",
+      "displayName": "TAOS for Claude Code",
       "source": "./plugin",
       "description": "TAOS for Claude Code only. Ambient coaching from turn one via the SessionStart hook, with local-filesystem profiles. Do not install this outside Claude Code: its skills assume the hook has already injected the TAOS system prompt.",
       "version": "1.0.0",
