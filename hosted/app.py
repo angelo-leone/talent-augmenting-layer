@@ -10,6 +10,7 @@ import json
 import logging
 import time
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, Request, Depends, HTTPException
@@ -1290,16 +1291,209 @@ async def api_export_profile(request: Request, fmt: str):
     raise HTTPException(status_code=400, detail=f"Unknown format: {fmt}")
 
 
+_UNIVERSAL_SYSTEM_PROMPT_CACHE: str | None = None
+
+
+def _load_universal_system_prompt() -> str:
+    """Lazy-load the universal TAOS system prompt for bundling into exports.
+
+    The download bundle (Claude / ChatGPT / Gemini formats) needs to give
+    the user one paste: the TAOS coaching layer plus their personal
+    profile. Reads `universal-prompt/SYSTEM_PROMPT.md` once at first call
+    and caches it.
+    """
+    global _UNIVERSAL_SYSTEM_PROMPT_CACHE
+    if _UNIVERSAL_SYSTEM_PROMPT_CACHE is None:
+        path = Path(__file__).resolve().parent.parent / "universal-prompt" / "SYSTEM_PROMPT.md"
+        try:
+            _UNIVERSAL_SYSTEM_PROMPT_CACHE = path.read_text(encoding="utf-8").strip()
+        except (FileNotFoundError, OSError):
+            _UNIVERSAL_SYSTEM_PROMPT_CACHE = ""
+    return _UNIVERSAL_SYSTEM_PROMPT_CACHE
+
+
 def _wrap_for_platform(platform_name: str, profile_md: str) -> str:
-    """Wrap profile markdown with platform-specific instructions."""
+    """Bundle the TAOS system prompt and the user's profile into one paste.
+
+    Previously this returned only the profile with a thin "paste this"
+    intro, which meant pasting into Gemini / ChatGPT / Claude Projects gave
+    the model personalisation but not the coaching layer. Now the bundle
+    is system prompt + profile, so pasting it once activates TAOS end to
+    end on platforms that do not connect to the MCP server directly.
+    """
+    system_prompt = _load_universal_system_prompt()
+    header = (
+        f"# Talent-Augmenting OS for {platform_name}\n\n"
+        f"Paste this entire block into your {platform_name} "
+        f"(system prompt, custom instructions, project knowledge, or Gem "
+        f"system prompt, depending on the platform). The first section is "
+        f"the TAOS coaching layer; the second section is your personal "
+        f"profile. Together they activate personalised TAOS coaching.\n\n"
+        f"---\n"
+    )
+    if not system_prompt:
+        # Universal prompt asset missing; fall back to the legacy thin wrap.
+        return f"{header}\n{profile_md}"
     return (
-        f"# Talent-Augmenting OS Profile ({platform_name})\n\n"
-        f"Paste this into your {platform_name} to enable personalised AI augmentation.\n"
-        f"The profile below tells the AI how to interact with you based on your expertise,\n"
-        f"growth areas, and preferences.\n\n"
+        f"{header}\n"
+        f"## Part 1: TAOS coaching layer\n\n"
+        f"{system_prompt}\n\n"
         f"---\n\n"
+        f"## Part 2: Your personal profile\n\n"
         f"{profile_md}"
     )
+
+
+@app.get("/profile/update", response_class=HTMLResponse)
+async def profile_update_page(request: Request):
+    """Render the quick-update form.
+
+    Web-app equivalent of the /talent-update MCP skill: 4-5 short questions,
+    the model folds answers into the existing profile, a new Profile version
+    is saved. Sends users with no profile to /assess first.
+    """
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login?next=/profile/update", status_code=302)
+    async with async_session_factory() as db:
+        stmt = (
+            select(Profile)
+            .where(Profile.user_id == user["id"])
+            .limit(1)
+        )
+        result = await db.execute(stmt)
+        profile = result.scalar_one_or_none()
+    if not profile:
+        return RedirectResponse(url="/assess", status_code=302)
+    return templates.TemplateResponse(
+        name="profile_update.html",
+        request=request,
+        context={"user": user, "error": None},
+    )
+
+
+@app.post("/profile/update", response_class=HTMLResponse)
+async def profile_update_submit(request: Request):
+    """Fold the user's free-text update answers into a new profile version."""
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login?next=/profile/update", status_code=302)
+
+    form = await request.form()
+    fields = {
+        "Biggest challenge or win since the last update": (form.get("q_wins") or "").strip(),
+        "Role changes, new responsibilities, or new tools": (form.get("q_role") or "").strip(),
+        "How AI usage has changed": (form.get("q_ai_usage") or "").strip(),
+        "Skills the user feels are growing or atrophying": (form.get("q_skills") or "").strip(),
+        "Profile fields that no longer feel accurate": (form.get("q_accuracy") or "").strip(),
+    }
+    answers = {label: text for label, text in fields.items() if text}
+    if not answers:
+        return templates.TemplateResponse(
+            name="profile_update.html",
+            request=request,
+            context={
+                "user": user,
+                "error": "Fill in at least one field so the coach has something to update from.",
+            },
+            status_code=400,
+        )
+
+    async with async_session_factory() as db:
+        stmt = (
+            select(Profile)
+            .where(Profile.user_id == user["id"])
+            .order_by(Profile.version.desc())
+            .limit(1)
+        )
+        result = await db.execute(stmt)
+        profile = result.scalar_one_or_none()
+        if not profile:
+            return RedirectResponse(url="/assess", status_code=302)
+        prev_md = profile.content_md
+        prev_version = profile.version
+        prev_scores_json = profile.scores_json or "{}"
+
+    today = datetime.date.today().isoformat()
+    updates_block = "\n\n".join(
+        f"**{label}**: {text}" for label, text in answers.items()
+    )
+
+    system_prompt = (
+        "You are revising a Talent-Augmenting OS profile based on the user's "
+        "answers to a short update questionnaire. The profile is markdown with "
+        "sections for Identity, Expertise Map, Calibration, Task Classification, "
+        "Red Lines, and a Change Log. Apply these rules strictly: "
+        "(1) Preserve the structure and every section the updates do not touch. "
+        "Copy them verbatim. "
+        "(2) Update only the affected sections. Be conservative; small textual "
+        "edits are usually enough. Do not invent new scores. "
+        f"(3) Append exactly one change-log entry dated {today} summarising "
+        "what changed in one or two short bullets. "
+        "(4) Output only the revised profile markdown. No preamble, no code "
+        "fences, no commentary."
+    )
+    user_message = (
+        f"### Current profile\n\n{prev_md}\n\n"
+        f"### User's updates (today is {today})\n\n{updates_block}\n\n"
+        f"Return the revised profile markdown."
+    )
+
+    llm = LLMClient()
+    try:
+        revised_md = (await llm.chat(
+            system=system_prompt,
+            messages=[{"role": "user", "content": user_message}],
+            max_tokens=8192,
+        )).strip()
+    except Exception:
+        logger.exception("Profile update LLM call failed for user %s", user["id"])
+        return templates.TemplateResponse(
+            name="profile_update.html",
+            request=request,
+            context={
+                "user": user,
+                "error": "The model could not produce a revised profile right now. Your previous profile is unchanged. Please try again in a moment.",
+            },
+            status_code=500,
+        )
+
+    # Strip fenced code wrappers if the model added them despite instructions.
+    if revised_md.startswith("```"):
+        lines = revised_md.splitlines()
+        if lines and lines[0].startswith("```"):
+            lines = lines[1:]
+        if lines and lines[-1].startswith("```"):
+            lines = lines[:-1]
+        revised_md = "\n".join(lines).strip()
+
+    # Sanity check: refuse a wildly truncated result rather than overwrite.
+    if len(revised_md) < 0.5 * len(prev_md):
+        logger.warning(
+            "Suspicious revised profile size %d vs %d for user %s",
+            len(revised_md), len(prev_md), user["id"],
+        )
+        return templates.TemplateResponse(
+            name="profile_update.html",
+            request=request,
+            context={
+                "user": user,
+                "error": "The revised profile came back too short to be safe. Your previous profile is unchanged. Please try again, or use Full re-assessment if the change is large.",
+            },
+            status_code=500,
+        )
+
+    async with async_session_factory() as db:
+        new_profile = Profile(
+            user_id=user["id"],
+            version=prev_version + 1,
+            content_md=revised_md,
+            scores_json=prev_scores_json,
+        )
+        db.add(new_profile)
+        await db.commit()
+
+    return RedirectResponse(url="/dashboard?updated=1", status_code=302)
 
 
 @app.post("/api/profile/sync")

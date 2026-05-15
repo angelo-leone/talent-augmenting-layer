@@ -241,6 +241,7 @@
             <button class="install-tab" role="tab" data-tab="claude-code">Claude Code</button>
             <button class="install-tab" role="tab" data-tab="claude-chat">Claude Chat</button>
             <button class="install-tab" role="tab" data-tab="chatgpt">ChatGPT</button>
+            <button class="install-tab" role="tab" data-tab="gemini">Gemini</button>
             <button class="install-tab" role="tab" data-tab="codex">Codex</button>
             <button class="install-tab" role="tab" data-tab="others">Others</button>
         </div>
@@ -310,26 +311,51 @@
             <div class="install-panel" data-panel="chatgpt">
                 <div class="install-step">
                     <h3>Step 1: Turn on Developer mode</h3>
-                    <p>Custom MCP connectors in ChatGPT are gated behind a Developer mode toggle. Without it on, you see <em>Apps</em> but no option to add a custom server. Open <strong>profile &rarr; Settings &rarr; Apps</strong> (sometimes <em>Apps &amp; Connectors</em>), scroll to <strong>Advanced</strong>, and toggle <strong>Developer mode</strong> on.</p>
-                    <p class="install-note">Requires a paid plan (Plus, Pro, Team, Business, Enterprise, or Edu). On a Team / Business / Enterprise workspace, a workspace admin first has to enable it under <strong>Workspace Settings &rarr; Permissions &amp; Roles &rarr; Connected Data &rarr; Developer mode</strong>.</p>
+                    <p>Custom MCP connectors in ChatGPT are gated behind a Developer mode toggle. Without it on, you see <em>Apps</em> but no option to add a custom server. Open <strong>profile &rarr; Settings &rarr; Apps &rarr; Advanced</strong>, and toggle <strong>Developer mode</strong> on.</p>
                 </div>
                 <div class="install-step">
-                    <h3>Step 2: Add the TAOS connector</h3>
-                    <p>Back in <strong>Settings &rarr; Apps &amp; Connectors</strong>, an <strong>Add new connector</strong> (or <strong>Create</strong>) option now appears. Name the connector <em>TAOS</em> and paste this URL:</p>
+                    <h3>Step 2: Add the TAOS app</h3>
+                    <p>Back in <strong>Settings &rarr; Apps</strong>, an <strong>Add new app</strong> option now appears. Name the app <em>TAOS</em> and paste this URL:</p>
                     <div class="copy-block">
                         <code>https://proworker-hosted.onrender.com/mcp</code>
                         <button class="copy-btn" onclick="copyText(this)">Copy</button>
                     </div>
-                    <p class="install-note">Set <strong>Authentication</strong> to <em>OAuth</em>, tick <em>I trust this application</em>, click <strong>Create</strong>, and complete Google sign-in when prompted.</p>
+                    <p class="install-note">Set <strong>Authentication</strong> to <em>OAuth</em>, tick <em>I understand and want to continue</em>, click <strong>Create</strong>, and complete Google sign-in when prompted.</p>
                 </div>
                 <div class="install-step">
-                    <h3>Step 3: Start your assessment</h3>
+                    <h3>Step 3: Turn Developer mode back off</h3>
+                    <p>Once TAOS is connected, go back to <strong>Settings &rarr; Apps &rarr; Advanced</strong> and toggle Developer mode <strong>off</strong>. Your TAOS app stays connected; turning Dev mode off avoids surfacing other developer-only options you do not need day-to-day.</p>
+                </div>
+                <div class="install-step">
+                    <h3>Step 4: Start your assessment</h3>
                     <p>Ask ChatGPT:</p>
                     <div class="copy-block">
                         <code>Run my TAOS assessment</code>
                         <button class="copy-btn" onclick="copyText(this)">Copy</button>
                     </div>
-                    <p class="install-note">If ChatGPT's UI labels have drifted again, the principle is the same: enable Developer mode in Apps settings, then a Create-custom-connector option appears. See <a href="https://help.openai.com/en/articles/12584461-developer-mode-apps-and-full-mcp-connectors-in-chatgpt-beta">OpenAI's current guide</a>.</p>
+                    <p class="install-note">If ChatGPT's UI labels have drifted again, the principle is the same: enable Developer mode in Apps settings, add the app, switch Developer mode back off. See <a href="https://help.openai.com/en/articles/12584461-developer-mode-apps-and-full-mcp-connectors-in-chatgpt-beta">OpenAI's current guide</a>.</p>
+                </div>
+            </div>
+
+            <div class="install-panel" data-panel="gemini">
+                <div class="install-step">
+                    <h3>Step 1: Build your profile on the web</h3>
+                    <p>Gemini does not support custom MCP connectors yet, so TAOS works in Gemini as a paste-in system prompt rather than a live connection. First, sign in and run the assessment on the hosted web app:</p>
+                    <div class="copy-block">
+                        <code>https://proworker-hosted.onrender.com/assess</code>
+                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
+                    </div>
+                    <p class="install-note">Takes ~15 minutes. The result is a profile saved to your account.</p>
+                </div>
+                <div class="install-step">
+                    <h3>Step 2: Download the Gemini bundle</h3>
+                    <p>On your dashboard, click <strong>Download &rarr; Gemini</strong>. The file is the TAOS coaching layer plus your personalised profile, in one paste-ready block.</p>
+                    <p class="install-note">When your profile changes, run <strong>Quick update</strong> on the dashboard and re-download the bundle.</p>
+                </div>
+                <div class="install-step">
+                    <h3>Step 3: Paste into Gemini</h3>
+                    <p>Open <a href="https://gemini.google.com/gems/create">Gemini Gem builder</a>, create a new Gem called <em>TAOS Coach</em>, paste the bundle into the system instructions, save. Start a new chat with that Gem and the TAOS coaching layer is active.</p>
+                    <p class="install-note">Works the same in Gemini's standard chat: paste the bundle into the "system instructions" or "context" panel if available. The first turn after pasting may need a "ready?" nudge to get the model to acknowledge the new role.</p>
                 </div>
             </div>
 
