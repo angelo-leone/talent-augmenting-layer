@@ -23,6 +23,7 @@ pilot/
 # remain in git.
 CLAUDE.md
 BACKLOG.md
+TASKS.md
 docs/RENDER_CONSOLIDATION.md
 docs/TAOS_Architecture_v1.1.docx
 profiles/pro-*.md
