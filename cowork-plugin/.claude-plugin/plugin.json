@@ -1,7 +1,8 @@
 {
   "name": "talent-augmenting-os",
+  "displayName": "TAOS",
   "version": "1.0.0",
-  "description": "Personalised AI augmentation for Claude Cowork: makes you better at your work, not dependent on AI. Assess your expertise, get coaching in growth areas, protect skills from atrophy. Each skill is self-contained: invoking one primes Claude with the full Talent-Augmenting OS coaching layer, no hooks and no manual setup.",
+  "description": "Talent-Augmenting OS (TAOS) for Claude Cowork: personalised AI augmentation that makes you better at your work, not dependent on AI. Assess your expertise, get coaching in growth areas, protect skills from atrophy. Each skill is self-contained: invoking one primes Claude with the full TAOS coaching layer, no hooks and no manual setup.",
   "author": {
     "name": "Angelo Leone",
     "url": "https://github.com/angelo-leone"

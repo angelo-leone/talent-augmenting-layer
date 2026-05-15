@@ -1,7 +1,8 @@
 {
   "name": "talent-augmenting-layer",
+  "displayName": "TAOS",
   "version": "1.0.0",
-  "description": "Personalised AI augmentation: makes you better at your work, not dependent on AI. Assess your expertise, get coaching in growth areas, and protect skills from atrophy.",
+  "description": "Talent-Augmenting OS (TAOS): personalised AI augmentation that makes you better at your work, not dependent on AI. Assess your expertise, get coaching in growth areas, and protect skills from atrophy.",
   "author": {
     "name": "Angelo Leone",
     "url": "https://github.com/angelo-leone"
