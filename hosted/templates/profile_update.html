@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Quick update · Talent-Augmenting OS{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 720px; margin: 2rem auto;">
+    <h1 class="card-title">Quick profile update</h1>
+    <p class="text-muted">
+        Three to five minutes. Tell the coach what has changed since last time.
+        The model folds your answers into your profile and saves a new version.
+        For a full re-assessment, use <a href="/assess">Full re-assessment</a> instead.
+    </p>
+
+    {% if error %}
+    <div class="flash flash-error">{{ error }}</div>
+    {% endif %}
+
+    <form id="update-form" method="post" action="/profile/update" style="margin-top: 1.5rem;">
+        <div class="update-question">
+            <label for="q_wins" class="question-text">Biggest challenge or win since last update?</label>
+            <textarea
+                id="q_wins"
+                name="q_wins"
+                class="checkin-textarea"
+                rows="3"
+                placeholder="One or two sentences is fine."
+            ></textarea>
+        </div>
+
+        <div class="update-question">
+            <label for="q_role" class="question-text">Any role changes, new responsibilities, or new tools?</label>
+            <textarea
+                id="q_role"
+                name="q_role"
+                class="checkin-textarea"
+                rows="3"
+                placeholder="If nothing changed, leave blank."
+            ></textarea>
+        </div>
+
+        <div class="update-question">
+            <label for="q_ai_usage" class="question-text">How has your AI usage changed? More dependent? More independent?</label>
+            <textarea
+                id="q_ai_usage"
+                name="q_ai_usage"
+                class="checkin-textarea"
+                rows="3"
+                placeholder="Be honest. This is the signal we calibrate against."
+            ></textarea>
+        </div>
+
+        <div class="update-question">
+            <label for="q_skills" class="question-text">Any skills you feel are growing or atrophying?</label>
+            <textarea
+                id="q_skills"
+                name="q_skills"
+                class="checkin-textarea"
+                rows="3"
+                placeholder="Domain names plus what you notice."
+            ></textarea>
+        </div>
+
+        <div class="update-question">
+            <label for="q_accuracy" class="question-text">Anything in the profile that no longer feels accurate?</label>
+            <textarea
+                id="q_accuracy"
+                name="q_accuracy"
+                class="checkin-textarea"
+                rows="3"
+                placeholder="Calibrations to nudge, red lines to add or remove, anything."
+            ></textarea>
+        </div>
+
+        <div class="checkin-actions" style="margin-top: 1.5rem;">
+            <button type="submit" id="update-submit" class="btn btn-primary">Save update</button>
+            <a href="/dashboard" class="btn btn-secondary">Cancel</a>
+        </div>
+
+        <p class="text-muted" id="update-progress" style="margin-top: 1rem; display: none;">
+            Folding your answers into your profile. This usually takes 5 to 15 seconds: keep the tab open.
+        </p>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+    var form = document.getElementById('update-form');
+    var submit = document.getElementById('update-submit');
+    var progress = document.getElementById('update-progress');
+    if (!form) return;
+
+    form.addEventListener('submit', function() {
+        // Show progress; let the form submit normally
+        submit.disabled = true;
+        submit.textContent = 'Saving...';
+        progress.style.display = 'block';
+    });
+})();
+</script>
+{% endblock %}
