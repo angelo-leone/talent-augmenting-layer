@@ -65,7 +65,7 @@ from hosted.scoring import (
     generate_profile_markdown,
     get_assessment_protocol,
 )
-from hosted.email_service import generate_checkin_questions, send_invite_email
+from hosted.email_service import generate_checkin_questions, send_feedback_email, send_invite_email
 from hosted.scheduler import setup_scheduler
 from hosted.mcp_sse_handler import mcp_app, get_session_manager, RESOURCE_URL, ISSUER_URL
 
@@ -326,6 +326,121 @@ async def api_demo_coach(request: Request):
                 "fallback": True,
             }
         )
+
+
+# ---------------------------------------------------------------------------
+# Contact / feedback form
+# ---------------------------------------------------------------------------
+
+CONTACT_TOPICS = {
+    "product_feedback",
+    "bug",
+    "enterprise_enquiry",
+    "other",
+}
+CONTACT_MAX_NAME = 200
+CONTACT_MAX_COMPANY = 200
+CONTACT_MAX_ROLE = 200
+CONTACT_MAX_EMAIL = 320  # RFC 5321
+CONTACT_MAX_MESSAGE = 5000
+CONTACT_MIN_MESSAGE = 5
+
+_EMAIL_RE = __import__("re").compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+
+@app.get("/contact", response_class=HTMLResponse)
+async def contact(request: Request):
+    """Public feedback / contact form."""
+    return templates.TemplateResponse(name="contact.html", request=request)
+
+
+@app.post("/api/contact")
+@limiter.limit("5/hour")
+async def api_contact(request: Request):
+    """Anonymous contact form submission.
+
+    Validates server-side, sends to ``FEEDBACK_INBOX`` via SendGrid (or
+    logs in dev), and writes a ``lead.contact_submitted`` audit row.
+    Honeypot field ``website`` silently 200s without sending.
+    """
+    try:
+        body = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON")
+
+    # Honeypot: a bot filling every field in the form will fill `website` too.
+    # Real users never see it (CSS display:none) so a non-empty value is
+    # almost certainly automation. Return 200 so the bot thinks it worked.
+    if (body.get("website") or "").strip():
+        logger.info("contact form: honeypot tripped, silently dropping submission")
+        return JSONResponse({"ok": True})
+
+    name = (body.get("name") or "").strip()
+    email = (body.get("email") or "").strip()
+    company = (body.get("company") or "").strip()
+    role = (body.get("role") or "").strip()
+    topic = (body.get("topic") or "other").strip()
+    message = (body.get("message") or "").strip()
+
+    errors: dict[str, str] = {}
+    if not email:
+        errors["email"] = "Email is required so we can reply."
+    elif len(email) > CONTACT_MAX_EMAIL or not _EMAIL_RE.match(email):
+        errors["email"] = "That email doesn't look right."
+    if not message:
+        errors["message"] = "A message is required."
+    elif len(message) < CONTACT_MIN_MESSAGE:
+        errors["message"] = "Message is too short."
+    elif len(message) > CONTACT_MAX_MESSAGE:
+        errors["message"] = f"Message is too long (max {CONTACT_MAX_MESSAGE} chars)."
+    if len(name) > CONTACT_MAX_NAME:
+        errors["name"] = f"Name is too long (max {CONTACT_MAX_NAME} chars)."
+    if len(company) > CONTACT_MAX_COMPANY:
+        errors["company"] = f"Company is too long (max {CONTACT_MAX_COMPANY} chars)."
+    if len(role) > CONTACT_MAX_ROLE:
+        errors["role"] = f"Role is too long (max {CONTACT_MAX_ROLE} chars)."
+    if topic not in CONTACT_TOPICS:
+        topic = "other"
+
+    if errors:
+        return JSONResponse({"ok": False, "errors": errors}, status_code=400)
+
+    ua = request.headers.get("user-agent")
+    fwd = request.headers.get("x-forwarded-for")
+    ip = (fwd.split(",")[0].strip() if fwd else (request.client.host if request.client else None))
+
+    try:
+        sent = await send_feedback_email(
+            submitter_name=name,
+            submitter_email=email,
+            topic=topic,
+            message=message,
+            company=company,
+            role=role,
+            user_agent=ua,
+            ip=ip,
+        )
+    except Exception:
+        logger.exception("send_feedback_email crashed")
+        sent = False
+
+    if not sent:
+        return JSONResponse(
+            {"ok": False, "errors": {"_form": "We couldn't send your message right now. Please try again in a few minutes."}},
+            status_code=500,
+        )
+
+    try:
+        await audit.record(
+            action="lead.contact_submitted",
+            actor_email=email,
+            request=request,
+            details={"topic": topic, "company": company or None, "role": role or None},
+        )
+    except Exception:
+        logger.exception("audit_log.record failed for lead.contact_submitted")
+
+    return JSONResponse({"ok": True})
 
 
 @app.get("/pricing", response_class=HTMLResponse)

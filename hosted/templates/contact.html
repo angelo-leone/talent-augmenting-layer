@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send feedback · Talent-Augmenting OS</title>
+    <meta name="description" content="Send feedback, report a bug, or get in touch about TAOS.">
+    <meta name="robots" content="noindex">
+    <link rel="stylesheet" href="/static/style.css?v={{ build_sha }}">
+    <style>
+        .contact-wrap { max-width: 640px; margin: 2.5rem auto; padding: 0 1.5rem; }
+        .contact-hero { margin-bottom: 1.5rem; }
+        .contact-hero h1 { margin: 0 0 0.5rem; font-size: 1.85rem; }
+        .contact-hero p { color: var(--text-muted); line-height: 1.55; margin: 0; }
+
+        .contact-form { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.75rem; box-shadow: var(--shadow-sm); }
+        .field { margin-bottom: 1.15rem; }
+        .field label { display: block; font-weight: 600; font-size: 0.92rem; margin-bottom: 0.35rem; color: var(--text); }
+        .field .req { color: var(--accent); margin-left: 0.15rem; }
+        .field .hint { color: var(--text-muted); font-size: 0.82rem; margin-top: 0.3rem; }
+        .field input, .field select, .field textarea {
+            width: 100%; padding: 0.7rem 0.8rem; background: var(--surface); color: var(--text);
+            border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+            font-family: inherit; font-size: 0.95rem; box-sizing: border-box; line-height: 1.4;
+        }
+        .field textarea { min-height: 140px; resize: vertical; }
+        .field input:focus, .field select:focus, .field textarea:focus {
+            outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+        .field-error { color: var(--danger); font-size: 0.82rem; margin-top: 0.3rem; display: none; }
+        .field.has-error input, .field.has-error select, .field.has-error textarea { border-color: var(--danger); }
+        .field.has-error .field-error { display: block; }
+
+        .honeypot { position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; }
+
+        .form-actions { display: flex; gap: 0.75rem; align-items: center; margin-top: 0.5rem; flex-wrap: wrap; }
+        .form-actions .btn { min-width: 140px; }
+        .form-actions .privacy { color: var(--text-muted); font-size: 0.82rem; }
+
+        .alert { padding: 0.85rem 1rem; border-radius: var(--radius-sm); margin-bottom: 1rem; font-size: 0.92rem; line-height: 1.5; }
+        .alert-error { background: #FEF2F2; border-left: 3px solid var(--danger); color: var(--danger); }
+        .alert-success { background: var(--accent-soft); border-left: 3px solid var(--accent); color: var(--text); }
+        .alert-success h2 { margin: 0 0 0.4rem; font-size: 1.1rem; color: var(--accent); }
+        .alert-success p { margin: 0; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">Talent-Augmenting OS</a>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/login" class="nav-link">Sign in</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="contact-wrap">
+        <div class="contact-hero">
+            <h1>Send feedback</h1>
+            <p>Tell us what's working, what isn't, or what you'd like to see. Bug reports, feature ideas, and enterprise enquiries all land in the same inbox and we read every one.</p>
+        </div>
+
+        <div id="success-panel" class="alert alert-success" style="display:none;">
+            <h2>Thanks &mdash; message received.</h2>
+            <p>We'll reply to the email you gave us. Usually within a day or two.</p>
+        </div>
+
+        <form id="contact-form" class="contact-form" novalidate>
+            <div id="form-error" class="alert alert-error" style="display:none;"></div>
+
+            <div class="field" data-field="name">
+                <label for="f-name">Your name</label>
+                <input id="f-name" name="name" type="text" autocomplete="name" maxlength="200">
+                <div class="field-error"></div>
+            </div>
+
+            <div class="field" data-field="email">
+                <label for="f-email">Email<span class="req">*</span></label>
+                <input id="f-email" name="email" type="email" autocomplete="email" maxlength="320" required>
+                <div class="hint">So we can reply to you.</div>
+                <div class="field-error"></div>
+            </div>
+
+            <div class="field" data-field="company">
+                <label for="f-company">Company</label>
+                <input id="f-company" name="company" type="text" autocomplete="organization" maxlength="200">
+                <div class="field-error"></div>
+            </div>
+
+            <div class="field" data-field="role">
+                <label for="f-role">Role</label>
+                <input id="f-role" name="role" type="text" autocomplete="organization-title" maxlength="200">
+                <div class="field-error"></div>
+            </div>
+
+            <div class="field" data-field="topic">
+                <label for="f-topic">What's this about?</label>
+                <select id="f-topic" name="topic">
+                    <option value="product_feedback">Product feedback</option>
+                    <option value="bug">Bug report</option>
+                    <option value="enterprise_enquiry">Enterprise enquiry</option>
+                    <option value="other">Other</option>
+                </select>
+                <div class="field-error"></div>
+            </div>
+
+            <div class="field" data-field="message">
+                <label for="f-message">Message<span class="req">*</span></label>
+                <textarea id="f-message" name="message" maxlength="5000" required placeholder="What's on your mind?"></textarea>
+                <div class="field-error"></div>
+            </div>
+
+            <div class="honeypot" aria-hidden="true">
+                <label for="f-website">Website (leave blank)</label>
+                <input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off">
+            </div>
+
+            <div class="form-actions">
+                <button id="submit-btn" type="submit" class="btn btn-primary">Send message</button>
+                <span class="privacy">We use your email only to reply.</span>
+            </div>
+        </form>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <p>Talent-Augmenting OS v1.0 &middot; Making workers better, not dependent.</p>
+        </div>
+    </footer>
+
+<script>
+(function () {
+    var form = document.getElementById('contact-form');
+    var submitBtn = document.getElementById('submit-btn');
+    var formError = document.getElementById('form-error');
+    var successPanel = document.getElementById('success-panel');
+
+    function clearErrors() {
+        formError.style.display = 'none';
+        formError.textContent = '';
+        document.querySelectorAll('.field.has-error').forEach(function (el) {
+            el.classList.remove('has-error');
+            var e = el.querySelector('.field-error');
+            if (e) e.textContent = '';
+        });
+    }
+
+    function showFieldError(field, message) {
+        var el = document.querySelector('.field[data-field="' + field + '"]');
+        if (!el) return;
+        el.classList.add('has-error');
+        var e = el.querySelector('.field-error');
+        if (e) e.textContent = message;
+    }
+
+    form.addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        clearErrors();
+
+        var payload = {
+            name: document.getElementById('f-name').value,
+            email: document.getElementById('f-email').value,
+            company: document.getElementById('f-company').value,
+            role: document.getElementById('f-role').value,
+            topic: document.getElementById('f-topic').value,
+            message: document.getElementById('f-message').value,
+            website: document.getElementById('f-website').value
+        };
+
+        submitBtn.disabled = true;
+        var originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Sending...';
+
+        fetch('/api/contact', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        }).then(function (resp) {
+            return resp.json().then(function (data) {
+                return { status: resp.status, data: data };
+            }).catch(function () {
+                return { status: resp.status, data: null };
+            });
+        }).then(function (result) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+
+            if (result.data && result.data.ok) {
+                form.style.display = 'none';
+                successPanel.style.display = 'block';
+                successPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                return;
+            }
+
+            if (result.status === 429) {
+                formError.textContent = "You've sent a few messages already. Try again in an hour, or email us directly.";
+                formError.style.display = 'block';
+                return;
+            }
+
+            if (result.data && result.data.errors) {
+                Object.keys(result.data.errors).forEach(function (field) {
+                    if (field === '_form') {
+                        formError.textContent = result.data.errors[field];
+                        formError.style.display = 'block';
+                    } else {
+                        showFieldError(field, result.data.errors[field]);
+                    }
+                });
+                return;
+            }
+
+            formError.textContent = "Something went wrong. Please try again, or email us directly.";
+            formError.style.display = 'block';
+        }).catch(function () {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+            formError.textContent = "Network error. Please check your connection and try again.";
+            formError.style.display = 'block';
+        });
+    });
+})();
+</script>
+</body>
+</html>

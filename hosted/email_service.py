@@ -238,11 +238,18 @@ async def _send_via_sendgrid(
     subject: str,
     body_text: str,
     body_html: str,
+    reply_to_email: str | None = None,
+    reply_to_name: str | None = None,
 ) -> bool:
-    """Send email through SendGrid API."""
+    """Send email through SendGrid API.
+
+    ``reply_to_email`` sets the ``Reply-To`` header so a recipient hitting
+    Reply lands on a different address than ``FROM_EMAIL`` (used by the
+    feedback form: from = noreply, reply-to = submitter).
+    """
     try:
         from sendgrid import SendGridAPIClient
-        from sendgrid.helpers.mail import Mail, Content
+        from sendgrid.helpers.mail import Mail, Content, ReplyTo
 
         message = Mail(
             from_email=FROM_EMAIL,
@@ -251,12 +258,14 @@ async def _send_via_sendgrid(
         )
         message.add_content(Content("text/plain", body_text))
         message.add_content(Content("text/html", body_html))
+        if reply_to_email:
+            message.reply_to = ReplyTo(email=reply_to_email, name=reply_to_name)
 
         sg = SendGridAPIClient(SENDGRID_API_KEY)
         response = sg.send(message)
 
         if response.status_code in (200, 201, 202):
-            logger.info("Check-in email sent to %s (status %d)", to_email, response.status_code)
+            logger.info("Email sent to %s (status %d)", to_email, response.status_code)
             return True
         else:
             logger.error("SendGrid error: status %d, body %s", response.status_code, response.body)
@@ -264,3 +273,95 @@ async def _send_via_sendgrid(
     except Exception:
         logger.exception("Failed to send email via SendGrid to %s", to_email)
         return False
+
+
+# ---------------------------------------------------------------------------
+# Feedback / contact form
+# ---------------------------------------------------------------------------
+
+FEEDBACK_INBOX = "angelo.leone@public.io"
+
+
+def _html_escape(value: str) -> str:
+    """Minimal HTML escape for user-supplied content in the email body."""
+    import html
+    return html.escape(value, quote=True)
+
+
+async def send_feedback_email(
+    submitter_name: str,
+    submitter_email: str,
+    topic: str,
+    message: str,
+    company: str = "",
+    role: str = "",
+    user_agent: str | None = None,
+    ip: str | None = None,
+) -> bool:
+    """Send a feedback / contact-form submission to the FEEDBACK_INBOX.
+
+    The submitter's email goes in ``Reply-To`` so hitting reply in any
+    mail client lands a draft to them, not back to ``FROM_EMAIL``.
+    Returns True on send-or-log success.
+    """
+    display_name = (submitter_name or "").strip() or "(name not provided)"
+    company_line = (company or "").strip() or "(not provided)"
+    role_line = (role or "").strip() or "(not provided)"
+    topic_line = (topic or "general").strip() or "general"
+
+    subject = f"[TAOS feedback / {topic_line}] from {display_name}"
+
+    body_text = (
+        f"New TAOS feedback submission\n\n"
+        f"Topic: {topic_line}\n"
+        f"Name: {display_name}\n"
+        f"Email: {submitter_email}\n"
+        f"Company: {company_line}\n"
+        f"Role: {role_line}\n\n"
+        f"Message:\n{message}\n\n"
+        f"--\n"
+        f"User-Agent: {user_agent or '(unknown)'}\n"
+        f"IP: {ip or '(unknown)'}\n"
+    )
+
+    body_html = (
+        "<div style='font-family: -apple-system, sans-serif; max-width: 640px; "
+        "margin: 0 auto; color: #0F172A; padding: 1.5rem;'>"
+        "<h2 style='color: #2D6A4F; margin: 0 0 1rem;'>New TAOS feedback</h2>"
+        "<table style='border-collapse: collapse; margin-bottom: 1rem; font-size: 0.95rem;'>"
+        f"<tr><td style='padding: 0.25rem 0.75rem 0.25rem 0; color: #64748B;'>Topic</td><td>{_html_escape(topic_line)}</td></tr>"
+        f"<tr><td style='padding: 0.25rem 0.75rem 0.25rem 0; color: #64748B;'>Name</td><td>{_html_escape(display_name)}</td></tr>"
+        f"<tr><td style='padding: 0.25rem 0.75rem 0.25rem 0; color: #64748B;'>Email</td>"
+        f"<td><a href='mailto:{_html_escape(submitter_email)}'>{_html_escape(submitter_email)}</a></td></tr>"
+        f"<tr><td style='padding: 0.25rem 0.75rem 0.25rem 0; color: #64748B;'>Company</td><td>{_html_escape(company_line)}</td></tr>"
+        f"<tr><td style='padding: 0.25rem 0.75rem 0.25rem 0; color: #64748B;'>Role</td><td>{_html_escape(role_line)}</td></tr>"
+        "</table>"
+        "<div style='background: #F7F5EE; padding: 1rem; border-radius: 8px; "
+        "white-space: pre-wrap; line-height: 1.55;'>"
+        f"{_html_escape(message)}"
+        "</div>"
+        "<p style='color: #94A3B8; font-size: 0.78rem; margin-top: 1.5rem;'>"
+        f"UA: {_html_escape(user_agent or '(unknown)')}<br>"
+        f"IP: {_html_escape(ip or '(unknown)')}"
+        "</p></div>"
+    )
+
+    if SENDGRID_API_KEY:
+        return await _send_via_sendgrid(
+            FEEDBACK_INBOX,
+            subject,
+            body_text,
+            body_html,
+            reply_to_email=submitter_email,
+            reply_to_name=display_name,
+        )
+
+    logger.info(
+        "Feedback email (logged, no SendGrid key):\n  To: %s\n  Subject: %s\n  From submitter: %s <%s>\n  Body:\n%s",
+        FEEDBACK_INBOX,
+        subject,
+        display_name,
+        submitter_email,
+        body_text,
+    )
+    return True
