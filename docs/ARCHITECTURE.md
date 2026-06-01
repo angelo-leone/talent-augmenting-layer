@@ -112,13 +112,13 @@ All tiers share the same 14-tool MCP surface and the same portable markdown prof
 
 ---
 
-## MCP Tool Surface (14 tools)
+## MCP Tool Surface (15 tools)
 
 **Profile management**: `talent_get_profile`, `talent_get_calibration`, `talent_status`, `talent_list_profiles`, `talent_save_profile`, `talent_delete_profile`
 **Assessment**: `talent_assess_start`, `talent_assess_score`, `talent_assess_create_profile`, `talent_suggest_domains`
 **Runtime**: `talent_classify_task`, `talent_log_interaction`, `talent_get_progression`
 **Org**: `talent_org_summary`
-**Telemetry**: `talent_parse_telemetry` (extracts `<tal_log>` JSON from LLM responses)
+**Telemetry**: current installs log via the `talent_log_interaction` tool call (prompts no longer emit `<tal_log>` blocks). `talent_parse_telemetry` is retained as a legacy parser that extracts `<tal_log>` JSON from older pasted-prompt installs.
 
 ---
 
