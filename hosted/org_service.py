@@ -3,6 +3,29 @@
 Mirrors mcp-server/src/profile_manager.py:ProfileStore.get_org_summary but
 pulls from the hosted Postgres database and constrains to a single org_id.
 Admins only see members of their own org.
+
+PRIVACY POSTURE (aggregate-only employer view)
+----------------------------------------------
+The employer/org view is deliberately aggregate-only. An org admin never sees
+any individual worker's skill ratings, dependency-risk score, trend, or
+atrophy signals. Per-member metrics are computed here ONLY to build org-level
+aggregates and are never returned. Two k-anonymity floors apply so that no
+aggregate can single out an individual in a small team:
+
+  * MIN_AGGREGATE_GROUP : minimum onboarded profiles before any average /
+    distribution / domain stat is exposed at all.
+  * MIN_SENSITIVE_GROUP : higher floor for the risk and atrophy alert counts,
+    which are the most monitoring-flavoured numbers.
+
+Individual data remains visible only to the member themselves (their own
+dashboard). This is what keeps the deployment on Solita's "light" risk path
+and out of the EU AI Act employment (Annex III) category: the system does not
+monitor or evaluate any identifiable individual for the employer.
+
+NOTE: research/pilot data (e.g. an RCT) is a SEPARATE processing activity. It
+draws on the raw Profile/ChatLog tables under explicit participant consent and
+a data-sharing agreement, not on this employer view. Keep the two flows
+distinct: this function must never become the research export path.
 """
 from __future__ import annotations
 
@@ -20,33 +43,38 @@ from hosted.database import (
     User,
     Organization,
     ChatLog,
-    EngagementLevel,
     SkillSignal,
 )
 
 logger = logging.getLogger(__name__)
 
+# k-anonymity floors for the employer view. Tune here if Solita (or another
+# customer) requires a different threshold; some prefer 10 across the board for
+# employee data. Split default: 5 for skill aggregates, 10 for risk/atrophy.
+MIN_AGGREGATE_GROUP = 5
+MIN_SENSITIVE_GROUP = 10
+
 
 async def get_org_summary_scoped(org_id: int, db: AsyncSession) -> dict[str, Any]:
-    """Return aggregate stats for all members of `org_id`.
+    """Return aggregate-only stats for all members of `org_id`.
 
-    Shape matches the MCP-server org-summary output loosely: org_averages,
-    alerts, domain_summary, profiles. Fields drawn from each member's latest
-    Profile row and recent ChatLog telemetry.
+    No per-individual skill, risk, trend, or atrophy data is ever returned.
+    Aggregates are suppressed below the k-anonymity floors above.
     """
     # 1. Load org + members
     org_result = await db.execute(select(Organization).where(Organization.id == org_id))
     org = org_result.scalar_one_or_none()
     if org is None:
-        return {"error": "Organization not found", "profiles": []}
+        return {"error": "Organization not found", "members": []}
 
     members_result = await db.execute(select(User).where(User.org_id == org_id))
     members = members_result.scalars().all()
     if not members:
         return {
             "org": {"id": org.id, "name": org.name, "slug": org.slug},
+            "member_count": 0,
             "total_profiles": 0,
-            "profiles": [],
+            "members": [],
             "message": "No members in this org yet.",
         }
 
@@ -80,127 +108,133 @@ async def get_org_summary_scoped(org_id: int, db: AsyncSession) -> dict[str, Any
     for log in recent_logs:
         logs_by_user[log.user_id].append(log)
 
-    profiles_data: list[dict[str, Any]] = []
+    # 4. Per-member metrics computed ONLY to feed org-level aggregates.
+    #    None of this is returned at the individual level.
     all_domains: dict[str, list[int]] = defaultdict(list)
+    dep_risks: list[float] = []
+    growth_potentials: list[float] = []
+    expertise_avgs: list[float] = []
+    risk_buckets = {"low": 0, "medium": 0, "high": 0, "none": 0}
     at_risk_count = 0
     atrophy_count = 0
     declining_count = 0
+    onboarded_count = 0
+
+    # Identity/role only, for org administration (invite, assign roles). No
+    # skill, risk, behaviour, or onboarding-status data per person.
+    members_admin: list[dict[str, Any]] = [
+        {
+            "name": m.name or m.email,
+            "email": m.email,
+            "role": str(m.role.value) if m.role else "member",
+        }
+        for m in members
+    ]
 
     for member in members:
         profile = latest_profiles.get(member.id)
         member_logs = logs_by_user.get(member.id, [])
 
-        scores: dict[str, Any] = {}
-        domain_ratings: dict[str, int] = {}
-        if profile:
-            try:
-                scores = json.loads(profile.scores_json) or {}
-            except (json.JSONDecodeError, TypeError):
-                scores = {}
-            # domain ratings are keyed under "esa_ratings" or "domain_ratings"
-            # depending on when the profile was written. Check both.
-            raw_domains = scores.get("domain_ratings") or scores.get("esa_ratings") or {}
-            if isinstance(raw_domains, dict):
-                for domain, rating in raw_domains.items():
-                    try:
-                        r = int(rating)
-                    except (TypeError, ValueError):
-                        continue
-                    domain_ratings[domain] = r
-                    all_domains[domain].append(r)
+        if not profile:
+            risk_buckets["none"] += 1
+            continue
+        onboarded_count += 1
 
-        # Engagement metrics from chat logs
+        scores: dict[str, Any] = {}
+        try:
+            scores = json.loads(profile.scores_json) or {}
+        except (json.JSONDecodeError, TypeError):
+            scores = {}
+
+        raw_domains = scores.get("domain_ratings") or scores.get("esa_ratings") or {}
+        domain_ratings: dict[str, int] = {}
+        if isinstance(raw_domains, dict):
+            for domain, rating in raw_domains.items():
+                try:
+                    r = int(rating)
+                except (TypeError, ValueError):
+                    continue
+                domain_ratings[domain] = r
+                all_domains[domain].append(r)
+
         total_interactions = len(member_logs)
-        passive_count = sum(
-            1 for log in member_logs if log.engagement_level == EngagementLevel.passive
-        )
         atrophy_logs = sum(
             1 for log in member_logs if log.skill_signal == SkillSignal.atrophy
         )
         growth_logs = sum(
             1 for log in member_logs if log.skill_signal == SkillSignal.growth
         )
-        passive_ratio = passive_count / total_interactions if total_interactions else 0.0
 
         dependency_risk = _extract_number(scores, "adr", "dependency_risk", "dependency_risk_score")
         growth_potential = _extract_number(scores, "gp", "growth_potential", "growth_potential_score")
-
-        trend_direction = "no_data"
-        if total_interactions >= 5:
-            if atrophy_logs > growth_logs:
-                trend_direction = "declining"
-                declining_count += 1
-            elif growth_logs > atrophy_logs:
-                trend_direction = "improving"
-            else:
-                trend_direction = "stable"
-
-        if dependency_risk >= 7:
-            at_risk_count += 1
-        if atrophy_logs >= 3:
-            atrophy_count += 1
+        dep_risks.append(dependency_risk)
+        growth_potentials.append(growth_potential)
 
         expertise_vals = list(domain_ratings.values())
-        avg_expertise = sum(expertise_vals) / len(expertise_vals) if expertise_vals else 0.0
+        if expertise_vals:
+            expertise_avgs.append(sum(expertise_vals) / len(expertise_vals))
 
-        profiles_data.append({
-            "user_id": member.id,
-            "name": member.name or member.email,
-            "email": member.email,
-            "role": str(member.role.value) if member.role else "member",
-            "has_profile": profile is not None,
-            "profile_version": profile.version if profile else None,
-            "last_updated": profile.created_at.isoformat() if profile else None,
-            "expertise_avg": round(avg_expertise, 1),
-            "expertise_count": len(expertise_vals),
-            "expertise_by_domain": domain_ratings,
-            "dependency_risk": dependency_risk,
-            "growth_potential": growth_potential,
-            "total_interactions": total_interactions,
-            "passive_ratio": round(passive_ratio, 2),
-            "atrophy_signals_30d": atrophy_logs,
-            "growth_signals_30d": growth_logs,
-            "trend_direction": trend_direction,
-        })
+        # Aggregate risk-tier distribution (counts only).
+        if dependency_risk >= 7:
+            risk_buckets["high"] += 1
+            at_risk_count += 1
+        elif dependency_risk >= 4:
+            risk_buckets["medium"] += 1
+        else:
+            risk_buckets["low"] += 1
 
-    total_profiles = sum(1 for p in profiles_data if p["has_profile"])
-    if total_profiles == 0:
-        org_averages = {"dependency_risk": 0, "growth_potential": 0, "expertise": 0}
-    else:
+        if atrophy_logs >= 3:
+            atrophy_count += 1
+        if total_interactions >= 5 and atrophy_logs > growth_logs:
+            declining_count += 1
+
+    total_profiles = onboarded_count
+
+    # 5. Apply k-anonymity floors before exposing anything.
+    base_ok = total_profiles >= MIN_AGGREGATE_GROUP
+    sensitive_ok = total_profiles >= MIN_SENSITIVE_GROUP
+
+    org_averages = None
+    risk_distribution = None
+    if base_ok:
         org_averages = {
-            "dependency_risk": round(
-                sum(p["dependency_risk"] for p in profiles_data if p["has_profile"]) / total_profiles, 1
-            ),
-            "growth_potential": round(
-                sum(p["growth_potential"] for p in profiles_data if p["has_profile"]) / total_profiles, 1
-            ),
-            "expertise": round(
-                sum(p["expertise_avg"] for p in profiles_data if p["has_profile"]) / total_profiles, 1
-            ),
+            "dependency_risk": round(sum(dep_risks) / len(dep_risks), 1) if dep_risks else 0,
+            "growth_potential": round(sum(growth_potentials) / len(growth_potentials), 1) if growth_potentials else 0,
+            "expertise": round(sum(expertise_avgs) / len(expertise_avgs), 1) if expertise_avgs else 0,
         }
+        risk_distribution = dict(risk_buckets)
 
+    # Domain summary: only domains rated by at least MIN_AGGREGATE_GROUP
+    # members, and only avg + count (min/max would expose the extreme person).
     domain_summary = {
-        domain: {
-            "avg": round(sum(ratings) / len(ratings), 1),
-            "min": min(ratings),
-            "max": max(ratings),
-            "count": len(ratings),
-        }
+        domain: {"avg": round(sum(ratings) / len(ratings), 1), "count": len(ratings)}
         for domain, ratings in all_domains.items()
+        if len(ratings) >= MIN_AGGREGATE_GROUP
     }
+
+    # Risk/atrophy alerts only above the higher (sensitive) floor.
+    alerts = None
+    if sensitive_ok:
+        alerts = {
+            "at_risk_count": at_risk_count,
+            "declining_trend_count": declining_count,
+            "atrophy_signal_members": atrophy_count,
+        }
 
     return {
         "org": {"id": org.id, "name": org.name, "slug": org.slug},
         "member_count": len(members),
         "total_profiles": total_profiles,
+        "onboarded_count": onboarded_count,
+        "aggregate_suppressed": not base_ok,
+        "min_group": MIN_AGGREGATE_GROUP,
+        "min_sensitive_group": MIN_SENSITIVE_GROUP,
         "org_averages": org_averages,
-        "alerts": {
-            "at_risk_count": at_risk_count,        # dependency_risk >= 7
-            "declining_trend_count": declining_count,
-            "atrophy_signal_members": atrophy_count,  # >= 3 atrophy logs in 30d
-        },
+        "risk_distribution": risk_distribution,
+        "alerts": alerts,
         "domain_summary": domain_summary,
-        "profiles": profiles_data,
+        "members": members_admin,
+        # No per-individual skill/risk/behaviour data is returned, by design.
     }
 
 
