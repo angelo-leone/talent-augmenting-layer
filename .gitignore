@@ -34,10 +34,10 @@ profiles/pro-*.md
 docs/TAL_Architecture.docx
 docs/generate_architecture_docx.py
 
-# Research / thinking material kept locally only.
-context/TAL.docx
-context/Experimental design.docx
-context/Talent-Augmenting Layer.pptx
+# Research / thinking material and working context, kept locally only
+# (untracked from the public repo; files remain on the maintainer's disk).
+context/
+emails/
 
 # Local Claude Code slash commands. The public versions live in plugin/skills/.
 .claude/commands/
