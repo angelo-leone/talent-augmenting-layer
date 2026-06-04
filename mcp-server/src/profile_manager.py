@@ -615,74 +615,101 @@ class ProfileStore:
         return deleted
 
     def get_org_summary(self) -> dict:
-        """Aggregate anonymized stats across ALL profiles for org-level dashboard."""
-        profiles_data = []
+        """Aggregate-only org view. No individual is ever exposed.
+
+        Mirrors hosted/org_service.py. Per-profile metrics are computed only to
+        build org-level aggregates and are never returned; aggregates are
+        suppressed below k-anonymity floors so no individual can be singled out
+        in a small team. Individual data stays visible only to the member.
+        """
+        # k-anonymity floors (keep in sync with hosted/org_service.py).
+        MIN_AGGREGATE_GROUP = 5   # min profiles before any aggregate is shown
+        MIN_SENSITIVE_GROUP = 10  # min profiles before risk/atrophy alerts show
+
+        dep_risks: list[float] = []
+        growth_potentials: list[float] = []
+        expertise_avgs: list[float] = []
+        all_domains: dict[str, list[int]] = {}
+        risk_buckets = {"low": 0, "medium": 0, "high": 0, "none": 0}
+        at_risk_count = 0
+        declining_count = 0
+        atrophy_members = 0
+        # Identity/role only, for administration. No skill/risk/behaviour data.
+        members_admin: list[dict] = []
+
         for name in self.list_profiles():
             profile = self.read_profile(name)
             if not profile:
                 continue
 
+            members_admin.append({"name": name, "role": profile.role})
+
             expertise_ratings = [e.rating for e in profile.expertise]
-            avg_expertise = sum(expertise_ratings) / len(expertise_ratings) if expertise_ratings else 0
+            if expertise_ratings:
+                expertise_avgs.append(sum(expertise_ratings) / len(expertise_ratings))
+            for e in profile.expertise:
+                all_domains.setdefault(e.domain, []).append(e.rating)
 
             progression = self.get_skill_progression(name)
+            dep = profile.dependency_risk_score
+            dep_risks.append(dep)
+            growth_potentials.append(profile.growth_potential_score)
 
-            profiles_data.append({
-                "name": name,
-                "role": profile.role,
-                "expertise_avg": round(avg_expertise, 1),
-                "expertise_count": len(expertise_ratings),
-                "expertise_by_domain": {e.domain: e.rating for e in profile.expertise},
-                "dependency_risk": profile.dependency_risk_score,
-                "growth_potential": profile.growth_potential_score,
-                "friction_level": profile.calibration.default_friction_level,
-                "total_interactions": progression.get("total_interactions", 0),
-                "passive_ratio": progression.get("passive_ratio", 0),
-                "atrophy_warnings": progression.get("atrophy_warnings", []),
-                "trend_direction": progression.get("trend_direction", "no_data"),
-            })
+            if dep >= 7:
+                risk_buckets["high"] += 1
+                at_risk_count += 1
+            elif dep >= 4:
+                risk_buckets["medium"] += 1
+            else:
+                risk_buckets["low"] += 1
 
-        if not profiles_data:
-            return {"message": "No profiles found.", "profiles": []}
+            if progression.get("trend_direction") == "declining":
+                declining_count += 1
+            if len(progression.get("atrophy_warnings", [])) >= 3:
+                atrophy_members += 1
 
-        # Org-level aggregations
-        total_profiles = len(profiles_data)
-        avg_dependency = sum(p["dependency_risk"] for p in profiles_data) / total_profiles
-        avg_growth = sum(p["growth_potential"] for p in profiles_data) / total_profiles
-        avg_expertise = sum(p["expertise_avg"] for p in profiles_data) / total_profiles
-        declining_count = sum(1 for p in profiles_data if p["trend_direction"] == "declining")
-        at_risk_count = sum(1 for p in profiles_data if p["dependency_risk"] >= 7)
+        total_profiles = len(members_admin)
+        if total_profiles == 0:
+            return {"message": "No profiles found.", "members": []}
 
-        # Domain-level aggregation
-        all_domains: dict[str, list[int]] = {}
-        for p in profiles_data:
-            for domain, rating in p["expertise_by_domain"].items():
-                if domain not in all_domains:
-                    all_domains[domain] = []
-                all_domains[domain].append(rating)
+        base_ok = total_profiles >= MIN_AGGREGATE_GROUP
+        sensitive_ok = total_profiles >= MIN_SENSITIVE_GROUP
 
-        domain_summary = {
-            domain: {
-                "avg": round(sum(ratings) / len(ratings), 1),
-                "min": min(ratings),
-                "max": max(ratings),
-                "count": len(ratings),
+        org_averages = None
+        risk_distribution = None
+        if base_ok:
+            org_averages = {
+                "dependency_risk": round(sum(dep_risks) / len(dep_risks), 1) if dep_risks else 0,
+                "growth_potential": round(sum(growth_potentials) / len(growth_potentials), 1) if growth_potentials else 0,
+                "expertise": round(sum(expertise_avgs) / len(expertise_avgs), 1) if expertise_avgs else 0,
             }
+            risk_distribution = dict(risk_buckets)
+
+        # Only domains rated by >= MIN_AGGREGATE_GROUP members; avg + count only
+        # (min/max would expose the extreme individual).
+        domain_summary = {
+            domain: {"avg": round(sum(ratings) / len(ratings), 1), "count": len(ratings)}
             for domain, ratings in all_domains.items()
+            if len(ratings) >= MIN_AGGREGATE_GROUP
         }
+
+        alerts = None
+        if sensitive_ok:
+            alerts = {
+                "at_risk_count": at_risk_count,
+                "declining_trend_count": declining_count,
+                "atrophy_signal_members": atrophy_members,
+            }
 
         return {
             "total_profiles": total_profiles,
-            "org_averages": {
-                "dependency_risk": round(avg_dependency, 1),
-                "growth_potential": round(avg_growth, 1),
-                "expertise": round(avg_expertise, 1),
-            },
-            "alerts": {
-                "at_risk_count": at_risk_count,
-                "declining_trend_count": declining_count,
-                "total_atrophy_warnings": sum(len(p["atrophy_warnings"]) for p in profiles_data),
-            },
+            "aggregate_suppressed": not base_ok,
+            "min_group": MIN_AGGREGATE_GROUP,
+            "min_sensitive_group": MIN_SENSITIVE_GROUP,
+            "org_averages": org_averages,
+            "risk_distribution": risk_distribution,
+            "alerts": alerts,
             "domain_summary": domain_summary,
-            "profiles": profiles_data,
+            "members": members_admin,
+            # No per-individual skill/risk/behaviour data is returned, by design.
         }
