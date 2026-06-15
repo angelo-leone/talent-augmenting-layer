@@ -65,9 +65,23 @@ services:
       - key: TAOS_RATE_LIMIT_STORAGE
         value: "memory://"
 
-      # Billing scaffold (off by default; flip when ready to monetise)
+      # Billing scaffold. STILL OFF: needs a payment processor (Paddle was the
+      # decision; the scaffold is a Stripe stub with no keys set) and the
+      # IP-ownership question resolved before money moves. Flipping this on now
+      # yields broken checkout, so it stays false until those are settled.
       - key: ENABLE_BILLING
         value: "false"
+
+      # Reveal -> free-trial funnel. Kept OFF until payment is wired (no point
+      # gating users into a "trial" with no conversion path yet). When you do
+      # enable it, set TRIAL_GATE_SINCE to that moment so existing users are
+      # grandfathered, and the founder email (FULL_ACCESS_EMAILS) always bypasses it.
+      - key: ENABLE_TRIAL_GATE
+        value: "false"
+      - key: TRIAL_GATE_SINCE
+        value: "2026-06-16T00:00:00"
+      - key: FULL_ACCESS_EMAILS
+        value: "angelo.leone1204@gmail.com"
 
       # MCP authentication enforcement.
       # Default false to preserve the in-flight Vanguard pilot (some clients

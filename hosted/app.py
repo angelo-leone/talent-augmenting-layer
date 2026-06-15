@@ -20,7 +20,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import select, func, text
 from starlette.middleware.sessions import SessionMiddleware
 
-from hosted.config import SECRET_KEY, APP_URL, BASE_DIR, ENABLE_BILLING, ENABLE_TRIAL_GATE, TRIAL_DAYS
+from hosted.config import SECRET_KEY, APP_URL, BASE_DIR, ENABLE_BILLING, ENABLE_TRIAL_GATE, TRIAL_DAYS, FULL_ACCESS_EMAILS, TRIAL_GATE_SINCE
 from hosted.database import (
     create_tables,
     get_db,
@@ -952,6 +952,24 @@ async def assess_complete(request: Request):
 # Profile routes
 # ---------------------------------------------------------------------------
 
+def _has_full_access(email: str, urow) -> bool:
+    """True if this user bypasses the reveal/trial gate: explicit allowlist, an
+    active or converted trial, or an account created before TRIAL_GATE_SINCE."""
+    if email and email.lower() in FULL_ACCESS_EMAILS:
+        return True
+    status = getattr(urow, "trial_status", None) if urow else None
+    if status in ("active", "converted"):
+        return True
+    created = getattr(urow, "created_at", None) if urow else None
+    if TRIAL_GATE_SINCE and created:
+        try:
+            if created < datetime.datetime.fromisoformat(TRIAL_GATE_SINCE):
+                return True
+        except ValueError:
+            pass
+    return False
+
+
 @app.get("/dashboard", response_class=HTMLResponse)
 async def dashboard(request: Request):
     user = get_current_user(request)
@@ -996,7 +1014,7 @@ async def dashboard(request: Request):
     # The flag is off by default, so the pilot path is unchanged. Existing
     # accounts get a one-time backfill to 'converted' when the flag is flipped
     # (see LAUNCH notes), so they are never bounced to the reveal.
-    if ENABLE_TRIAL_GATE and profile is not None and trial_status not in ("active", "converted"):
+    if ENABLE_TRIAL_GATE and profile is not None and not _has_full_access(user["email"], urow):
         return RedirectResponse(url="/reveal", status_code=302)
 
     trial_days_left = None
@@ -1042,8 +1060,7 @@ async def reveal(request: Request):
     if not profile:
         return RedirectResponse(url="/assess", status_code=302)
 
-    trial_status = getattr(urow, "trial_status", None) if urow else None
-    if not ENABLE_TRIAL_GATE or trial_status in ("active", "converted"):
+    if not ENABLE_TRIAL_GATE or _has_full_access(user["email"], urow):
         return RedirectResponse(url="/dashboard", status_code=302)
 
     scores_data = {}

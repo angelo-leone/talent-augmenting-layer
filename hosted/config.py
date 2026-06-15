@@ -97,3 +97,14 @@ STRIPE_PRICE_TEAM = os.getenv("STRIPE_PRICE_TEAM", "")
 # pilot users see no change. Flip to true at launch, after the pilot closes.
 ENABLE_TRIAL_GATE = os.getenv("ENABLE_TRIAL_GATE", "false").lower() == "true"
 TRIAL_DAYS = int(os.getenv("TRIAL_DAYS", "30"))
+
+# Accounts that always get full access: never shown the reveal gate, never asked
+# to pay. Comma-separated emails; defaults to the founder.
+FULL_ACCESS_EMAILS = {
+    e.strip().lower()
+    for e in os.getenv("FULL_ACCESS_EMAILS", "angelo.leone1204@gmail.com").split(",")
+    if e.strip()
+}
+# Grandfather: accounts created before this ISO datetime are never gated. Set it
+# to the moment the trial gate is switched on so existing users keep full access.
+TRIAL_GATE_SINCE = os.getenv("TRIAL_GATE_SINCE", "")
