@@ -88,3 +88,12 @@ STRIPE_PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY", "")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
 STRIPE_PRICE_PRO = os.getenv("STRIPE_PRICE_PRO", "")
 STRIPE_PRICE_TEAM = os.getenv("STRIPE_PRICE_TEAM", "")
+
+# Reveal → free-trial funnel: feature-flagged, off during the pilot.
+# When True, a completed assessment routes the user to /reveal (a teaser of
+# their scores) and the full /dashboard unlocks only after they start a
+# 30-day free trial (one click, NO payment, NO card). When False (default)
+# the assessment goes straight to /dashboard exactly as before, so existing
+# pilot users see no change. Flip to true at launch, after the pilot closes.
+ENABLE_TRIAL_GATE = os.getenv("ENABLE_TRIAL_GATE", "false").lower() == "true"
+TRIAL_DAYS = int(os.getenv("TRIAL_DAYS", "30"))

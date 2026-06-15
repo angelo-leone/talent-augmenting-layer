@@ -1,94 +1,130 @@
 {% extends "base.html" %}
 
-{% block title %}Pricing: Talent-Augmenting OS{% endblock %}
+{% block title %}Pricing · Talent-Augmenting OS{% endblock %}
+
+{% block body_class %}marketing{% endblock %}
 
 {% block content %}
-<div style="max-width: 960px; margin: 2rem auto; text-align: center;">
-    <h1>Pricing</h1>
-    <p class="text-muted" style="max-width: 640px; margin: 0.5rem auto 2.5rem;">
-        TAOS is source-available under the Business Source License 1.1 and free to self-host for your own organisation's internal use. The hosted web app and remote MCP endpoint have three tiers for teams that want us to run the infrastructure.
-    </p>
+{% include "_nav.html" %}
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem;">
+<section class="section">
+  <div class="wrap" style="max-width: 1040px;">
 
-        <div class="card">
-            <h2 style="margin-top: 0;">Free</h2>
-            <p style="font-size: 2rem; font-weight: 700; margin: 0.5rem 0;">&pound;0</p>
-            <p class="text-muted">Individual, research, open-source use.</p>
-            <ul style="text-align: left; padding-left: 1.2rem;">
-                <li>Full assessment</li>
-                <li>Unlimited local profile versions</li>
-                <li>All MCP tools (stdio and remote)</li>
-                <li>Community support via GitHub</li>
-            </ul>
-            <a href="/login" class="btn btn-secondary" style="width: 100%;">Sign in</a>
+    <div class="section-head" data-reveal>
+      <div class="section-eyebrow">Pricing</div>
+      <h1 class="section-title">Start free. Keep what makes you sharper.</h1>
+      <p class="section-sub">30-day free trial. No credit card. Cancel in one click.</p>
+      <div class="billing-toggle" id="billing-toggle">
+        <button type="button" class="is-active" data-cycle="monthly">Monthly</button>
+        <button type="button" data-cycle="annual">Annual &middot; save 17%</button>
+      </div>
+    </div>
+
+    <div class="pricing-grid">
+
+      <div class="price-card is-featured" data-reveal>
+        <span class="pill"><span class="dot"></span> For individuals</span>
+        <h3>Individual</h3>
+        <div class="price">
+          <span class="price-amt" data-monthly="&pound;10" data-annual="&pound;8.33">&pound;10</span>
+          <span class="price-per">/ user / month</span>
         </div>
+        <p class="price-note" data-monthly="Billed monthly. VAT included." data-annual="&pound;100 billed yearly. VAT included.">Billed monthly. VAT included.</p>
+        <ul>
+          <li>Full conversational assessment and versioned profile</li>
+          <li>Coaching across Claude, ChatGPT, Gemini, Cursor and Codex</li>
+          <li>The five-mode engine and calibrated confidence</li>
+          <li>Email check-ins and one-tap ship mode</li>
+          <li>Export to any LLM format</li>
+        </ul>
+        <a href="/login" class="btn btn-primary btn-lg" style="width: 100%;">Start free trial</a>
+        {% if enable_billing %}
+        <button type="button" class="btn btn-ghost" style="width: 100%; margin-top: 0.6rem;" onclick="startCheckout('pro')">Subscribe now</button>
+        {% endif %}
+      </div>
 
-        <div class="card" style="border: 2px solid var(--accent);">
-            <h2 style="margin-top: 0;">Pro</h2>
-            <p style="font-size: 2rem; font-weight: 700; margin: 0.5rem 0;">&pound;9 <span class="text-muted" style="font-size: 0.9rem;">/ month</span></p>
-            <p class="text-muted">Individual worker, full hosted experience.</p>
-            <ul style="text-align: left; padding-left: 1.2rem;">
-                <li>Everything in Free</li>
-                <li>Hosted profile syncing from any device</li>
-                <li>Email check-in reminders</li>
-                <li>Export to any LLM format</li>
-                <li>Priority support</li>
-            </ul>
-            <button type="button" class="btn btn-primary" style="width: 100%;" onclick="startCheckout('pro')">Subscribe</button>
+      <div class="price-card" data-reveal data-reveal-delay="100">
+        <span class="pill"><span class="dot"></span> For teams</span>
+        <h3>Team</h3>
+        <div class="price">
+          <span class="price-amt" data-monthly="&pound;20" data-annual="&pound;16.67">&pound;20</span>
+          <span class="price-per">/ user / month</span>
         </div>
+        <p class="price-note" data-monthly="Billed monthly. VAT included." data-annual="&pound;200 billed yearly. VAT included.">Billed monthly. VAT included.</p>
+        <ul>
+          <li>Everything in Individual</li>
+          <li>Aggregate-only team dashboard, no individual surveillance</li>
+          <li>Skill-atrophy alerts at the team level</li>
+          <li>SSO and member management</li>
+          <li>Onboarding call</li>
+        </ul>
+        <a href="/login" class="btn btn-primary btn-lg" style="width: 100%;">Start free trial</a>
+        {% if enable_billing %}
+        <button type="button" class="btn btn-ghost" style="width: 100%; margin-top: 0.6rem;" onclick="startCheckout('team')">Subscribe now</button>
+        {% endif %}
+      </div>
 
-        <div class="card">
-            <h2 style="margin-top: 0;">Team</h2>
-            <p style="font-size: 2rem; font-weight: 700; margin: 0.5rem 0;">&pound;39 <span class="text-muted" style="font-size: 0.9rem;">/ seat / month</span></p>
-            <p class="text-muted">Organisations that want the admin dashboard.</p>
-            <ul style="text-align: left; padding-left: 1.2rem;">
-                <li>Everything in Pro</li>
-                <li>Org admin dashboard</li>
-                <li>Skill matrix + atrophy alerts</li>
-                <li>Member invitations + role management</li>
-                <li>Prioritised onboarding call</li>
-            </ul>
-            <button type="button" class="btn btn-primary" style="width: 100%;" onclick="startCheckout('team')">Subscribe</button>
-        </div>
-
-        <div class="card">
-            <h2 style="margin-top: 0;">Enterprise</h2>
-            <p style="font-size: 1.25rem; font-weight: 600; margin: 0.5rem 0; padding-top: 1rem;">Talk to us</p>
-            <p class="text-muted">Self-hosted, custom deployment, data residency.</p>
-            <ul style="text-align: left; padding-left: 1.2rem;">
-                <li>On-prem deployment</li>
-                <li>SSO / SAML</li>
-                <li>Dedicated SLA</li>
-                <li>Anonymised pilot-style studies</li>
-            </ul>
-            <a href="mailto:angelo@talent-layer.dev" class="btn btn-secondary" style="width: 100%;">Email us</a>
-        </div>
+      <div class="price-card" data-reveal data-reveal-delay="200">
+        <span class="pill"><span class="dot"></span> For enterprises</span>
+        <h3>Enterprise</h3>
+        <div class="price"><span class="price-amt">Let's talk</span></div>
+        <p class="price-note">Tailored to your security and scale.</p>
+        <ul>
+          <li>Everything in Team</li>
+          <li>SSO / SAML and SCIM</li>
+          <li>EU data residency</li>
+          <li>Audit logging and SLA</li>
+          <li>Self-host support and procurement help</li>
+        </ul>
+        <a href="/contact" class="btn btn-ghost btn-lg" style="width: 100%;">Talk to us</a>
+      </div>
 
     </div>
 
-    <p class="text-muted text-small" style="margin-top: 2rem;">
-        Pricing is indicative; billing goes live when <code>ENABLE_BILLING=true</code>.
-        During the Vanguard pilot, everything is free.
+    <p class="text-muted text-small" style="text-align: center; margin-top: 1.5rem;">
+      Billing runs through Paddle as merchant of record, so VAT and invoices are handled for you. Prefer to run it yourself? Self-hosting the source-available stack is free for internal use under BUSL 1.1.
+      {% if not enable_billing %}<br>Paid plans open at launch. Today the full experience is free during the trial.{% endif %}
     </p>
-</div>
 
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
 <script>
-async function startCheckout(tier) {
-    const res = await fetch("/api/billing/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tier }),
+// Monthly / annual toggle: swaps price + note text from data attributes.
+(function () {
+  var toggle = document.getElementById('billing-toggle');
+  if (!toggle) return;
+  toggle.addEventListener('click', function (e) {
+    var btn = e.target.closest('button[data-cycle]');
+    if (!btn) return;
+    var cycle = btn.getAttribute('data-cycle');
+    toggle.querySelectorAll('button').forEach(function (b) { b.classList.toggle('is-active', b === btn); });
+    document.querySelectorAll('[data-' + cycle + ']').forEach(function (el) {
+      el.innerHTML = el.getAttribute('data-' + cycle);
     });
-    if (!res.ok) {
-        const err = await res.json().catch(() => ({ detail: "Unknown error" }));
-        alert("Checkout failed: " + (err.detail || res.statusText));
-        return;
-    }
-    const data = await res.json();
-    if (data.checkout_url) {
-        window.location.href = data.checkout_url;
-    }
+    document.querySelectorAll('.price-per').forEach(function (el) {
+      el.textContent = cycle === 'annual' ? '/ user / month, billed yearly' : '/ user / month';
+    });
+  });
+})();
+
+{% if enable_billing %}
+async function startCheckout(tier) {
+  const res = await fetch("/api/billing/checkout", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ tier }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: "Unknown error" }));
+    alert("Checkout failed: " + (err.detail || res.statusText));
+    return;
+  }
+  const data = await res.json();
+  if (data.checkout_url) window.location.href = data.checkout_url;
 }
+{% endif %}
 </script>
 {% endblock %}

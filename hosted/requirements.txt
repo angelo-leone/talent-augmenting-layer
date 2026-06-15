@@ -6,6 +6,7 @@ authlib>=1.3
 httpx>=0.27
 itsdangerous>=2.1
 sqlalchemy>=2.0
+greenlet>=3.0  # SQLAlchemy async runtime; not auto-installed on every platform
 aiosqlite>=0.19
 asyncpg>=0.29  # For PostgreSQL on Render
 apscheduler>=3.10

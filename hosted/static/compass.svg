@@ -2,82 +2,51 @@
   <title id="compassTitle">TAOS 5-mode compass</title>
   <desc id="compassDesc">A radial diagram of the five Talent-Augmenting OS interaction modes arranged clockwise: Automate (top right, low friction), Augment (right, low-to-medium friction), Coach (bottom, medium-to-high friction), Protect (left, high friction), and Hands-off (top left, AI surfaces the decision).</desc>
 
-  <!--
-    Centre (260, 260). Outer radius 195, inner radius 92.
-    Five 72-degree sectors starting from top (-90 degrees), clockwise.
-    Mid-angles for label placement at radius 142.
-    Soft on-white palette; the sage accent (#2D6A4F) carries the brand,
-    sectors use light tints, hub is white with sage border.
-  -->
-
-  <!-- Sector backgrounds -->
+  <!-- Sector backgrounds. Brand family only: sage / teal tints for the
+       expert side, warm sand for Coach, soft slate for Hands-off. No red. -->
   <g stroke="#FFFFFF" stroke-width="2.5">
     <!-- Automate  (-90 to -18) -->
     <path d="M 260 65 A 195 195 0 0 1 445.45 199.71 L 348.45 232.32 A 92 92 0 0 0 260 168 Z" fill="#E5F0E9"/>
     <!-- Augment   (-18 to  54) -->
-    <path d="M 445.45 199.71 A 195 195 0 0 1 374.61 417.86 L 309.04 339.21 A 92 92 0 0 0 348.45 232.32 Z" fill="#C8DDD0"/>
+    <path d="M 445.45 199.71 A 195 195 0 0 1 374.61 417.86 L 309.04 339.21 A 92 92 0 0 0 348.45 232.32 Z" fill="#BFE0D1"/>
     <!-- Coach     ( 54 to 126) -->
-    <path d="M 374.61 417.86 A 195 195 0 0 1 145.39 417.86 L 210.96 339.21 A 92 92 0 0 0 309.04 339.21 Z" fill="#F4E5C2"/>
+    <path d="M 374.61 417.86 A 195 195 0 0 1 145.39 417.86 L 210.96 339.21 A 92 92 0 0 0 309.04 339.21 Z" fill="#F0E6CE"/>
     <!-- Protect   (126 to 198) -->
-    <path d="M 145.39 417.86 A 195 195 0 0 1 74.55 199.71 L 171.55 232.32 A 92 92 0 0 0 210.96 339.21 Z" fill="#F0CFC4"/>
+    <path d="M 145.39 417.86 A 195 195 0 0 1 74.55 199.71 L 171.55 232.32 A 92 92 0 0 0 210.96 339.21 Z" fill="#D4DFD9"/>
     <!-- Hands-off (198 to 270) -->
-    <path d="M 74.55 199.71 A 195 195 0 0 1 260 65 L 260 168 A 92 92 0 0 0 171.55 232.32 Z" fill="#DCD7E5"/>
+    <path d="M 74.55 199.71 A 195 195 0 0 1 260 65 L 260 168 A 92 92 0 0 0 171.55 232.32 Z" fill="#E0E7EF"/>
   </g>
 
   <!-- Centre hub -->
   <circle cx="260" cy="260" r="92" fill="#FFFFFF" stroke="#2D6A4F" stroke-width="2.5"/>
-  <text x="260" y="252" text-anchor="middle" fill="#2D6A4F" font-size="26" font-weight="700" letter-spacing="0.04em">TAOS</text>
-  <text x="260" y="278" text-anchor="middle" fill="#64748B" font-size="12" font-weight="500">5 modes</text>
+  <text x="260" y="254" text-anchor="middle" fill="#2D6A4F" font-family="Fraunces, Georgia, 'Times New Roman', serif" font-size="30" font-weight="600" letter-spacing="0.005em">TAOS</text>
+  <text x="260" y="279" text-anchor="middle" fill="#64748B" font-size="12" font-weight="500">5 modes</text>
 
-  <!--
-    Sector labels at radius 142 from centre (between hub r=92 and outer r=195).
-    Mid-angles: Automate -54, Augment 18, Coach 90, Protect 162, Hands-off 234.
-    Subtitles split into two tspan lines so no label overflows its sector.
-  -->
+  <!-- Sector labels at radius 142 from centre. -->
   <g text-anchor="middle" fill="#0F172A" font-weight="700">
-    <!-- Automate mid (-54): (260+142*cos(-54), 260+142*sin(-54)) = (343.5, 145.1) -->
     <text x="344" y="138" font-size="17">Automate</text>
     <g font-size="11" font-weight="500" fill="#475569">
-      <text x="344" y="158">
-        <tspan x="344" dy="0">Execute</tspan>
-        <tspan x="344" dy="13">+ annotate</tspan>
-      </text>
+      <text x="344" y="158"><tspan x="344" dy="0">Execute</tspan><tspan x="344" dy="13">+ annotate</tspan></text>
     </g>
 
-    <!-- Augment mid (18): (260+142*cos(18), 260+142*sin(18)) = (395.1, 303.9) -->
     <text x="395" y="280" font-size="17">Augment</text>
     <g font-size="11" font-weight="500" fill="#475569">
-      <text x="395" y="300">
-        <tspan x="395" dy="0">Accelerate</tspan>
-        <tspan x="395" dy="13">+ challenge</tspan>
-      </text>
+      <text x="395" y="300"><tspan x="395" dy="0">Accelerate</tspan><tspan x="395" dy="13">+ challenge</tspan></text>
     </g>
 
-    <!-- Coach mid (90): (260, 402) -->
     <text x="260" y="402" font-size="17">Coach</text>
     <g font-size="11" font-weight="500" fill="#475569">
-      <text x="260" y="422">
-        <tspan x="260" dy="0">Scaffold</tspan>
-        <tspan x="260" dy="13">+ question</tspan>
-      </text>
+      <text x="260" y="422"><tspan x="260" dy="0">Scaffold</tspan><tspan x="260" dy="13">+ question</tspan></text>
     </g>
 
-    <!-- Protect mid (162): (260+142*cos(162), 260+142*sin(162)) = (124.9, 303.9) -->
     <text x="125" y="280" font-size="17">Protect</text>
     <g font-size="11" font-weight="500" fill="#475569">
-      <text x="125" y="300">
-        <tspan x="125" dy="0">Force</tspan>
-        <tspan x="125" dy="13">cognition</tspan>
-      </text>
+      <text x="125" y="300"><tspan x="125" dy="0">Force</tspan><tspan x="125" dy="13">cognition</tspan></text>
     </g>
 
-    <!-- Hands-off mid (234): (260+142*cos(234), 260+142*sin(234)) = (176.5, 145.1) -->
     <text x="176" y="138" font-size="17">Hands-off</text>
     <g font-size="11" font-weight="500" fill="#475569">
-      <text x="176" y="158">
-        <tspan x="176" dy="0">Surface the</tspan>
-        <tspan x="176" dy="13">decision</tspan>
-      </text>
+      <text x="176" y="158"><tspan x="176" dy="0">Surface the</tspan><tspan x="176" dy="13">decision</tspan></text>
     </g>
   </g>
 

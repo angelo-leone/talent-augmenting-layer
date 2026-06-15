@@ -213,17 +213,18 @@ async function completeAssessment() {
         }
 
         const data = await res.json();
+        const dest = (data && data.redirect) || '/dashboard';
         if (status) {
             status.innerHTML = (
                 '<strong>Profile generated! (v' + data.version + ')</strong><br>' +
-                'Redirecting to your dashboard...'
+                'Taking you to your results...'
             );
         }
 
-        // Redirect to dashboard after a short delay
+        // Redirect after a short delay (to /reveal when the trial gate is on)
         setTimeout(() => {
-            window.location.href = '/dashboard';
-        }, 1500);
+            window.location.href = dest;
+        }, 1200);
 
     } catch (err) {
         if (status) status.textContent = 'Network error. Please try again.';

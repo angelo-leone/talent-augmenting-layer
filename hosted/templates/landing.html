@@ -1,435 +1,462 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Talent-Augmenting OS · AI that makes you better at work, not dependent on it</title>
-    <meta name="description" content="A personalised AI augmentation layer. Assess your expertise, get coached on growth areas, keep at-risk skills sharp. Works with Claude, ChatGPT, Gemini, Cursor, Codex, or any LLM.">
-    <link rel="stylesheet" href="/static/style.css?v={{ build_sha }}">
-    <style>
-        .landing-hero { padding: 4rem 1.5rem 3rem; text-align: center; }
-        .landing-hero h1 { font-size: clamp(2rem, 5vw, 3.25rem); margin: 0 0 1rem; line-height: 1.15; }
-        .landing-hero .tagline { font-size: 1.2rem; color: var(--text-muted); max-width: 720px; margin: 0 auto 2rem; line-height: 1.5; }
-        .landing-cta-row { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
-        .landing-cta-row .btn { min-width: 180px; }
-        .landing-section { padding: 3rem 1.5rem; max-width: 1100px; margin: 0 auto; }
-        .landing-section h2 { font-size: 1.75rem; margin: 0 0 0.5rem; }
-        .landing-section .lead { color: var(--text-muted); margin-bottom: 2rem; max-width: 760px; }
-        .pain-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
-        .pain-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius, 0.75rem); padding: 1.5rem; border-left: 3px solid var(--accent); box-shadow: var(--shadow-sm); }
-        .pain-card h3 { margin: 0.5rem 0 0.5rem; font-size: 1.15rem; }
-        .pain-card .pain-icon { width: 36px; height: 36px; padding: 6px; background: var(--accent-soft); color: var(--accent); border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; }
-        .pain-card .pain-icon svg { width: 100%; height: 100%; }
-        .compass-row { display: flex; gap: 2.5rem; align-items: center; flex-wrap: wrap; justify-content: center; }
-        .compass-row .compass-img-wrap { flex: 0 0 auto; max-width: 460px; width: 100%; }
-        .compass-row .compass-img-wrap img { width: 100%; height: auto; display: block; }
-        .compass-row ul { flex: 1; min-width: 280px; max-width: 480px; padding-left: 1.2rem; }
-        .compass-row ul li { margin-bottom: 0.5rem; line-height: 1.55; }
+{% extends "base.html" %}
 
-        /* Two-audience section */
-        .audience-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1.5rem; }
-        .audience-col { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius, 0.75rem); padding: 2rem; display: flex; flex-direction: column; box-shadow: var(--shadow-sm); }
-        .audience-col-worker { border-top: 4px solid var(--accent); }
-        .audience-col-enterprise { border-top: 4px solid #1F2937; }
-        .audience-eyebrow { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem; }
-        .audience-col-worker .audience-eyebrow { color: var(--accent); }
-        .audience-col-enterprise .audience-eyebrow { color: #1F2937; }
-        .audience-icon { width: 44px; height: 44px; padding: 10px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
-        .audience-col-worker .audience-icon { background: var(--accent-soft); color: var(--accent); }
-        .audience-col-enterprise .audience-icon { background: #F1F5F9; color: #1F2937; }
-        .audience-icon svg { width: 100%; height: 100%; }
-        .audience-col h3 { font-size: 1.35rem; margin: 0 0 0.75rem; line-height: 1.3; }
-        .audience-col .audience-sub { color: var(--text-muted); margin-bottom: 1.25rem; line-height: 1.55; font-size: 0.95rem; }
-        .audience-col ul { list-style: none; padding: 0; margin: 0 0 1.5rem; flex: 1; }
-        .audience-col li { padding: 0.4rem 0 0.4rem 1.6rem; position: relative; line-height: 1.5; font-size: 0.95rem; }
-        .audience-col li::before { content: "✓"; position: absolute; left: 0; font-weight: 700; }
-        .audience-col-worker li::before { color: var(--accent); }
-        .audience-col-enterprise li::before { color: #1F2937; }
-        .audience-col .btn { align-self: flex-start; }
-        .enterprise-pillar { padding: 1rem 0; border-top: 1px solid var(--border); }
-        .enterprise-pillar:first-of-type { border-top: none; padding-top: 0; }
-        .enterprise-pillar h4 { font-size: 1.05rem; margin: 0 0 0.5rem; line-height: 1.35; color: var(--text); }
-        .enterprise-pillar p { color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; margin: 0; }
-        .enterprise-pillar p .stat-inline { color: #1F2937; font-weight: 700; }
+{% block title %}Talent-Augmenting OS · AI that makes you better at work, not dependent on it{% endblock %}
 
-        /* Research-backed section */
-        .research-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
-        .research-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm, 0.5rem); padding: 1.5rem; box-shadow: var(--shadow-sm); }
-        .research-card .research-stat { font-size: 2rem; font-weight: 700; color: var(--accent); line-height: 1; letter-spacing: -0.02em; }
-        .research-card h4 { margin: 0.75rem 0 0.25rem; color: var(--text); font-size: 1rem; }
-        .research-card .research-finding { color: var(--text); font-size: 0.95rem; margin: 0.5rem 0; line-height: 1.5; }
-        .research-card .research-cite { color: var(--text-muted); font-size: 0.82rem; margin-top: 0.75rem; }
+{% block body_class %}marketing{% endblock %}
 
-        /* Install tabs */
-        .install-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; flex-wrap: wrap; }
-        .install-tab { background: transparent; border: none; padding: 0.85rem 1.25rem; cursor: pointer; color: var(--text-muted); font-weight: 600; font-size: 0.95rem; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color 0.15s, border-color 0.15s; font-family: inherit; }
-        .install-tab:hover { color: var(--text); }
-        .install-tab.is-active { color: var(--text); border-bottom-color: var(--text); }
-        .install-panel { display: none; }
-        .install-panel.is-active { display: block; }
-        .install-step { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius, 0.75rem); padding: 1.5rem; margin-bottom: 1rem; }
-        .install-step h3 { margin: 0 0 0.5rem; font-size: 1.05rem; }
-        .install-step > p { color: var(--text-muted); margin-bottom: 0.75rem; line-height: 1.5; }
-        .copy-block { background: var(--surface-2); border-radius: 8px; padding: 0.85rem 1rem; display: flex; align-items: flex-start; gap: 0.75rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.88rem; }
-        .copy-block code, .copy-block pre { flex: 1; background: transparent; color: var(--text); margin: 0; padding: 0; white-space: pre-wrap; word-break: break-all; line-height: 1.5; }
-        .copy-btn { background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 0.35rem 0.75rem; font-size: 0.8rem; cursor: pointer; font-weight: 600; flex-shrink: 0; font-family: inherit; }
-        .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
-        .install-note { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.6rem; margin-bottom: 0; }
-        .install-footer { margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-muted); }
-        .install-footer a { color: var(--accent); }
-        .auth-callout { background: var(--accent-soft); border-left: 3px solid var(--accent); padding: 0.85rem 1rem; border-radius: 0.4rem; font-size: 0.9rem; line-height: 1.5; color: var(--text); margin-bottom: 1.25rem; }
-        .auth-callout strong { color: var(--accent); }
+{% block head %}
+<meta name="description" content="A personalised AI augmentation layer for any LLM. It accelerates you where you are strong, coaches you where you are growing, and keeps the skills you care about from quietly atrophying under AI use. Works with Claude, ChatGPT, Gemini, Cursor, Codex.">
+<meta property="og:title" content="Talent-Augmenting OS">
+<meta property="og:description" content="The AI layer that makes you better at your work, not dependent on it.">
+<meta property="og:image" content="https://proworker-hosted.onrender.com/static/gen/og.jpg?v={{ build_sha }}">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+{% endblock %}
 
-        .landing-footer-cta { text-align: center; padding: 3rem 1.5rem; background: var(--surface-2); }
-    </style>
-</head>
-<body>
-    <section class="landing-hero">
-        <h1>AI that makes you better at work, not dependent on it.</h1>
-        <p class="tagline">
-            TAOS is a personalised layer for any LLM. It assesses your expertise, accelerates you where you are already strong, coaches you where you are growing, and protects the skills you care about from quietly atrophying under AI use.
-        </p>
-        <div class="landing-cta-row">
-            <a href="/demo" class="btn btn-primary">Try the 3-minute demo</a>
-            <a href="/login" class="btn btn-secondary">Sign in with Google</a>
+{% block content %}
+
+<!-- ── Nav ─────────────────────────────────────────────────────────────── -->
+{% include "_nav.html" %}
+
+<!-- ── Hero ────────────────────────────────────────────────────────────── -->
+<header class="hero">
+  <div class="hero-bg" aria-hidden="true">
+    <img class="hero-bg-img" src="/static/gen/hero_bg.webp?v={{ build_sha }}" alt="">
+    <video class="hero-bg-video" autoplay muted loop playsinline poster="/static/gen/hero_bg.webp?v={{ build_sha }}">
+      <source src="/static/gen/hero_loop.mp4?v={{ build_sha }}" type="video/mp4">
+    </video>
+  </div>
+  <div class="wrap hero-inner">
+    <div class="hero-copy" data-reveal>
+      <span class="pill"><span class="dot"></span> For people who refuse to get worse at their job</span>
+      <h1>The AI layer that makes you <span class="accent">better at your work</span>, not dependent on it.</h1>
+      <p class="hero-sub">TAOS sits between you and any LLM. It accelerates the work you are already strong at, coaches the work you are growing into, and keeps the skills you care about from quietly atrophying under AI use.</p>
+      <div class="hero-cta">
+        <a href="#install" class="btn btn-primary btn-lg">Install now <span class="arrow">&rarr;</span></a>
+        <a href="/demo" class="btn btn-ghost btn-lg">See the 3-minute demo</a>
+      </div>
+      <p class="hero-note">No credit card. Works in Claude, Claude Code, ChatGPT, Gemini, Cursor &amp; Codex. Source-available, no lock-in.</p>
+    </div>
+
+    <div class="hero-visual" data-reveal data-reveal-delay="120">
+      <div class="glass-card float">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.9rem;">
+          <strong style="font-size:0.92rem;">Your TAOS profile</strong>
+          <span class="badge badge-info">v3 · calibrated</span>
         </div>
-        <p class="text-muted" style="margin-top: 1rem; font-size: 0.9rem;">
-            Source-available. No vendor lock-in. Your profile works across Claude, ChatGPT, Gemini, Cursor, Codex, and any LLM you already pay for.
-        </p>
-    </section>
-
-    <section class="landing-section">
-        <h2>One layer. Two audiences.</h2>
-        <p class="lead">TAOS runs on whichever AI you already use. The same layer delivers a personal benefit to the worker and an organisational benefit to the enterprise that deploys it.</p>
-        <div class="audience-grid">
-
-            <div class="audience-col audience-col-worker">
-                <div class="audience-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
-                        <polyline points="16 7 22 7 22 13"/>
-                    </svg>
-                </div>
-                <div class="audience-eyebrow">For workers</div>
-                <h3>Confidently grow into your role while boosting your productivity.</h3>
-                <p class="audience-sub">TAOS sits between you and the AI you already use. It accelerates the work where you are already strong, and scaffolds the work where you are still learning. You finish more, and you can defend every output.</p>
-                <ul>
-                    <li>Acceleration in your expert domains: AI gets out of your way.</li>
-                    <li>Coaching in your growth domains: AI scaffolds the thinking, you make the calls.</li>
-                    <li>Calibrated confidence: AI tags load-bearing claims so you know what to double-check before you ship.</li>
-                    <li>Your profile follows you across Claude, ChatGPT, Gemini, Cursor, Codex.</li>
-                </ul>
-                <a href="/demo" class="btn btn-primary">Try the 3-minute demo &rarr;</a>
-            </div>
-
-            <div class="audience-col audience-col-enterprise">
-                <div class="audience-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                        <path d="M9 12l2 2 4-4"/>
-                    </svg>
-                </div>
-                <div class="audience-eyebrow">For enterprises</div>
-                <h3>Two risks AI is creating in your workforce. TAOS solves both.</h3>
-
-                <div class="enterprise-pillar">
-                    <h4>1. Grow future leadership. Don't lobotomise your workforce.</h4>
-                    <p>Unguarded AI deskills workers (Bastani et al., PNAS 2025, <span class="stat-inline">17% accuracy drop</span> on a no-AI exam). TAOS surfaces atrophy risks at the team level and coaches skills back, so workforce capability compounds instead of erodes.</p>
-                </div>
-
-                <div class="enterprise-pillar">
-                    <h4>2. Accelerate productivity. No AI slop.</h4>
-                    <p>Workday research (Nov 2025, n=3,200) finds <span class="stat-inline">nearly 40% of AI time savings</span> are lost to rework. TAOS catches AI errors at generation through cognitive forcing and calibrated confidence, recovering the rework tax.</p>
-                </div>
-
-                <a href="/contact" class="btn btn-secondary" style="margin-top: 1rem;">Talk to us &rarr;</a>
-            </div>
-
+        <div class="score-grid" style="margin-bottom:1rem;">
+          <div class="score-card score-card-primary"><div class="score-big">7.4</div><div class="score-label">Readiness</div></div>
+          <div class="score-card"><div class="score-big score-success">Augment</div><div class="score-label">Top mode</div></div>
         </div>
-    </section>
+        <img src="/static/compass.svg?v={{ build_sha }}" alt="The TAOS five-mode compass" style="width:100%; height:auto; display:block;">
+      </div>
+    </div>
+  </div>
 
-    <section class="landing-section">
-        <h2>The three failures TAOS fixes</h2>
-        <p class="lead">Pilot users repeatedly named these three things as the gap between what AI does today and what they need from it.</p>
-        <div class="pain-grid">
-            <div class="pain-card">
-                <span class="pain-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-                        <line x1="9" y1="10" x2="15" y2="14"/>
-                        <line x1="15" y1="10" x2="9" y2="14"/>
-                    </svg>
-                </span>
-                <h3>Hallucination</h3>
-                <p>Current AI confidently invents facts, citations, and APIs. TAOS's epistemic rules force "I don't know" over a fabrication and tag load-bearing claims with a confidence level.</p>
-            </div>
-            <div class="pain-card">
-                <span class="pain-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M20 6L9 17l-5-5"/>
-                        <path d="M20 12L9 23l-5-5" opacity="0.4"/>
-                    </svg>
-                </span>
-                <h3>Sycophancy</h3>
-                <p>Default AI agrees with whatever you say. TAOS explicitly refuses to reflexively agree. If your premise is wrong, it pushes back once with evidence before conceding.</p>
-            </div>
-            <div class="pain-card">
-                <span class="pain-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="22 17 13 8 8 13 1 6"/>
-                        <polyline points="16 17 22 17 22 11"/>
-                    </svg>
-                </span>
-                <h3>De-skilling</h3>
-                <p>Workers lose skills they stop practicing. TAOS detects when a protected skill is being outsourced to AI and switches to coaching before the skill atrophies.</p>
-            </div>
-        </div>
-    </section>
+  <div class="wrap">
+    <div class="stat-band" data-reveal>
+      <div class="stat">
+        <div class="stat-num" data-countup="13" data-prefix="+">+0</div>
+        <div class="stat-label">points higher satisfaction than standard AI</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" data-countup="100" data-suffix="%">0%</div>
+        <div class="stat-label">of users say it improved their understanding of their work</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" data-countup="100" data-suffix="%">0%</div>
+        <div class="stat-label">of users say it helps them grow into their role</div>
+      </div>
+    </div>
+  </div>
+</header>
 
-    <section class="landing-section">
-        <h2>The five modes</h2>
-        <p class="lead">Every task is classified into one of five interaction modes. The right mode depends on your expertise in that domain and your growth goals. Your profile tells the AI which mode to use for which kind of work.</p>
-        <div class="compass-row">
-            <div class="compass-img-wrap">
-                <img src="/static/compass.svg?v={{ build_sha }}" alt="TAOS 5-mode compass: Automate, Augment, Coach, Protect, Hands-off arranged on a friction axis"/>
+<!-- ── How it works ────────────────────────────────────────────────────── -->
+<section class="section" id="how">
+  <div class="wrap">
+    <div class="section-head" data-reveal>
+      <div class="section-eyebrow">How it works</div>
+      <h2 class="section-title">Three steps. Then it just runs in the background.</h2>
+      <p class="section-sub">No new app to live in. TAOS rides along inside the AI you already use.</p>
+    </div>
+    <div class="steps">
+      <div class="step" data-reveal>
+        <img class="step-media" src="/static/gen/motif_accelerate.webp?v={{ build_sha }}" alt="" aria-hidden="true">
+        <div class="step-num">1</div>
+        <h3>Connect it to your AI</h3>
+        <p>One command in Claude Code, or a connector URL in Claude, ChatGPT, Cursor and the rest. One profile, every tool.</p>
+      </div>
+      <div class="step" data-reveal data-reveal-delay="100">
+        <img class="step-media" src="/static/gen/motif_grow.webp?v={{ build_sha }}" alt="" aria-hidden="true">
+        <div class="step-num">2</div>
+        <h3>Tell it about you</h3>
+        <p>A short conversational assessment maps where you are expert, where you are growing, and which skills you want to protect.</p>
+      </div>
+      <div class="step" data-reveal data-reveal-delay="200">
+        <img class="step-media" src="/static/gen/motif_protect.webp?v={{ build_sha }}" alt="" aria-hidden="true">
+        <div class="step-num">3</div>
+        <h3>Get a coach, not an autocomplete</h3>
+        <p>From then on, every task is matched to the right mode: accelerate, coach, protect, or hand the call back to you.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Five modes ──────────────────────────────────────────────────────── -->
+<!-- ── See it work (animated product tour) ──────────────────────────────── -->
+<section class="section" id="tour">
+  <div class="wrap">
+    <div class="section-head" data-reveal>
+      <div class="section-eyebrow">See it work</div>
+      <h2 class="section-title">From a five-minute chat to a sharper you</h2>
+      <p class="section-sub">Tell it about your work, get a profile, then coaching that builds the skill instead of doing it for you.</p>
+    </div>
+
+    <div class="tour" data-tour data-reveal>
+      <div class="tour-device">
+        <div class="tour-bar"><span></span><span></span><span></span></div>
+        <div class="tour-screen">
+
+          <div class="tour-stage is-active" data-stage="0" data-dur="12000">
+            <div class="tour-tag">Assessment</div>
+            <div class="tour-chat">
+              <div class="tour-bubble ai">What do you want to get genuinely better at, not just faster?</div>
+              <div class="tour-bubble user">Writing the client recommendation. I lean on AI for it and it shows.</div>
+              <div class="tour-bubble ai">And where would you want me to move fast and automate?</div>
+              <div class="tour-bubble user">Gathering sources and the routine stuff.</div>
             </div>
-            <ul>
-                <li><strong>Automate</strong>: AI executes and annotates. Low friction, for mechanical work.</li>
-                <li><strong>Augment</strong>: AI accelerates and challenges you in your expert domains.</li>
-                <li><strong>Coach</strong>: AI scaffolds and questions. For skills you are actively developing.</li>
-                <li><strong>Protect</strong>: AI forces cognition to keep at-risk skills sharp.</li>
-                <li><strong>Hands-off</strong>: AI surfaces the decision and lets you make it.</li>
-            </ul>
-        </div>
-    </section>
+          </div>
 
-    <section class="landing-section">
-        <h2>Three independent studies. Same finding.</h2>
-        <p class="lead">AI without guardrails causes deskilling. TAOS is the guardrail layer.</p>
-        <div class="research-grid">
-            <div class="research-card">
-                <div class="research-stat">&minus;17%</div>
-                <h4>Accuracy drop on no-AI exams</h4>
-                <p class="research-finding">RCT of around 1,000 high-school students. Users with unguarded AI scored 17 per cent below the no-AI control on a closed-book exam. AI with guardrails fully neutralised the effect.</p>
-                <p class="research-cite">Bastani et al., <em>PNAS</em>, 2025. Product-category validation for TAOS.</p>
+          <div class="tour-stage" data-stage="1" data-dur="7000">
+            <div class="tour-tag">Your profile</div>
+            <div class="tour-profile">
+              <div class="tour-pf-head">
+                <div class="tour-pf-avatar">MC</div>
+                <div class="tour-pf-id"><b>Maya Chen</b><span>Strategy consultant</span></div>
+                <div class="tour-pf-score"><b>7.4</b><span>Readiness</span></div>
+              </div>
+              <div class="tour-pf-rows">
+                <div class="tour-pf-row"><span class="pf-dom">Recommendations</span><span class="pf-bar"><i style="--w:60%"></i></span><em class="pf-mode m-coach">Coach</em></div>
+                <div class="tour-pf-row"><span class="pf-dom">Data analysis</span><span class="pf-bar"><i style="--w:80%"></i></span><em class="pf-mode m-augment">Augment</em></div>
+                <div class="tour-pf-row"><span class="pf-dom">Sourcing</span><span class="pf-bar"><i style="--w:90%"></i></span><em class="pf-mode m-automate">Automate</em></div>
+                <div class="tour-pf-row"><span class="pf-dom">Facilitation</span><span class="pf-bar"><i style="--w:80%"></i></span><em class="pf-mode m-protect">Protect</em></div>
+              </div>
             </div>
-            <div class="research-card">
-                <div class="research-stat">&minus;19pts</div>
-                <h4>Accuracy outside the capability frontier</h4>
-                <p class="research-finding">RCT of 758 BCG consultants. AI delivered tasks 25 per cent faster, but produced 19 percentage points lower accuracy on tasks outside the model's competence. The "jagged frontier" risk made visible.</p>
-                <p class="research-cite">Dell'Acqua, Mollick et al., Harvard Business School &amp; BCG, 2023.</p>
+          </div>
+
+          <div class="tour-stage" data-stage="2" data-dur="17000">
+            <div class="tour-tag">Coaching, not autocomplete</div>
+            <div class="tour-chat">
+              <div class="tour-bubble user">Draft the client recommendation from my notes.</div>
+              <div class="tour-bubble ai">Lead with your call. In one line, what should they do and why now?</div>
+              <div class="tour-bubble user">Just tell them to go with the cheapest vendor.</div>
+              <div class="tour-bubble ai">You're framing it on cost. But this board is judged on delivery risk, and the cheapest vendor is the least proven. Recommend the reliable one and sell it on value, not price.</div>
+              <div class="tour-bubble user">Actually, you're right. Let's recommend the proven vendor, because reliable delivery protects the timeline and the budget. Can you write up the full list?</div>
+              <div class="tour-bubble ai">Yes, on it. Give me a second.</div>
             </div>
-            <div class="research-card">
-                <div class="research-stat">EEG</div>
-                <h4>Cognitive debt is measurable</h4>
-                <p class="research-finding">EEG study of essay writing. Users who switched off AI showed weaker neural engagement than the no-AI control. "Cognitive debt" from over-reliance is not a metaphor; it is a measurable phenomenon.</p>
-                <p class="research-cite">Kosmyna et al., MIT, 2025.</p>
+          </div>
+
+          <div class="tour-stage" data-stage="3" data-dur="7000">
+            <div class="tour-tag">The result</div>
+            <div class="tour-result">
+              <svg class="tour-chart" viewBox="0 0 300 140" aria-hidden="true">
+                <line class="tour-axis" x1="0" y1="132" x2="300" y2="132"></line>
+                <polyline class="tour-line line-quality" points="0,120 60,104 120,84 180,58 240,38 300,18"></polyline>
+                <polyline class="tour-line line-skill" points="0,128 60,116 120,96 180,76 240,54 300,32"></polyline>
+                <circle class="tour-dot-end dq" cx="300" cy="18" r="4"></circle>
+                <circle class="tour-dot-end ds" cx="300" cy="32" r="4"></circle>
+              </svg>
+              <div class="tour-legend">
+                <span class="lg lg-skill">Skill</span>
+                <span class="lg lg-quality">Output quality</span>
+              </div>
+              <p class="tour-result-note">Your skill and your output quality climb together.</p>
             </div>
-        </div>
-    </section>
-
-    <section class="landing-section">
-        <h2>Install in one or two steps</h2>
-        <p class="lead">Pick the client you already use. All four use the same hosted endpoint with Google OAuth, so your profile follows you wherever you sign in.</p>
-
-        <div class="auth-callout">
-            <strong>Authentication required.</strong> Every connection to the TAOS MCP endpoint goes through Google OAuth. Click "Sign in with Google" the first time your client hits the endpoint.
-        </div>
-
-        <div class="install-tabs" role="tablist">
-            <button class="install-tab is-active" role="tab" data-tab="cowork">Claude Cowork</button>
-            <button class="install-tab" role="tab" data-tab="claude-code">Claude Code</button>
-            <button class="install-tab" role="tab" data-tab="claude-chat">Claude Chat</button>
-            <button class="install-tab" role="tab" data-tab="chatgpt">ChatGPT</button>
-            <button class="install-tab" role="tab" data-tab="gemini">Gemini</button>
-            <button class="install-tab" role="tab" data-tab="codex">Codex</button>
-            <button class="install-tab" role="tab" data-tab="others">Others</button>
-        </div>
-
-        <div class="install-panels">
-
-            <div class="install-panel is-active" data-panel="cowork">
-                <div class="install-step">
-                    <h3>Step 1: Add the TAOS marketplace</h3>
-                    <p>In Cowork, open <strong>Customize</strong>, click the <strong>+</strong> next to <strong>Personal Plugins</strong>, pick <strong>Create plugin &rarr; Add marketplace</strong>, paste this URL, and click <strong>Sync</strong>.</p>
-                    <div class="copy-block">
-                        <code>https://github.com/angelo-leone/talent-augmenting-layer</code>
-                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                    </div>
-                </div>
-                <div class="install-step">
-                    <h3>Step 2: Install the TAOS plugin</h3>
-                    <p>Two plugins appear in the marketplace. Install the one labelled <strong>TAOS</strong> (source <code>./cowork-plugin</code>). Do not install <em>TAOS for Claude Code</em> in Cowork: it expects a SessionStart hook Cowork does not run, so its skills look intentionally shortened.</p>
-                </div>
-                <div class="install-step">
-                    <h3>Step 3: Start your assessment</h3>
-                    <p>The plugin registers the TAOS MCP server for you. The first time a skill calls a tool, Cowork walks you through Google sign-in. Then ask Claude:</p>
-                    <div class="copy-block">
-                        <code>Run my TAOS assessment</code>
-                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                    </div>
-                    <p class="install-note">Each TAOS skill carries the full coaching layer, so invoking one activates TAOS for the whole conversation. No hooks, nothing to paste. See <a href="https://github.com/angelo-leone/talent-augmenting-layer/blob/main/cowork-plugin/INSTALL.md">cowork-plugin/INSTALL.md</a> for detail.</p>
-                </div>
-            </div>
-
-            <div class="install-panel" data-panel="claude-code">
-                <div class="install-step">
-                    <h3>Step 1: Configure</h3>
-                    <p>Run this in your terminal.</p>
-                    <div class="copy-block">
-                        <code>claude mcp add taos --transport http https://proworker-hosted.onrender.com/mcp</code>
-                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                    </div>
-                    <p class="install-note">OAuth opens in your browser on first use. To also get the SessionStart hook (ambient coaching from turn one) and the local-filesystem skills, install the <em>TAOS for Claude Code</em> plugin from the marketplace at the same repo URL.</p>
-                </div>
-            </div>
-
-            <div class="install-panel" data-panel="claude-chat">
-                <div class="install-step">
-                    <h3>Step 1: Open the Connectors panel</h3>
-                    <p>In Claude desktop or claude.ai, go to <strong>Customize &rarr; Connectors</strong>, then click the <strong>+</strong> next to Connectors and pick <strong>Add custom connector</strong>.</p>
-                </div>
-                <div class="install-step">
-                    <h3>Step 2: Paste the TAOS endpoint</h3>
-                    <p>Enter the name <em>TAOS</em> and this URL, then click <strong>Add</strong>. Claude walks you through Google sign-in automatically.</p>
-                    <div class="copy-block">
-                        <code>https://proworker-hosted.onrender.com/mcp</code>
-                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                    </div>
-                </div>
-                <div class="install-step">
-                    <h3>Step 3: Start your assessment</h3>
-                    <p>Once the connector is added, ask Claude:</p>
-                    <div class="copy-block">
-                        <code>Run my TAOS assessment</code>
-                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                    </div>
-                    <p class="install-note">Slash commands like <code>/talent-assess</code> are a Claude Code nicety; in Claude desktop and claude.ai, you ask Claude in plain language and it picks the right TAOS tool.</p>
-                </div>
-            </div>
-
-            <div class="install-panel" data-panel="chatgpt">
-                <div class="install-step">
-                    <h3>Step 1: Turn on Developer mode</h3>
-                    <p>Custom MCP apps in ChatGPT are gated behind a Developer mode toggle. Without it on, you see <em>Apps</em> but no option to add a custom server. Open <strong>profile &rarr; Settings &rarr; Apps &rarr; Advanced</strong>, and toggle <strong>Developer mode</strong> on.</p>
-                    <p class="install-note">Developer mode needs to stay on while you use TAOS. Toggling it off disables custom MCP tool calls, so the TAOS app stops responding. This is a ChatGPT requirement for custom MCP apps, not a TAOS setting.</p>
-                </div>
-                <div class="install-step">
-                    <h3>Step 2: Add the TAOS app</h3>
-                    <p>Back in <strong>Settings &rarr; Apps</strong>, an <strong>Add new app</strong> option now appears. Name the app <em>TAOS</em> and paste this URL:</p>
-                    <div class="copy-block">
-                        <code>https://proworker-hosted.onrender.com/mcp</code>
-                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                    </div>
-                    <p class="install-note">Set <strong>Authentication</strong> to <em>OAuth</em>, tick <em>I understand and want to continue</em>, click <strong>Create</strong>, and complete Google sign-in when prompted.</p>
-                </div>
-                <div class="install-step">
-                    <h3>Step 3: Start your assessment</h3>
-                    <p>Ask ChatGPT:</p>
-                    <div class="copy-block">
-                        <code>Run my TAOS assessment</code>
-                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                    </div>
-                    <p class="install-note">If ChatGPT's UI labels have drifted again, the principle is the same: enable Developer mode in Apps settings, leave it on, add the app, talk to ChatGPT normally. See <a href="https://help.openai.com/en/articles/12584461-developer-mode-apps-and-full-mcp-connectors-in-chatgpt-beta">OpenAI's current guide</a>.</p>
-                </div>
-            </div>
-
-            <div class="install-panel" data-panel="gemini">
-                <div class="install-step">
-                    <h3>Step 1: Build your profile on the web</h3>
-                    <p>Gemini does not support custom MCP connectors yet, so TAOS works in Gemini as a paste-in system prompt rather than a live connection. First, sign in and run the assessment on the hosted web app:</p>
-                    <div class="copy-block">
-                        <code>https://proworker-hosted.onrender.com/assess</code>
-                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                    </div>
-                    <p class="install-note">Takes ~15 minutes. The result is a profile saved to your account.</p>
-                </div>
-                <div class="install-step">
-                    <h3>Step 2: Download the Gemini bundle</h3>
-                    <p>On your dashboard, click <strong>Download &rarr; Gemini</strong>. The file is the TAOS coaching layer plus your personalised profile, in one paste-ready block.</p>
-                    <p class="install-note">When your profile changes, run <strong>Quick update</strong> on the dashboard and re-download the bundle.</p>
-                </div>
-                <div class="install-step">
-                    <h3>Step 3: Paste into Gemini</h3>
-                    <p>Open <a href="https://gemini.google.com/gems/create">Gemini Gem builder</a>, create a new Gem called <em>TAOS Coach</em>, paste the bundle into the system instructions, save. Start a new chat with that Gem and the TAOS coaching layer is active.</p>
-                    <p class="install-note">Works the same in Gemini's standard chat: paste the bundle into the "system instructions" or "context" panel if available. The first turn after pasting may need a "ready?" nudge to get the model to acknowledge the new role.</p>
-                </div>
-            </div>
-
-            <div class="install-panel" data-panel="codex">
-                <div class="install-step">
-                    <h3>Step 1: Add TAOS to your Codex config</h3>
-                    <p>Append this to <code>~/.codex/config.toml</code>. Codex's MCP server format can vary by version, so check <a href="https://developers.openai.com/codex">developers.openai.com/codex</a> if the section header below does not match what your version expects.</p>
-                    <div class="copy-block">
-<pre>[mcp_servers.taos]
-url = "https://proworker-hosted.onrender.com/mcp"</pre>
-                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                    </div>
-                    <p class="install-note">Restart Codex. OAuth opens in your browser on first use.</p>
-                </div>
-            </div>
-
-            <div class="install-panel" data-panel="others">
-                <div class="install-step">
-                    <h3>Cursor, Windsurf, Gemini CLI, anything else MCP-aware</h3>
-                    <p>TAOS is just a remote MCP server. Any client that supports custom MCP connectors over HTTP can connect to this URL:</p>
-                    <div class="copy-block">
-                        <code>https://proworker-hosted.onrender.com/mcp</code>
-                        <button class="copy-btn" onclick="copyText(this)">Copy</button>
-                    </div>
-                    <p class="install-note">The exact configuration step varies by client. See the <a href="https://github.com/angelo-leone/talent-augmenting-layer/blob/main/docs/REMOTE_MCP_SETUP.md">remote MCP docs</a> for Cursor, Windsurf, and Gemini CLI specifics, or check your client's own MCP documentation.</p>
-                </div>
-            </div>
+          </div>
 
         </div>
+      </div>
+      <div class="tour-steps" data-tour-steps>
+        <button type="button" class="tour-dot is-active" data-go="0">Assessment</button>
+        <button type="button" class="tour-dot" data-go="1">Profile</button>
+        <button type="button" class="tour-dot" data-go="2">Coaching</button>
+        <button type="button" class="tour-dot" data-go="3">Result</button>
+      </div>
+    </div>
+  </div>
+</section>
 
-        <p class="install-footer">
-            Want to self-host instead? <a href="https://github.com/angelo-leone/talent-augmenting-layer">Source on GitHub &rarr;</a>
-        </p>
-    </section>
+<!-- ── Five modes ──────────────────────────────────────────────────────── -->
+<section class="section section-tint" id="modes">
+  <div class="wrap">
+    <div class="section-head" data-reveal>
+      <div class="section-eyebrow">The mechanism</div>
+      <h2 class="section-title">Five modes, matched to you</h2>
+      <p class="section-sub">Your profile tells the AI which mode to use for which kind of work, so it gets out of your way when you are expert and slows you down on purpose when the thinking is yours to do.</p>
+    </div>
+    <div class="compass-row" style="display:flex; gap:2.5rem; align-items:center; flex-wrap:wrap; justify-content:center;">
+      <div data-reveal style="flex:0 0 auto; max-width:440px; width:100%;">
+        <img src="/static/compass.svg?v={{ build_sha }}" alt="TAOS five-mode compass: Automate, Augment, Coach, Protect, Hands-off on a friction axis" style="width:100%; height:auto; display:block;">
+      </div>
+      <ul data-reveal style="flex:1; min-width:280px; max-width:460px; list-style:none; padding:0;">
+        <li style="padding:0.55rem 0; border-bottom:1px solid var(--border);"><strong>Automate</strong>: AI executes and annotates. Low friction, mechanical work.</li>
+        <li style="padding:0.55rem 0; border-bottom:1px solid var(--border);"><strong>Augment</strong>: AI accelerates and challenges you in your expert domains.</li>
+        <li style="padding:0.55rem 0; border-bottom:1px solid var(--border);"><strong>Coach</strong>: AI scaffolds and questions. For skills you are actively developing.</li>
+        <li style="padding:0.55rem 0; border-bottom:1px solid var(--border);"><strong>Protect</strong>: AI forces cognition to keep at-risk skills sharp.</li>
+        <li style="padding:0.55rem 0;"><strong>Hands-off</strong>: AI surfaces the decision and lets you make the call.</li>
+      </ul>
+    </div>
+  </div>
+</section>
 
-    <section class="landing-footer-cta">
-        <h2>See what a TAOS profile feels like in three minutes.</h2>
-        <p class="text-muted">No sign-up for the demo. Full assessment takes fifteen minutes and needs a Google login.</p>
-        <div class="landing-cta-row" style="margin-top: 1.5rem;">
-            <a href="/demo" class="btn btn-primary">Start the demo</a>
-            <a href="https://github.com/angelo-leone/talent-augmenting-layer" class="btn btn-secondary">View source on GitHub</a>
+<!-- ── Reveal teaser ───────────────────────────────────────────────────── -->
+<section class="section" id="reveal">
+  <div class="wrap">
+    <div class="section-head" data-reveal>
+      <div class="section-eyebrow">Your profile</div>
+      <h2 class="section-title">See exactly where AI should push you, and where it shouldn't</h2>
+      <p class="section-sub">The assessment takes about five minutes. At the end you get a personalised map of your strengths, growth areas, and at-risk skills.</p>
+    </div>
+    <div class="reveal-preview" data-reveal>
+      <div class="locked" aria-hidden="true">
+        <div style="padding:1.5rem; background:var(--surface);">
+          <div class="score-grid">
+            <div class="score-card score-card-primary"><div class="score-big">7.4</div><div class="score-label">Readiness Index</div></div>
+            <div class="score-card"><div class="score-big score-warning">3.1</div><div class="score-label">Dependency risk</div></div>
+            <div class="score-card"><div class="score-big score-success">7.8</div><div class="score-label">Growth potential</div></div>
+            <div class="score-card"><div class="score-big">4/5</div><div class="score-label">AI literacy</div></div>
+          </div>
+          <img src="/static/compass.svg?v={{ build_sha }}" alt="" style="width:320px; max-width:100%; display:block; margin:1rem auto 0;">
         </div>
-    </section>
-
-    <footer class="footer">
-        <div class="footer-container">
-            <p>Talent-Augmenting OS v1.0 &middot; Making workers better, not dependent.</p>
-            <p class="text-muted">BUSL 1.1 &middot; <a href="/contact">Send feedback</a></p>
+      </div>
+      <div class="reveal-lock">
+        <div class="lock-inner">
+          <div class="pill" style="margin-bottom:0.7rem;"><span class="dot"></span> Unlocks after your assessment</div>
+          <h3 style="font-family:var(--font-display); font-size:1.4rem; margin-bottom:0.4rem;">Your full profile, scores &amp; coaching</h3>
+          <p class="text-muted" style="margin-bottom:1.1rem;">Start a 30-day free trial. No credit card.</p>
+          <a href="/login" class="btn btn-primary btn-lg">Build my profile <span class="arrow">&rarr;</span></a>
         </div>
-    </footer>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <script>
-    // Install tabs
-    document.querySelectorAll('.install-tab').forEach(function (tab) {
-        tab.addEventListener('click', function () {
-            var target = tab.getAttribute('data-tab');
-            document.querySelectorAll('.install-tab').forEach(function (t) { t.classList.remove('is-active'); });
-            document.querySelectorAll('.install-panel').forEach(function (p) { p.classList.remove('is-active'); });
-            tab.classList.add('is-active');
-            var panel = document.querySelector('[data-panel="' + target + '"]');
-            if (panel) panel.classList.add('is-active');
-        });
-    });
+<!-- ── Why guardrails (problem + research) ─────────────────────────────── -->
+<section class="section section-tint" id="why">
+  <div class="wrap">
+    <div class="section-head" data-reveal>
+      <div class="section-eyebrow">Why this exists</div>
+      <h2 class="section-title">Unguarded AI makes you faster today and worse over time</h2>
+      <p class="section-sub">Three independent studies, one finding: AI without guardrails causes deskilling. TAOS is the guardrail layer.</p>
+    </div>
+    <div class="research-grid" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1rem;">
+      <div class="step" data-reveal>
+        <div class="stat-num" style="font-size:2rem;">&minus;17%</div>
+        <h3 style="margin-top:0.5rem;">Accuracy drop on no-AI exams</h3>
+        <p>RCT of ~1,000 students. Unguarded AI users scored 17% below the no-AI control on a closed-book exam. Guardrails fully neutralised it.</p>
+        <p class="text-muted text-small" style="margin-top:0.6rem;">Bastani et al., <em>PNAS</em>, 2025.</p>
+      </div>
+      <div class="step" data-reveal data-reveal-delay="100">
+        <div class="stat-num" style="font-size:2rem;">&minus;19pts</div>
+        <h3 style="margin-top:0.5rem;">Accuracy outside the frontier</h3>
+        <p>RCT of 758 BCG consultants. AI was 25% faster, but 19 points less accurate on tasks outside the model's competence.</p>
+        <p class="text-muted text-small" style="margin-top:0.6rem;">Dell'Acqua, Mollick et al., HBS &amp; BCG, 2023.</p>
+      </div>
+      <div class="step" data-reveal data-reveal-delay="200">
+        <div class="stat-num" style="font-size:2rem;">EEG</div>
+        <h3 style="margin-top:0.5rem;">Cognitive debt is measurable</h3>
+        <p>EEG essay study. Users who later switched off AI showed weaker neural engagement than the no-AI control. Over-reliance leaves a trace.</p>
+        <p class="text-muted text-small" style="margin-top:0.6rem;">Kosmyna et al., MIT, 2025.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-    // Copy buttons
-    function copyText(btn) {
-        var block = btn.closest('.copy-block');
-        if (!block) return;
-        var src = block.querySelector('code, pre');
-        if (!src) return;
-        var text = src.textContent.trim();
-        navigator.clipboard.writeText(text).then(function () {
-            var orig = btn.textContent;
-            btn.textContent = 'Copied';
-            setTimeout(function () { btn.textContent = orig; }, 1500);
-        });
-    }
-    </script>
-</body>
-</html>
+<!-- ── Two audiences ───────────────────────────────────────────────────── -->
+<section class="section" id="audiences">
+  <div class="wrap">
+    <div class="section-head" data-reveal>
+      <h2 class="section-title">A personal upgrade. An organisational safeguard.</h2>
+    </div>
+    <div class="audiences">
+      <div class="aud-card" data-reveal>
+        <div class="section-eyebrow">For workers</div>
+        <h3>Grow into your role while you ship more.</h3>
+        <div class="aud-feat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Acceleration in your expert domains: AI gets out of your way.</div>
+        <div class="aud-feat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Coaching in growth domains: AI scaffolds, you make the calls.</div>
+        <div class="aud-feat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Calibrated confidence: load-bearing claims get tagged so you know what to check.</div>
+        <div class="aud-feat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Your profile follows you across every LLM.</div>
+        <a href="/demo" class="btn btn-primary" style="margin-top:1.2rem; align-self:flex-start;">Try the demo &rarr;</a>
+      </div>
+      <div class="aud-card is-enterprise" data-reveal data-reveal-delay="100">
+        <div class="section-eyebrow" style="color:#fff;">For enterprises</div>
+        <h3>Two AI risks in your workforce. TAOS was created to solve both.</h3>
+        <div class="aud-feat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span><strong style="color:#fff;">Don't lobotomise your workforce.</strong> Surface skill-atrophy risk at the team level and coach it back, so capability compounds instead of erodes.</span></div>
+        <div class="aud-feat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span><strong style="color:#fff;">No AI slop.</strong> Cognitive forcing and calibrated confidence catch AI errors at generation, recovering the rework tax (Workday, Nov 2025: ~40% of AI time savings lost to rework).</span></div>
+        <div class="aud-feat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span>Aggregate-only dashboards, SSO, self-host, and EU residency options.</span></div>
+        <a href="/contact" class="btn" style="margin-top:1.2rem; align-self:flex-start; background:#fff; color:var(--accent-deep);">Talk to us &rarr;</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Install ─────────────────────────────────────────────────────────── -->
+<section class="section section-tint" id="install">
+  <div class="wrap">
+    <div class="section-head" data-reveal>
+      <div class="section-eyebrow">Get started</div>
+      <h2 class="section-title">Install in your tool</h2>
+      <p class="section-sub">Same hosted endpoint, Google sign-in, one portable profile. Pick the client you already use.</p>
+    </div>
+
+    <div class="tabs" data-tabs data-reveal>
+      <div class="tab-btns">
+        <button class="tab-btn" data-tab="cc">Claude Code</button>
+        <button class="tab-btn" data-tab="cowork">Claude (Cowork)</button>
+        <button class="tab-btn" data-tab="chat">Claude Chat</button>
+        <button class="tab-btn" data-tab="gpt">ChatGPT</button>
+        <button class="tab-btn" data-tab="gem">Gemini</button>
+        <button class="tab-btn" data-tab="other">Cursor &amp; others</button>
+      </div>
+
+      <div class="tab-panel" data-panel="cc">
+        <p class="text-muted" style="margin-bottom:0.8rem;">One command in your terminal. OAuth opens in your browser on first use.</p>
+        <div class="code-line">
+          <code>claude mcp add taos --transport http https://proworker-hosted.onrender.com/mcp</code>
+          <button class="copy-btn" data-copy="claude mcp add taos --transport http https://proworker-hosted.onrender.com/mcp">Copy</button>
+        </div>
+        <p class="text-muted text-small" style="margin-top:0.7rem;">For ambient coaching from turn one (a SessionStart hook) plus local-filesystem skills, install the <em>TAOS for Claude Code</em> plugin from the GitHub marketplace.</p>
+        <p style="margin-top:0.8rem;">Then ask Claude: <code>Run my TAOS assessment</code></p>
+      </div>
+
+      <div class="tab-panel" data-panel="cowork">
+        <ol class="tab-steps">
+          <li>In Cowork, open <strong>Customize → +</strong> next to Personal Plugins → <strong>Create plugin → Add marketplace</strong>, paste the repo URL, and <strong>Sync</strong>.</li>
+          <li>Install the plugin labelled <strong>TAOS</strong> (source <code>./cowork-plugin</code>).</li>
+          <li>Ask Claude <code>Run my TAOS assessment</code>. Google sign-in is walked through on the first tool call.</li>
+        </ol>
+        <div class="code-line" style="margin-top:0.8rem;">
+          <code>https://github.com/angelo-leone/talent-augmenting-layer</code>
+          <button class="copy-btn" data-copy="https://github.com/angelo-leone/talent-augmenting-layer">Copy</button>
+        </div>
+      </div>
+
+      <div class="tab-panel" data-panel="chat">
+        <ol class="tab-steps">
+          <li>Claude desktop or claude.ai → <strong>Customize → Connectors → + → Add custom connector</strong>.</li>
+          <li>Name it <em>TAOS</em>, paste the endpoint, click <strong>Add</strong>. Google sign-in runs automatically.</li>
+          <li>Ask Claude <code>Run my TAOS assessment</code>.</li>
+        </ol>
+        <div class="code-line" style="margin-top:0.8rem;">
+          <code>https://proworker-hosted.onrender.com/mcp</code>
+          <button class="copy-btn" data-copy="https://proworker-hosted.onrender.com/mcp">Copy</button>
+        </div>
+      </div>
+
+      <div class="tab-panel" data-panel="gpt">
+        <ol class="tab-steps">
+          <li>Turn on <strong>Settings → Apps → Advanced → Developer mode</strong> (and leave it on; custom MCP apps need it).</li>
+          <li><strong>Settings → Apps → Add new app</strong>, name it <em>TAOS</em>, paste the endpoint, set Authentication to <em>OAuth</em>, and finish Google sign-in.</li>
+          <li>Ask ChatGPT <code>Run my TAOS assessment</code>.</li>
+        </ol>
+        <div class="code-line" style="margin-top:0.8rem;">
+          <code>https://proworker-hosted.onrender.com/mcp</code>
+          <button class="copy-btn" data-copy="https://proworker-hosted.onrender.com/mcp">Copy</button>
+        </div>
+      </div>
+
+      <div class="tab-panel" data-panel="gem">
+        <p class="text-muted" style="margin-bottom:0.8rem;">Gemini does not support custom MCP connectors yet, so TAOS works as a paste-in Gem. Build your profile on the web first:</p>
+        <div class="code-line">
+          <code>https://proworker-hosted.onrender.com/assess</code>
+          <button class="copy-btn" data-copy="https://proworker-hosted.onrender.com/assess">Copy</button>
+        </div>
+        <ol class="tab-steps" style="margin-top:0.7rem;">
+          <li>On your dashboard, click <strong>Download → Gemini</strong>.</li>
+          <li>Paste the bundle into a new <a href="https://gemini.google.com/gems/create">Gemini Gem</a> called <em>TAOS Coach</em>.</li>
+        </ol>
+      </div>
+
+      <div class="tab-panel" data-panel="other">
+        <p class="text-muted" style="margin-bottom:0.8rem;">Any MCP-aware client (Cursor, Windsurf, Codex, Gemini CLI) can connect over HTTP with OAuth:</p>
+        <div class="code-line">
+          <code>https://proworker-hosted.onrender.com/mcp</code>
+          <button class="copy-btn" data-copy="https://proworker-hosted.onrender.com/mcp">Copy</button>
+        </div>
+        <p class="text-muted text-small" style="margin-top:0.7rem;">See the <a href="https://github.com/angelo-leone/talent-augmenting-layer/blob/main/docs/REMOTE_MCP_SETUP.md">remote MCP docs</a> for per-client specifics.</p>
+      </div>
+    </div>
+
+    <p style="text-align:center; margin-top:1.5rem;" class="text-muted">Prefer to self-host? <a href="https://github.com/angelo-leone/talent-augmenting-layer">Source on GitHub &rarr;</a></p>
+  </div>
+</section>
+
+<!-- ── Testimonials ────────────────────────────────────────────────────── -->
+<section class="section" id="voices">
+  <div class="wrap">
+    <div class="section-head" data-reveal>
+      <div class="section-eyebrow">In their words</div>
+      <h2 class="section-title">What early users said</h2>
+      <p class="section-sub">Real, unedited feedback from people using TAOS. Brand name shown in brackets.</p>
+    </div>
+    <div class="carousel" data-carousel data-reveal>
+      <div class="carousel-track" data-carousel-track>
+        <div class="carousel-slide"><div class="quote">
+          <p class="quote-text">"It works as a thinking partner. It draws out my ideas rather than replacing them. The tone feels peer-level... because it's private, I think out loud without filtering myself, which is genuinely useful for complex work."</p>
+          <p class="quote-meta">Early user</p>
+        </div></div>
+        <div class="carousel-slide"><div class="quote">
+          <p class="quote-text">"[TAOS] challenges your thinking and your opinions much more directly than baseline chatbots like ChatGPT/Gemini, which is good for growing ideas in a productive way."</p>
+          <p class="quote-meta">Early user</p>
+        </div></div>
+        <div class="carousel-slide"><div class="quote">
+          <p class="quote-text">"I'm mainly a qualitative researcher, but using [TAOS] I've been able to use API data and analyse it for research... this has lowered my dependency on quant colleagues for small research tasks."</p>
+          <p class="quote-meta">Qualitative researcher</p>
+        </div></div>
+        <div class="carousel-slide"><div class="quote">
+          <p class="quote-text">"I've been enjoying the pushback, not giving me the answer easily... I like that it says when it thinks it's a bad idea, gives its rationale, then hints where to go next and asks you to unpack it."</p>
+          <p class="quote-meta">Early user</p>
+        </div></div>
+      </div>
+      <div class="carousel-dots" data-carousel-dots></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FAQ ─────────────────────────────────────────────────────────────── -->
+<section class="section section-tint" id="faq">
+  <div class="wrap">
+    <div class="section-head" data-reveal>
+      <div class="section-eyebrow">FAQ</div>
+      <h2 class="section-title">Common questions</h2>
+    </div>
+    <div class="faq" data-reveal>
+      <details class="faq-item"><summary>Does it work with the AI I already pay for?</summary>
+        <p>Yes. Claude, Claude Code, ChatGPT, Gemini, Cursor, Codex, and any MCP-aware client. One profile follows you across all of them, so you are not locked into a single vendor.</p></details>
+      <details class="faq-item"><summary>Is it free?</summary>
+        <p>The 3-minute demo needs no sign-up. The full profile, dashboard and coaching come with a 30-day free trial, no credit card. After that it is a flat monthly price, billed only if you choose to continue.</p></details>
+      <details class="faq-item"><summary>Will the coaching slow me down?</summary>
+        <p>A little, on purpose, and only where it matters. The added time is small, and far less than people say they would accept in exchange for getting better at the work. When you just need speed, switch to ship mode for that task.</p></details>
+      <details class="faq-item"><summary>What happens to my data?</summary>
+        <p>Your profile and lightweight usage signals are stored so coaching can adapt. You can export or permanently delete everything at any time. Source-available, GDPR-ready, with a self-host option. See the <a href="https://github.com/angelo-leone/talent-augmenting-layer/blob/main/PRIVACY_POLICY.md">privacy policy</a>.</p></details>
+      <details class="faq-item"><summary>Can my company deploy it?</summary>
+        <p>Yes. Enterprise gets aggregate-only dashboards (no individual surveillance), SSO, audit logging, self-hosting and EU residency options. <a href="/contact">Talk to us.</a></p></details>
+    </div>
+  </div>
+</section>
+
+<!-- ── Final CTA ───────────────────────────────────────────────────────── -->
+<section class="section">
+  <div class="wrap">
+    <div class="cta-band" data-reveal>
+      <h2>Get better at your job. Starting now.</h2>
+      <p>Install the connector in a couple of minutes and feel the difference on your next real task.</p>
+      <div class="hero-cta" style="justify-content:center;">
+        <a href="#install" class="btn btn-primary btn-lg">Install now <span class="arrow">&rarr;</span></a>
+        <a href="/demo" class="btn btn-ghost btn-lg" style="color:#fff; border-color:rgba(255,255,255,0.4);">Try the demo first</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

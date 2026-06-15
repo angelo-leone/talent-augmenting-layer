@@ -169,6 +169,10 @@ class User(Base):
     plan_tier = Column(Enum(PlanTier), nullable=False, default=PlanTier.free)
     subscription_status = Column(String(32), nullable=True)  # active, trialing, past_due, canceled, ...
 
+    # ── Free-trial funnel (reveal → 30-day trial; gated by ENABLE_TRIAL_GATE) ──
+    trial_started_at = Column(DateTime, nullable=True)
+    trial_status = Column(String(32), nullable=True)  # None / active / converted / expired / cancelled
+
     profiles = relationship("Profile", back_populates="user", order_by="Profile.version.desc()")
     sessions = relationship("AssessmentSession", back_populates="user", order_by="AssessmentSession.created_at.desc()")
     reminders = relationship("CheckinReminder", back_populates="user", order_by="CheckinReminder.sent_at.desc()")
@@ -485,6 +489,8 @@ async def create_tables() -> None:
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_customer_id VARCHAR(255)",
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS plan_tier VARCHAR(32) DEFAULT 'free'",
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_status VARCHAR(32)",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS trial_started_at TIMESTAMP",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS trial_status VARCHAR(32)",
         ]
         for stmt in migrations:
             try:

@@ -20,7 +20,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import select, func, text
 from starlette.middleware.sessions import SessionMiddleware
 
-from hosted.config import SECRET_KEY, APP_URL, BASE_DIR, ENABLE_BILLING
+from hosted.config import SECRET_KEY, APP_URL, BASE_DIR, ENABLE_BILLING, ENABLE_TRIAL_GATE, TRIAL_DAYS
 from hosted.database import (
     create_tables,
     get_db,
@@ -159,9 +159,35 @@ def _compute_build_sha() -> str:
     return "dev"
 
 
-_BUILD_SHA = _compute_build_sha()
+def _static_mtime() -> int:
+    """Largest mtime across static assets, so the cache-bust token changes
+    whenever any static file changes (live in dev, per-deploy in prod)."""
+    latest = 0.0
+    try:
+        for p in (BASE_DIR / "static").rglob("*"):
+            if p.is_file():
+                m = p.stat().st_mtime
+                if m > latest:
+                    latest = m
+    except Exception:
+        pass
+    return int(latest)
+
+
+class _BuildSha:
+    """Stringifies to '<sha>-<static-mtime>' at render time: stable caching
+    within a deploy, automatic busting whenever a static asset changes."""
+
+    def __init__(self, sha: str) -> None:
+        self._sha = sha
+
+    def __str__(self) -> str:
+        return f"{self._sha}-{_static_mtime()}"
+
+
+_BUILD_SHA = _BuildSha(_compute_build_sha())
 templates.env.globals["build_sha"] = _BUILD_SHA
-logger.info("templates: build_sha=%s", _BUILD_SHA)
+logger.info("templates: build_sha base=%s", _compute_build_sha())
 
 # OAuth
 setup_oauth(app)
@@ -249,6 +275,29 @@ async def landing(request: Request):
     if user:
         return RedirectResponse(url="/dashboard", status_code=302)
     return templates.TemplateResponse(name="landing.html", request=request)
+
+
+@app.get("/llms.txt", response_class=PlainTextResponse)
+async def llms_txt():
+    """Machine-readable guide so AI agents (Claude Code, MCP-aware clients) can
+    discover and install the TAOS MCP server without parsing the marketing page."""
+    return (
+        "# Talent-Augmenting OS (TAOS)\n\n"
+        "A personalised AI coaching layer for any LLM. It assesses a user's expertise, "
+        "accelerates expert work, coaches growth areas, and keeps at-risk skills sharp.\n\n"
+        "## Install the MCP server\n\n"
+        "Claude Code (one command):\n"
+        "  claude mcp add taos --transport http https://proworker-hosted.onrender.com/mcp\n\n"
+        "Any other MCP client (Claude, ChatGPT, Cursor, Windsurf, Codex): add a custom\n"
+        "connector / MCP server pointing at:\n"
+        "  https://proworker-hosted.onrender.com/mcp\n"
+        "Authentication: Google OAuth, handled by the client on first connect.\n\n"
+        "## After installing\n\n"
+        "Ask the assistant: \"Run my TAOS assessment\".\n"
+        "Or build a profile on the web: https://proworker-hosted.onrender.com/assess\n\n"
+        "## Source and docs\n\n"
+        "  https://github.com/angelo-leone/talent-augmenting-layer\n"
+    )
 
 
 @app.get("/demo", response_class=HTMLResponse)
@@ -445,14 +494,14 @@ async def api_contact(request: Request):
 
 @app.get("/pricing", response_class=HTMLResponse)
 async def pricing(request: Request):
-    """Pricing page. 404 unless ENABLE_BILLING is on; the pilot stays free."""
-    if not ENABLE_BILLING:
-        raise HTTPException(status_code=404, detail="Billing is disabled in this deployment.")
+    """Public pricing page. Renders regardless of ENABLE_BILLING (it is
+    marketing); the live checkout button only appears when billing is on,
+    otherwise the CTA starts the free trial."""
     user = get_current_user(request)
     return templates.TemplateResponse(
         name="pricing.html",
         request=request,
-        context={"user": user},
+        context={"user": user, "enable_billing": ENABLE_BILLING},
     )
 
 
@@ -885,12 +934,17 @@ async def assess_complete(request: Request):
 
         await db.commit()
 
+        # When the trial gate is on, route to the reveal teaser; otherwise the
+        # existing behaviour (straight to the dashboard) is preserved.
+        redirect_to = "/reveal" if ENABLE_TRIAL_GATE else "/dashboard"
+
         return JSONResponse({
             "profile_id": profile.id,
             "version": new_version,
             "scores": scores,
             "calibration": calibration,
             "profile_md": profile_md,
+            "redirect": redirect_to,
         })
 
 
@@ -931,6 +985,25 @@ async def dashboard(request: Request):
             except (json.JSONDecodeError, TypeError):
                 scores_data = {}
 
+        # Trial state (drives the reveal gate + the countdown banner)
+        urow = (await db.execute(select(User).where(User.id == user["id"]))).scalar_one_or_none()
+
+    trial_status = getattr(urow, "trial_status", None) if urow else None
+    trial_started_at = getattr(urow, "trial_started_at", None) if urow else None
+
+    # Reveal gate: when enabled, a user who has a profile but has not yet
+    # started their (free, no-card) trial is routed through /reveal first.
+    # The flag is off by default, so the pilot path is unchanged. Existing
+    # accounts get a one-time backfill to 'converted' when the flag is flipped
+    # (see LAUNCH notes), so they are never bounced to the reveal.
+    if ENABLE_TRIAL_GATE and profile is not None and trial_status not in ("active", "converted"):
+        return RedirectResponse(url="/reveal", status_code=302)
+
+    trial_days_left = None
+    if trial_status == "active" and trial_started_at:
+        elapsed = (datetime.datetime.utcnow() - trial_started_at).days
+        trial_days_left = max(0, TRIAL_DAYS - elapsed)
+
     return templates.TemplateResponse(name="dashboard.html", request=request, context={
         "user": user,
         "profile": profile,
@@ -938,7 +1011,69 @@ async def dashboard(request: Request):
         "calibration": scores_data.get("calibration", {}),
         "domain_ratings": scores_data.get("domain_ratings", {}),
         "versions": versions,
+        "trial_status": trial_status,
+        "trial_days_left": trial_days_left,
     })
+
+
+# ---------------------------------------------------------------------------
+# Reveal → free-trial funnel
+# ---------------------------------------------------------------------------
+
+@app.get("/reveal", response_class=HTMLResponse)
+async def reveal(request: Request):
+    """Post-assessment teaser: show the headline score, lock the rest behind a
+    one-click free trial (no card). Only meaningful when ENABLE_TRIAL_GATE is
+    on; with it off (the default) anyone landing here goes to the dashboard."""
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=302)
+
+    async with async_session_factory() as db:
+        stmt = (
+            select(Profile)
+            .where(Profile.user_id == user["id"])
+            .order_by(Profile.version.desc())
+            .limit(1)
+        )
+        profile = (await db.execute(stmt)).scalar_one_or_none()
+        urow = (await db.execute(select(User).where(User.id == user["id"]))).scalar_one_or_none()
+
+    if not profile:
+        return RedirectResponse(url="/assess", status_code=302)
+
+    trial_status = getattr(urow, "trial_status", None) if urow else None
+    if not ENABLE_TRIAL_GATE or trial_status in ("active", "converted"):
+        return RedirectResponse(url="/dashboard", status_code=302)
+
+    scores_data = {}
+    try:
+        scores_data = json.loads(profile.scores_json)
+    except (json.JSONDecodeError, TypeError):
+        scores_data = {}
+
+    return templates.TemplateResponse(name="reveal.html", request=request, context={
+        "user": user,
+        "scores": scores_data.get("scores", {}),
+        "domains_count": len(scores_data.get("domain_ratings", {})),
+        "version": profile.version,
+        "trial_days": TRIAL_DAYS,
+    })
+
+
+@app.post("/api/trial/start")
+async def trial_start(request: Request):
+    """Begin a free trial for the current user. No payment, idempotent."""
+    user = require_auth(request)
+    async with async_session_factory() as db:
+        urow = (await db.execute(select(User).where(User.id == user["id"]))).scalar_one_or_none()
+        if not urow:
+            raise HTTPException(status_code=404, detail="User not found")
+        if getattr(urow, "trial_status", None) not in ("active", "converted"):
+            urow.trial_started_at = datetime.datetime.utcnow()
+            urow.trial_status = "active"
+            await db.commit()
+    return JSONResponse({"ok": True, "redirect": "/dashboard"})
 
 
 # ---------------------------------------------------------------------------

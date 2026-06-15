@@ -7,6 +7,12 @@
 {% endblock %}
 
 {% block content %}
+{% if trial_status == 'active' and trial_days_left is not none %}
+<div class="trial-banner">
+    <span>Free coach trial &middot; <strong>{{ trial_days_left }} day{{ '' if trial_days_left == 1 else 's' }} left</strong>. Your profile and coaching stay active until then.</span>
+    <a href="/pricing" class="btn btn-primary" style="padding: 0.4rem 0.9rem; font-size: 0.85rem;">Keep it after the trial</a>
+</div>
+{% endif %}
 <div class="dashboard">
     {% if not profile %}
     <div class="empty-state">

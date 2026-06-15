@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Your profile is ready · Talent-Augmenting OS{% endblock %}
+
+{% block body_class %}marketing{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="wrap" style="max-width: 820px;">
+
+    <div class="section-head" data-reveal>
+      <span class="pill" style="margin: 0 auto;"><span class="dot"></span> Assessment complete</span>
+      <h1 class="section-title" style="margin-top: 0.8rem;">{{ user.name.split(' ')[0] }}, your profile is ready.</h1>
+      <p class="section-sub">Here's the top line. Unlock the full breakdown and your personalised coaching with a {{ trial_days }}-day free trial. No credit card.</p>
+    </div>
+
+    {% if scores.get("pwri") %}
+    <div class="score-grid" style="max-width: 340px; margin: 0 auto 1.5rem;">
+      <div class="score-card score-card-primary">
+        <div class="score-big">{{ scores.pwri.score }}</div>
+        <div class="score-label">Your Readiness Index</div>
+        <div class="score-sublabel">{{ scores.pwri.label }}</div>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="reveal-preview" data-reveal>
+      <div class="locked" aria-hidden="true">
+        <div style="padding: 1.5rem; background: var(--surface);">
+          <div class="score-grid">
+            {% if scores.get("adr") %}
+            <div class="score-card"><div class="score-big score-warning">{{ scores.adr.score }}</div><div class="score-label">Dependency risk</div></div>
+            {% endif %}
+            {% if scores.get("gp") %}
+            <div class="score-card"><div class="score-big score-success">{{ scores.gp.score }}</div><div class="score-label">Growth potential</div></div>
+            {% endif %}
+            {% if scores.get("ali") %}
+            <div class="score-card"><div class="score-big">{{ scores.ali.score }}</div><div class="score-label">AI literacy</div></div>
+            {% endif %}
+            <div class="score-card"><div class="score-big">{{ domains_count }}</div><div class="score-label">Mapped domains</div></div>
+          </div>
+          <img src="/static/compass.svg?v={{ build_sha }}" alt="" style="width: 300px; max-width: 100%; display: block; margin: 1.2rem auto 0;">
+        </div>
+      </div>
+      <div class="reveal-lock">
+        <div class="lock-inner">
+          <h3 style="font-family: var(--font-display); font-size: 1.5rem; margin-bottom: 0.3rem;">Unlock your full profile</h3>
+          <p class="text-muted" style="margin-bottom: 1.1rem;">Every score, your skill compass, task triage, exports, and live coaching across any LLM.</p>
+          <button id="start-trial" class="btn btn-primary btn-lg" type="button">Start my {{ trial_days }}-day free trial <span class="arrow">&rarr;</span></button>
+          <p class="text-muted text-small" style="margin-top: 0.8rem;">No credit card. Cancel anytime in one click.</p>
+          <p id="trial-error" class="text-small" style="color: var(--danger); margin-top: 0.6rem; display: none;"></p>
+        </div>
+      </div>
+    </div>
+
+    <p class="text-muted text-small" style="text-align: center; margin-top: 1.5rem;">
+      Not now? Your profile is saved. <a href="/logout">Sign out</a> and pick up later.
+    </p>
+
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  var btn = document.getElementById('start-trial');
+  if (!btn) return;
+  btn.addEventListener('click', async function () {
+    btn.disabled = true;
+    btn.textContent = 'Unlocking...';
+    try {
+      var res = await fetch('/api/trial/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: '{}'
+      });
+      if (res.ok) {
+        var d = await res.json();
+        window.location.href = (d && d.redirect) || '/dashboard';
+        return;
+      }
+      throw new Error('bad status');
+    } catch (e) {
+      var err = document.getElementById('trial-error');
+      err.style.display = 'block';
+      err.textContent = 'Something went wrong. Please try again.';
+      btn.disabled = false;
+      btn.innerHTML = 'Start my {{ trial_days }}-day free trial <span class="arrow">&rarr;</span>';
+    }
+  });
+})();
+</script>
+{% endblock %}

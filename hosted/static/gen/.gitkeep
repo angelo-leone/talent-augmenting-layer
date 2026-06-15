@@ -1,0 +1,9 @@
+Drop generated marketing assets here (PNG images, MP4 video).
+Expected filenames (so the templates can reference them):
+  hero_bg.png        16:9   hero background still / video poster
+  hero_loop.mp4      16:9   subtle hero background loop (muted, ~8s)
+  og.png             16:9   social share card (open centre for text overlay)
+  motif_accelerate.png  1:1
+  motif_grow.png        1:1
+  motif_protect.png     1:1
+These files are committed so Render serves them in production.

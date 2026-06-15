@@ -42,3 +42,13 @@ emails/
 # Local Claude Code slash commands. The public versions live in plugin/skills/.
 .claude/commands/
 
+# Local marketing-asset generator (calls an external image API).
+# The generated PNGs in hosted/static/gen/ ARE committed so Render serves them;
+# only the generator script stays local. It reads the API key from env, never stores it.
+hosted/_gen_assets.py
+
+# Raw explainer-video sources (large, not yet wired into the site).
+hosted/static/gen/rise.png
+hosted/static/gen/Slow_upbeat_abstract_motion.mp4
+hosted/static/gen/Abstract_concentric_rings.mp4
+

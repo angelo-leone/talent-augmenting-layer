@@ -7,7 +7,9 @@
     <link rel="stylesheet" href="/static/style.css?v={{ build_sha }}">
     {% block head %}{% endblock %}
 </head>
-<body>
+<body class="{% block body_class %}{% endblock %}">
+    <div class="grain-overlay" aria-hidden="true"></div>
+    <div class="cursor-glow" aria-hidden="true"></div>
     {% if user %}
     <nav class="navbar">
         <div class="nav-container">
@@ -40,10 +42,11 @@
     <footer class="footer">
         <div class="footer-container">
             <p>Talent-Augmenting OS v1.0 &middot; Making workers better, not dependent.</p>
-            <p class="text-muted">BUSL 1.1 &middot; Based on research by Buçinca, Acemoglu, Mollick</p>
+            <p class="text-muted">BUSL 1.1</p>
         </div>
     </footer>
 
+    <script src="/static/motion.js?v={{ build_sha }}" defer></script>
     {% block scripts %}{% endblock %}
 </body>
 </html>
